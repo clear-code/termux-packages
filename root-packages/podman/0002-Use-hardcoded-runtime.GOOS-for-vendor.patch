@@ -1,0 +1,1428 @@
+From 90065ad6b6c6234d43bfa77494bb94eec5d4ccaf Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Wed, 26 Feb 2025 18:02:26 +0900
+Subject: [PATCH 2/7] Use hardcoded runtime.GOOS for vendor/
+
+TODO: fix vendor/golang.org/x/term
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ .../sonic/loader/internal/abi/abi_legacy_amd64.go         | 8 ++++----
+ .../github.com/containerd/platforms/cpuinfo_other.go      | 4 ++--
+ podman/vendor/github.com/containerd/platforms/database.go | 4 ++--
+ .../github.com/containerd/platforms/defaults_unix.go      | 2 +-
+ .../vendor/github.com/containerd/platforms/platforms.go   | 4 ++--
+ podman/vendor/github.com/containers/buildah/config.go     | 2 +-
+ .../github.com/containers/buildah/imagebuildah/build.go   | 4 ++--
+ podman/vendor/github.com/containers/buildah/info.go       | 2 +-
+ .../github.com/containers/buildah/pkg/cli/common.go       | 4 ++--
+ .../containers/common/libimage/platform/platform.go       | 2 +-
+ .../vendor/github.com/containers/common/libimage/pull.go  | 2 +-
+ .../github.com/containers/common/pkg/config/config.go     | 2 +-
+ .../containers/image/v5/directory/directory_dest.go       | 4 ++--
+ .../containers/image/v5/internal/manifest/oci_index.go    | 2 +-
+ .../image/v5/internal/pkg/platform/platform_matcher.go    | 8 ++++----
+ .../containers/image/v5/internal/tmpdir/tmpdir.go         | 4 ++--
+ .../containers/image/v5/oci/internal/oci_util.go          | 8 ++++----
+ .../github.com/containers/image/v5/oci/layout/oci_dest.go | 4 ++--
+ .../containers/image/v5/pkg/docker/config/config.go       | 6 +++---
+ .../github.com/containers/image/v5/tarball/tarball_src.go | 2 +-
+ .../github.com/containers/ocicrypt/crypto/pkcs11/utils.go | 2 +-
+ .../github.com/containers/storage/drivers/fsdiff.go       | 4 ++--
+ .../github.com/containers/storage/drivers/vfs/driver.go   | 4 ++--
+ .../github.com/containers/storage/pkg/archive/archive.go  | 8 ++++----
+ .../containers/storage/pkg/archive/changes_other.go       | 2 +-
+ .../github.com/containers/storage/pkg/archive/diff.go     | 4 ++--
+ .../github.com/containers/storage/pkg/idtools/idtools.go  | 6 +++---
+ .../github.com/containers/storage/pkg/system/path.go      | 6 +++---
+ .../crc-org/crc/v2/pkg/crc/logging/stderr_hook.go         | 4 ++--
+ .../github.com/docker/docker/pkg/archive/archive.go       | 4 ++--
+ .../github.com/docker/docker/pkg/archive/archive_unix.go  | 4 ++--
+ .../github.com/docker/docker/pkg/archive/changes_other.go | 2 +-
+ .../vendor/github.com/docker/docker/pkg/archive/diff.go   | 4 ++--
+ .../github.com/docker/docker/pkg/homedir/homedir.go       | 4 ++--
+ .../docker/go-connections/tlsconfig/certpool.go           | 4 ++--
+ .../docker/go-plugins-helpers/sdk/tcp_listener.go         | 4 ++--
+ podman/vendor/github.com/ebitengine/purego/func.go        | 8 ++++----
+ .../vendor/github.com/fsnotify/fsnotify/backend_kqueue.go | 4 ++--
+ podman/vendor/github.com/go-openapi/swag/loading.go       | 4 ++--
+ podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go      | 2 +-
+ .../vendor/github.com/klauspost/cpuid/v2/detect_arm64.go  | 2 +-
+ .../github.com/klauspost/cpuid/v2/os_linux_arm64.go       | 2 +-
+ .../linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go       | 4 ++--
+ podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go     | 4 ++--
+ podman/vendor/github.com/nxadm/tail/watch/polling.go      | 4 ++--
+ .../onsi/ginkgo/v2/ginkgo/internal/test_suite.go          | 2 +-
+ .../onsi/ginkgo/v2/reporters/default_reporter.go          | 2 +-
+ podman/vendor/github.com/onsi/gomega/gexec/build.go       | 2 +-
+ .../vendor/github.com/openshift/imagebuilder/builder.go   | 4 ++--
+ .../github.com/openshift/imagebuilder/dispatchers.go      | 8 ++++----
+ .../openshift/imagebuilder/dockerfile/parser/parser.go    | 6 +++---
+ .../vendor/github.com/openshift/imagebuilder/internals.go | 4 ++--
+ podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go    | 4 ++--
+ .../shirou/gopsutil/v4/internal/common/common.go          | 4 ++--
+ .../vendor/github.com/sirupsen/logrus/text_formatter.go   | 2 +-
+ podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go  | 4 ++--
+ .../github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go | 2 +-
+ .../github.com/vbatts/tar-split/archive/tar/stat_unix.go  | 4 ++--
+ podman/vendor/go.etcd.io/bbolt/db.go                      | 6 +++---
+ podman/vendor/golang.org/x/net/http2/server.go            | 2 +-
+ podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go           | 4 ++--
+ podman/vendor/golang.org/x/sys/cpu/cpu_x86.go             | 2 +-
+ .../vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go   | 4 ++--
+ podman/vendor/golang.org/x/sys/unix/syscall_bsd.go        | 6 +++---
+ 64 files changed, 125 insertions(+), 125 deletions(-)
+
+diff --git a/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go b/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
+index 298c481..da9771e 100644
+--- a/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
++++ b/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
+@@ -22,7 +22,7 @@ package abi
+ import (
+     `fmt`
+     `reflect`
+-    `runtime`
++    _ `runtime`
+ 
+     . `github.com/cloudwego/iasm/x86_64`
+ )
+@@ -117,7 +117,7 @@ func (self *Frame) emitExchangeArgs(p *Program) {
+ 
+ func (self *Frame) emitStackCheck(p *Program, to *Label, maxStack uintptr) {
+     // get the current goroutine
+-    switch runtime.GOOS {
++    switch "linux" {
+         case "linux"  : p.MOVQ(Abs(-8), R14).FS()
+         case "darwin" : p.MOVQ(Abs(0x30), R14).GS()
+         case "windows": break // windows always stores G pointer at R14 
+@@ -134,7 +134,7 @@ func (self *Frame) StackCheckTextSize() uint32 {
+     p := DefaultArch.CreateProgram()
+ 
+     // get the current goroutine
+-    switch runtime.GOOS {
++    switch "linux" {
+         case "linux"  : p.MOVQ(Abs(-8), R14).FS()
+         case "darwin" : p.MOVQ(Abs(0x30), R14).GS()
+         case "windows": break // windows always stores G pointer at R14 
+@@ -179,4 +179,4 @@ func (self *Frame) emitRestoreRegs(p *Program) {
+             panic(fmt.Sprintf("unsupported register type %t to reserve", r))
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go b/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go
+index 97a1fe8..bb8475c 100644
+--- a/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go
++++ b/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go
+@@ -27,7 +27,7 @@ func getCPUVariant() (string, error) {
+ 
+ 	var variant string
+ 
+-	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" {
++	if "linux" == "windows" || "linux" == "darwin" {
+ 		// Windows/Darwin only supports v7 for ARM32 and v8 for ARM64 and so we can use
+ 		// runtime.GOARCH to determine the variants
+ 		switch runtime.GOARCH {
+@@ -38,7 +38,7 @@ func getCPUVariant() (string, error) {
+ 		default:
+ 			variant = "unknown"
+ 		}
+-	} else if runtime.GOOS == "freebsd" {
++	} else if "linux" == "freebsd" {
+ 		// FreeBSD supports ARMv6 and ARMv7 as well as ARMv4 and ARMv5 (though deprecated)
+ 		// detecting those variants is currently unimplemented
+ 		switch runtime.GOARCH {
+diff --git a/podman/vendor/github.com/containerd/platforms/database.go b/podman/vendor/github.com/containerd/platforms/database.go
+index 7a6f0d9..424ad74 100644
+--- a/podman/vendor/github.com/containerd/platforms/database.go
++++ b/podman/vendor/github.com/containerd/platforms/database.go
+@@ -17,7 +17,7 @@
+ package platforms
+ 
+ import (
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ )
+ 
+@@ -61,7 +61,7 @@ func isKnownArch(arch string) bool {
+ 
+ func normalizeOS(os string) string {
+ 	if os == "" {
+-		return runtime.GOOS
++		return "linux"
+ 	}
+ 	os = strings.ToLower(os)
+ 
+diff --git a/podman/vendor/github.com/containerd/platforms/defaults_unix.go b/podman/vendor/github.com/containerd/platforms/defaults_unix.go
+index 44acc47..1ea8115 100644
+--- a/podman/vendor/github.com/containerd/platforms/defaults_unix.go
++++ b/podman/vendor/github.com/containerd/platforms/defaults_unix.go
+@@ -27,7 +27,7 @@ import (
+ // DefaultSpec returns the current platform's default platform specification.
+ func DefaultSpec() specs.Platform {
+ 	return specs.Platform{
+-		OS:           runtime.GOOS,
++		OS:           "linux",
+ 		Architecture: runtime.GOARCH,
+ 		// The Variant field will be empty if arch != ARM.
+ 		Variant: cpuVariant(),
+diff --git a/podman/vendor/github.com/containerd/platforms/platforms.go b/podman/vendor/github.com/containerd/platforms/platforms.go
+index 14d65ab..ae8bd67 100644
+--- a/podman/vendor/github.com/containerd/platforms/platforms.go
++++ b/podman/vendor/github.com/containerd/platforms/platforms.go
+@@ -160,7 +160,7 @@ func NewMatcher(platform specs.Platform) Matcher {
+ 		// which may have been an unintended side of some refactor.
+ 		// It was likely intended to be used in `Ordered` but it is not since
+ 		// `Less` that is implemented here ends up getting masked due to wrapping.
+-		if runtime.GOOS == "windows" {
++		if "linux" == "windows" {
+ 			return &windowsMatchComparer{m}
+ 		}
+ 	}
+@@ -269,7 +269,7 @@ func Parse(specifier string) (specs.Platform, error) {
+ 			p.Variant = ""
+ 		}
+ 		if isKnownArch(p.Architecture) {
+-			p.OS = runtime.GOOS
++			p.OS = "linux"
+ 			return p, nil
+ 		}
+ 
+diff --git a/podman/vendor/github.com/containers/buildah/config.go b/podman/vendor/github.com/containers/buildah/config.go
+index 1390211..2c334f1 100644
+--- a/podman/vendor/github.com/containers/buildah/config.go
++++ b/podman/vendor/github.com/containers/buildah/config.go
+@@ -141,7 +141,7 @@ func (b *Builder) fixupConfig(sys *types.SystemContext) {
+ 		if sys != nil && sys.OSChoice != "" {
+ 			b.SetOS(sys.OSChoice)
+ 		} else {
+-			b.SetOS(runtime.GOOS)
++			b.SetOS("linux")
+ 		}
+ 	}
+ 	if b.Architecture() == "" {
+diff --git a/podman/vendor/github.com/containers/buildah/imagebuildah/build.go b/podman/vendor/github.com/containers/buildah/imagebuildah/build.go
+index 607a99d..7f8d2a0 100644
+--- a/podman/vendor/github.com/containers/buildah/imagebuildah/build.go
++++ b/podman/vendor/github.com/containers/buildah/imagebuildah/build.go
+@@ -12,7 +12,7 @@ import (
+ 	"os"
+ 	"os/exec"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"slices"
+ 	"strconv"
+ 	"strings"
+@@ -227,7 +227,7 @@ func BuildDockerfiles(ctx context.Context, store storage.Store, options define.B
+ 	for _, platform := range options.Platforms {
+ 		platformContext := *systemContext
+ 		if platform.OS == "" && platform.Arch != "" {
+-			platform.OS = runtime.GOOS
++			platform.OS = "linux"
+ 		}
+ 		if platform.OS == "" && platform.Arch == "" {
+ 			if targetPlatform, ok := options.Args["TARGETPLATFORM"]; ok {
+diff --git a/podman/vendor/github.com/containers/buildah/info.go b/podman/vendor/github.com/containers/buildah/info.go
+index 72e1050..1302b01 100644
+--- a/podman/vendor/github.com/containers/buildah/info.go
++++ b/podman/vendor/github.com/containers/buildah/info.go
+@@ -44,7 +44,7 @@ func Info(store storage.Store) ([]InfoData, error) {
+ 
+ func hostInfo() map[string]interface{} {
+ 	info := map[string]interface{}{}
+-	ps := internalUtil.NormalizePlatform(v1.Platform{OS: runtime.GOOS, Architecture: runtime.GOARCH})
++	ps := internalUtil.NormalizePlatform(v1.Platform{OS: "linux", Architecture: runtime.GOARCH})
+ 	info["os"] = ps.OS
+ 	info["arch"] = ps.Architecture
+ 	info["variant"] = ps.Variant
+diff --git a/podman/vendor/github.com/containers/buildah/pkg/cli/common.go b/podman/vendor/github.com/containers/buildah/pkg/cli/common.go
+index c7e4f54..5697622 100644
+--- a/podman/vendor/github.com/containers/buildah/pkg/cli/common.go
++++ b/podman/vendor/github.com/containers/buildah/pkg/cli/common.go
+@@ -262,7 +262,7 @@ func GetBudFlags(flags *BudResults) pflag.FlagSet {
+ 	fs.BoolVar(&flags.NoCache, "no-cache", false, "do not use existing cached images for the container build. Build from the start with a new set of cached layers.")
+ 	fs.BoolVar(&flags.NoHostname, "no-hostname", false, "do not create new /etc/hostname file for RUN instructions, use the one from the base image.")
+ 	fs.BoolVar(&flags.NoHosts, "no-hosts", false, "do not create new /etc/hosts file for RUN instructions, use the one from the base image.")
+-	fs.String("os", runtime.GOOS, "set the OS to the provided value instead of the current operating system of the host")
++	fs.String("os", "linux", "set the OS to the provided value instead of the current operating system of the host")
+ 	fs.StringArrayVar(&flags.OSFeatures, "os-feature", []string{}, "set required OS `feature` for the target image in addition to values from the base image")
+ 	fs.StringVar(&flags.OSVersion, "os-version", "", "set required OS `version` for the target image instead of the value from the base image")
+ 	fs.StringVar(&flags.Pull, "pull", "missing", `pull base and SBOM scanner images from the registry. Values:
+@@ -404,7 +404,7 @@ func GetFromAndBudFlags(flags *FromAndBudResults, usernsResults *UserNSResults,
+ 	fs.IntVar(&flags.Retry, "retry", int(defaultContainerConfig.Engine.Retry), "number of times to retry in case of failure when performing push/pull")
+ 	fs.StringVar(&flags.RetryDelay, "retry-delay", defaultContainerConfig.Engine.RetryDelay, "delay between retries in case of push/pull failures")
+ 	fs.String("arch", runtime.GOARCH, "set the ARCH of the image to the provided value instead of the architecture of the host")
+-	fs.String("os", runtime.GOOS, "prefer `OS` instead of the running OS when pulling images")
++	fs.String("os", "linux", "prefer `OS` instead of the running OS when pulling images")
+ 	fs.StringSlice("platform", []string{parse.DefaultPlatform()}, "set the `OS/ARCH[/VARIANT]` of the image to the provided value instead of the current operating system and architecture of the host (for example \"linux/arm\")")
+ 	fs.String("variant", "", "override the `variant` of the specified image")
+ 	fs.StringArrayVar(&flags.SecurityOpt, "security-opt", []string{}, "security options (default [])")
+diff --git a/podman/vendor/github.com/containers/common/libimage/platform/platform.go b/podman/vendor/github.com/containers/common/libimage/platform/platform.go
+index 54c3b8d..fb4d1a1 100644
+--- a/podman/vendor/github.com/containers/common/libimage/platform/platform.go
++++ b/podman/vendor/github.com/containers/common/libimage/platform/platform.go
+@@ -45,7 +45,7 @@ func Normalize(rawOS, rawArch, rawVariant string) (os, arch, variant string) {
+ 
+ func ToString(os, arch, variant string) string {
+ 	if os == "" {
+-		os = runtime.GOOS
++		os = "linux"
+ 	}
+ 	if arch == "" {
+ 		arch = runtime.GOARCH
+diff --git a/podman/vendor/github.com/containers/common/libimage/pull.go b/podman/vendor/github.com/containers/common/libimage/pull.go
+index 02b6a42..706d0b1 100644
+--- a/podman/vendor/github.com/containers/common/libimage/pull.go
++++ b/podman/vendor/github.com/containers/common/libimage/pull.go
+@@ -484,7 +484,7 @@ func (r *Runtime) copySingleImageFromRegistry(ctx context.Context, imageName str
+ 	if options.Architecture != runtime.GOARCH {
+ 		lookupImageOptions.Architecture = options.Architecture
+ 	}
+-	if options.OS != runtime.GOOS {
++	if options.OS != "linux" {
+ 		lookupImageOptions.OS = options.OS
+ 	}
+ 	// FIXME: We sometimes return resolvedImageName from this function.
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/config.go b/podman/vendor/github.com/containers/common/pkg/config/config.go
+index a035c7a..9648d59 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/config.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/config.go
+@@ -814,7 +814,7 @@ func (m *MachineConfig) URI() string {
+ 		uri = strings.Replace(uri, val, runtime.GOARCH, 1)
+ 	}
+ 	for _, val := range []string{"$OS", "$os"} {
+-		uri = strings.Replace(uri, val, runtime.GOOS, 1)
++		uri = strings.Replace(uri, val, "linux", 1)
+ 	}
+ 	return uri
+ }
+diff --git a/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go b/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go
+index 6e88aa0..cfa1af3 100644
+--- a/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go
++++ b/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go
+@@ -7,7 +7,7 @@ import (
+ 	"io"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/containers/image/v5/internal/imagedestination/impl"
+ 	"github.com/containers/image/v5/internal/imagedestination/stubs"
+@@ -169,7 +169,7 @@ func (d *dirImageDestination) PutBlobWithOptions(ctx context.Context, stream io.
+ 	// On Windows, the “permissions of newly created files” argument to syscall.Open is
+ 	// ignored and the file is already readable; besides, blobFile.Chmod, i.e. syscall.Fchmod,
+ 	// always fails on Windows.
+-	if runtime.GOOS != "windows" {
++	if "linux" != "windows" {
+ 		if err := blobFile.Chmod(0644); err != nil {
+ 			return private.UploadedBlob{}, err
+ 		}
+diff --git a/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go b/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
+index 6a0f88d..be400df 100644
+--- a/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
++++ b/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
+@@ -353,7 +353,7 @@ func (index *OCI1IndexPublic) ToSchema2List() (*Schema2ListPublic, error) {
+ 		platform := manifest.Platform
+ 		if platform == nil {
+ 			platform = &imgspecv1.Platform{
+-				OS:           runtime.GOOS,
++				OS:           "linux",
+ 				Architecture: runtime.GOARCH,
+ 			}
+ 		}
+diff --git a/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go b/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
+index 3a16dad..27f96f0 100644
+--- a/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
++++ b/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
+@@ -33,8 +33,8 @@ import (
+ // So we don't need to access the ARM registers to detect platform information
+ // by ourselves. We can just parse these information from /proc/cpuinfo
+ func getCPUInfo(pattern string) (info string, err error) {
+-	if runtime.GOOS != "linux" {
+-		return "", fmt.Errorf("getCPUInfo for OS %s not implemented", runtime.GOOS)
++	if "linux" != "linux" {
++		return "", fmt.Errorf("getCPUInfo for OS %s not implemented", "linux")
+ 	}
+ 
+ 	cpuinfo, err := os.Open("/proc/cpuinfo")
+@@ -168,13 +168,13 @@ func WantedPlatforms(ctx *types.SystemContext) []imgspecv1.Platform {
+ 		// ctx.ArchitectureChoice == runtime.GOARCH, because we have no idea whether the runtime.GOARCH
+ 		// value is relevant to the use case, and if we do autodetect a variant,
+ 		// ctx.VariantChoice can't be used to override it back to "".
+-		wantedVariant = getCPUVariant(runtime.GOOS, runtime.GOARCH)
++		wantedVariant = getCPUVariant("linux", runtime.GOARCH)
+ 	}
+ 	if ctx != nil && ctx.VariantChoice != "" {
+ 		wantedVariant = ctx.VariantChoice
+ 	}
+ 
+-	wantedOS := runtime.GOOS
++	wantedOS := "linux"
+ 	if ctx != nil && ctx.OSChoice != "" {
+ 		wantedOS = ctx.OSChoice
+ 	}
+diff --git a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+index bab73ee..69193a9 100644
+--- a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
++++ b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+@@ -2,7 +2,7 @@ package tmpdir
+ 
+ import (
+ 	"os"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/containers/image/v5/types"
+ )
+@@ -27,7 +27,7 @@ func temporaryDirectoryForBigFiles(sys *types.SystemContext) string {
+ 		return sys.BigFilesTemporaryDir
+ 	}
+ 	var temporaryDirectoryForBigFiles string
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		temporaryDirectoryForBigFiles = os.TempDir()
+ 	} else {
+ 		temporaryDirectoryForBigFiles = unixTempDirForBigFiles
+diff --git a/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go b/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
+index c4eaed0..7a16fb5 100644
+--- a/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
++++ b/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
+@@ -5,7 +5,7 @@ import (
+ 	"fmt"
+ 	"path/filepath"
+ 	"regexp"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ )
+@@ -37,7 +37,7 @@ func ValidateImageName(image string) error {
+ // SplitPathAndImage tries to split the provided OCI reference into the OCI path and image.
+ // Neither path nor image parts are validated at this stage.
+ func SplitPathAndImage(reference string) (string, string) {
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		return splitPathAndImageWindows(reference)
+ 	}
+ 	return splitPathAndImageNonWindows(reference)
+@@ -65,7 +65,7 @@ func splitPathAndImageNonWindows(reference string) (string, string) {
+ 
+ // ValidateOCIPath takes the OCI path and validates it.
+ func ValidateOCIPath(path string) error {
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		// On Windows we must allow for a ':' as part of the path
+ 		if strings.Count(path, ":") > 1 {
+ 			return fmt.Errorf("Invalid OCI reference: path %s contains more than one colon", path)
+@@ -81,7 +81,7 @@ func ValidateOCIPath(path string) error {
+ // ValidateScope validates a policy configuration scope for an OCI transport.
+ func ValidateScope(scope string) error {
+ 	var err error
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		err = validateScopeWindows(scope)
+ 	} else {
+ 		err = validateScopeNonWindows(scope)
+diff --git a/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go b/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
+index b87cef4..fe2a351 100644
+--- a/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
++++ b/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
+@@ -9,7 +9,7 @@ import (
+ 	"io/fs"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"slices"
+ 
+ 	"github.com/containers/image/v5/internal/imagedestination/impl"
+@@ -162,7 +162,7 @@ func (d *ociImageDestination) blobFileSyncAndRename(blobFile *os.File, blobDiges
+ 	// On Windows, the “permissions of newly created files” argument to syscall.Open is
+ 	// ignored and the file is already readable; besides, blobFile.Chmod, i.e. syscall.Fchmod,
+ 	// always fails on Windows.
+-	if runtime.GOOS != "windows" {
++	if "linux" != "windows" {
+ 		if err := blobFile.Chmod(0644); err != nil {
+ 			return err
+ 		}
+diff --git a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+index da2238a..1544ac3 100644
+--- a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
++++ b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+@@ -9,7 +9,7 @@ import (
+ 	"os"
+ 	"os/exec"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 
+ 	"github.com/containers/image/v5/docker/reference"
+@@ -544,11 +544,11 @@ func listCredsInCredHelper(credHelper string) (map[string]string, error) {
+ // getPathToAuth gets the path of the auth.json file used for reading and writing credentials,
+ // and a boolean indicating whether the return value came from an explicit user choice (i.e. not defaults)
+ func getPathToAuth(sys *types.SystemContext) (authPath, bool, error) {
+-	return getPathToAuthWithOS(sys, runtime.GOOS)
++	return getPathToAuthWithOS(sys, "linux")
+ }
+ 
+ // getPathToAuthWithOS is an internal implementation detail of getPathToAuth,
+-// it exists only to allow testing it with an artificial runtime.GOOS.
++// it exists only to allow testing it with an artificial "linux".
+ func getPathToAuthWithOS(sys *types.SystemContext, goOS string) (authPath, bool, error) {
+ 	if sys != nil {
+ 		if sys.AuthFilePath != "" && sys.DockerCompatAuthFilePath != "" {
+diff --git a/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go b/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go
+index 7d4a83b..cb94f23 100644
+--- a/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go
++++ b/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go
+@@ -141,7 +141,7 @@ func (r *tarballReference) NewImageSource(ctx context.Context, sys *types.System
+ 		config.Architecture = runtime.GOARCH
+ 	}
+ 	if config.OS == "" {
+-		config.OS = runtime.GOOS
++		config.OS = "linux"
+ 	}
+ 	config.RootFS = imgspecv1.RootFS{
+ 		Type:    "layers",
+diff --git a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
+index 231da23..591a421 100644
+--- a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
++++ b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
+@@ -92,7 +92,7 @@ func getHostAndOsType() (string, string, string) {
+ 	ht := ""
+ 	ot := ""
+ 	st := ""
+-	switch runtime.GOOS {
++	switch "linux" {
+ 	case "linux":
+ 		ot = "linux"
+ 		st = "gnu"
+diff --git a/podman/vendor/github.com/containers/storage/drivers/fsdiff.go b/podman/vendor/github.com/containers/storage/drivers/fsdiff.go
+index e500585..f3a4ee8 100644
+--- a/podman/vendor/github.com/containers/storage/drivers/fsdiff.go
++++ b/podman/vendor/github.com/containers/storage/drivers/fsdiff.go
+@@ -3,7 +3,7 @@ package graphdriver
+ import (
+ 	"io"
+ 	"os"
+-	"runtime"
++	_ "runtime"
+ 	"time"
+ 
+ 	"github.com/containers/storage/pkg/archive"
+@@ -171,7 +171,7 @@ func (gdw *NaiveDiffDriver) ApplyDiff(id, parent string, options ApplyDiffOpts)
+ 
+ 	defaultForceMask := os.FileMode(0o700)
+ 	var forceMask *os.FileMode // = nil
+-	if runtime.GOOS == "darwin" {
++	if "linux" == "darwin" {
+ 		forceMask = &defaultForceMask
+ 	}
+ 
+diff --git a/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go b/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go
+index 98dc55b..91d8f05 100644
+--- a/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go
++++ b/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go
+@@ -5,7 +5,7 @@ import (
+ 	"io"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 
+@@ -175,7 +175,7 @@ func (d *Driver) create(id, parent string, opts *graphdriver.CreateOpts, ro bool
+ 	}()
+ 
+ 	rootPerms := defaultPerms
+-	if runtime.GOOS == "darwin" {
++	if "linux" == "darwin" {
+ 		rootPerms = os.FileMode(0o700)
+ 	}
+ 
+diff --git a/podman/vendor/github.com/containers/storage/pkg/archive/archive.go b/podman/vendor/github.com/containers/storage/pkg/archive/archive.go
+index 41daad8..b904b4d 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/archive/archive.go
++++ b/podman/vendor/github.com/containers/storage/pkg/archive/archive.go
+@@ -11,7 +11,7 @@ import (
+ 	"io/fs"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 	"sync"
+@@ -738,7 +738,7 @@ func createTarFile(path, extractDir string, hdr *tar.Header, reader io.Reader, L
+ 	}
+ 
+ 	// Lchown is not supported on Windows.
+-	if Lchown && runtime.GOOS != windows {
++	if Lchown && "linux" != windows {
+ 		if chownOpts == nil {
+ 			chownOpts = &idtools.IDPair{UID: hdr.Uid, GID: hdr.Gid}
+ 		}
+@@ -806,7 +806,7 @@ func createTarFile(path, extractDir string, hdr *tar.Header, reader io.Reader, L
+ 		}
+ 	}
+ 
+-	if forceMask != nil && (typeFlag == tar.TypeReg || typeFlag == tar.TypeDir || runtime.GOOS == "darwin") {
++	if forceMask != nil && (typeFlag == tar.TypeReg || typeFlag == tar.TypeDir || "linux" == "darwin") {
+ 		value := idtools.Stat{
+ 			IDs:   idtools.IDPair{UID: hdr.Uid, GID: hdr.Gid},
+ 			Mode:  hdrInfo.Mode(),
+@@ -1386,7 +1386,7 @@ func remapIDs(readIDMappings, writeIDMappings *idtools.IDMappings, chownOpts *id
+ 			if err != nil {
+ 				return err
+ 			}
+-		} else if runtime.GOOS == darwin {
++		} else if "linux" == darwin {
+ 			uid, gid = hdr.Uid, hdr.Gid
+ 			if xstat, ok := hdr.PAXRecords[PaxSchilyXattr+idtools.ContainersOverrideXattr]; ok {
+ 				attrs := strings.Split(string(xstat), ":")
+diff --git a/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go b/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go
+index 2965ccc..7eacd2f 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go
++++ b/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go
+@@ -64,7 +64,7 @@ func collectFileInfo(sourceDir string, idMappings *idtools.IDMappings) (*FileInf
+ 		// See https://github.com/golang/go/issues/9168 - bug in filepath.Join.
+ 		// Temporary workaround. If the returned path starts with two backslashes,
+ 		// trim it down to a single backslash. Only relevant on Windows.
+-		if runtime.GOOS == "windows" {
++		if "linux" == "windows" {
+ 			if strings.HasPrefix(relPath, `\\`) {
+ 				relPath = relPath[1:]
+ 			}
+diff --git a/podman/vendor/github.com/containers/storage/pkg/archive/diff.go b/podman/vendor/github.com/containers/storage/pkg/archive/diff.go
+index ceaa8b0..5e81a90 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/archive/diff.go
++++ b/podman/vendor/github.com/containers/storage/pkg/archive/diff.go
+@@ -7,7 +7,7 @@ import (
+ 	"io/fs"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 
+ 	"github.com/containers/storage/pkg/fileutils"
+@@ -70,7 +70,7 @@ func UnpackLayer(dest string, layer io.Reader, options *TarOptions) (size int64,
+ 		// specific or Linux-specific, this warning should be changed to an error
+ 		// to cater for the situation where someone does manage to upload a Linux
+ 		// image but have it tagged as Windows inadvertently.
+-		if runtime.GOOS == windows {
++		if "linux" == windows {
+ 			if strings.Contains(hdr.Name, ":") {
+ 				logrus.Warnf("Windows: Ignoring %s (is this a Linux image?)", hdr.Name)
+ 				continue
+diff --git a/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go b/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go
+index 299bdbe..ee5211e 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go
++++ b/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go
+@@ -7,7 +7,7 @@ import (
+ 	"io/fs"
+ 	"os"
+ 	"os/user"
+-	"runtime"
++	_ "runtime"
+ 	"sort"
+ 	"strconv"
+ 	"strings"
+@@ -517,7 +517,7 @@ func SetContainersOverrideXattr(path string, stat Stat) error {
+ }
+ 
+ func SafeChown(name string, uid, gid int) error {
+-	if runtime.GOOS == "darwin" {
++	if "linux" == "darwin" {
+ 		stat := Stat{
+ 			Mode: os.FileMode(0o0700),
+ 		}
+@@ -550,7 +550,7 @@ func SafeChown(name string, uid, gid int) error {
+ }
+ 
+ func SafeLchown(name string, uid, gid int) error {
+-	if runtime.GOOS == "darwin" {
++	if "linux" == "darwin" {
+ 		stat := Stat{
+ 			Mode: os.FileMode(0o0700),
+ 		}
+diff --git a/podman/vendor/github.com/containers/storage/pkg/system/path.go b/podman/vendor/github.com/containers/storage/pkg/system/path.go
+index ca076f2..37014bb 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/system/path.go
++++ b/podman/vendor/github.com/containers/storage/pkg/system/path.go
+@@ -1,6 +1,6 @@
+ package system
+ 
+-import "runtime"
++// import "runtime"
+ 
+ const defaultUnixPathEnv = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ 
+@@ -8,8 +8,8 @@ const defaultUnixPathEnv = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
+ // executables. Each directory is separated from the next by a colon
+ // ':' character .
+ func DefaultPathEnv(platform string) string {
+-	if runtime.GOOS == "windows" {
+-		if platform != runtime.GOOS && LCOWSupported() {
++	if "linux" == "windows" {
++		if platform != "linux" && LCOWSupported() {
+ 			return defaultUnixPathEnv
+ 		}
+ 		// Deliberately empty on Windows containers on Windows as the default path will be set by
+diff --git a/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go b/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
+index e9c5936..815fd95 100644
+--- a/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
++++ b/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
+@@ -3,7 +3,7 @@ package logging
+ import (
+ 	"io"
+ 	"os"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/mattn/go-colorable"
+ 	"github.com/sirupsen/logrus"
+@@ -18,7 +18,7 @@ type stdErrHook struct {
+ 
+ func newstdErrHook(level logrus.Level, formatter logrus.Formatter) *stdErrHook {
+ 	// For windows to display colors we need to use the go-colorable writer
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		return &stdErrHook{
+ 			stderr:    colorable.NewColorableStderr(),
+ 			formatter: formatter,
+diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/archive.go b/podman/vendor/github.com/docker/docker/pkg/archive/archive.go
+index cde64f0..877cc4f 100644
+--- a/podman/vendor/github.com/docker/docker/pkg/archive/archive.go
++++ b/podman/vendor/github.com/docker/docker/pkg/archive/archive.go
+@@ -14,7 +14,7 @@ import (
+ 	"os"
+ 	"os/exec"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 	"syscall"
+@@ -766,7 +766,7 @@ func createTarFile(path, extractDir string, hdr *tar.Header, reader io.Reader, o
+ 	}
+ 
+ 	// Lchown is not supported on Windows.
+-	if Lchown && runtime.GOOS != "windows" {
++	if Lchown && "linux" != "windows" {
+ 		if chownOpts == nil {
+ 			chownOpts = &idtools.Identity{UID: hdr.Uid, GID: hdr.Gid}
+ 		}
+diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go b/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
+index f559a30..ff99b45 100644
+--- a/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
++++ b/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
+@@ -7,7 +7,7 @@ import (
+ 	"errors"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 	"syscall"
+ 
+@@ -54,7 +54,7 @@ func statUnix(fi os.FileInfo, hdr *tar.Header) error {
+ 
+ 	// Since `Stat_t.Rdev` is uint64, the cast turns -1 into (2^64 - 1).
+ 	// Such large values cannot be encoded in a tar header.
+-	if runtime.GOOS == "freebsd" && hdr.Typeflag != tar.TypeBlock && hdr.Typeflag != tar.TypeChar {
++	if "linux" == "freebsd" && hdr.Typeflag != tar.TypeBlock && hdr.Typeflag != tar.TypeChar {
+ 		return nil
+ 	}
+ 	s, ok := fi.Sys().(*syscall.Stat_t)
+diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go b/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go
+index 28f741a..c75ff3c 100644
+--- a/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go
++++ b/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go
+@@ -57,7 +57,7 @@ func collectFileInfo(sourceDir string) (*FileInfo, error) {
+ 		// See https://github.com/golang/go/issues/9168 - bug in filepath.Join.
+ 		// Temporary workaround. If the returned path starts with two backslashes,
+ 		// trim it down to a single backslash. Only relevant on Windows.
+-		if runtime.GOOS == "windows" {
++		if "linux" == "windows" {
+ 			if strings.HasPrefix(relPath, `\\`) {
+ 				relPath = relPath[1:]
+ 			}
+diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/diff.go b/podman/vendor/github.com/docker/docker/pkg/archive/diff.go
+index e080e31..f697e64 100644
+--- a/podman/vendor/github.com/docker/docker/pkg/archive/diff.go
++++ b/podman/vendor/github.com/docker/docker/pkg/archive/diff.go
+@@ -7,7 +7,7 @@ import (
+ 	"io"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 
+ 	"github.com/containerd/log"
+@@ -66,7 +66,7 @@ func UnpackLayer(dest string, layer io.Reader, options *TarOptions) (size int64,
+ 		// specific or Linux-specific, this warning should be changed to an error
+ 		// to cater for the situation where someone does manage to upload a Linux
+ 		// image but have it tagged as Windows inadvertently.
+-		if runtime.GOOS == "windows" {
++		if "linux" == "windows" {
+ 			if strings.Contains(hdr.Name, ":") {
+ 				log.G(context.TODO()).Warnf("Windows: Ignoring %s (is this a Linux image?)", hdr.Name)
+ 				continue
+diff --git a/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go b/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go
+index c0ab3f5..5eafec2 100644
+--- a/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go
++++ b/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go
+@@ -3,7 +3,7 @@ package homedir
+ import (
+ 	"os"
+ 	"os/user"
+-	"runtime"
++	_ "runtime"
+ )
+ 
+ // Get returns the home directory of the current user with the help of
+@@ -19,7 +19,7 @@ import (
+ // If needing to do nss lookups, do not disable cgo or set osusergo.
+ func Get() string {
+ 	home, _ := os.UserHomeDir()
+-	if home == "" && runtime.GOOS != "windows" {
++	if home == "" && "linux" != "windows" {
+ 		if u, err := user.Current(); err == nil {
+ 			return u.HomeDir
+ 		}
+diff --git a/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go b/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
+index f84c624..999fc56 100644
+--- a/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
++++ b/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
+@@ -2,14 +2,14 @@ package tlsconfig
+ 
+ import (
+ 	"crypto/x509"
+-	"runtime"
++	_ "runtime"
+ )
+ 
+ // SystemCertPool returns a copy of the system cert pool,
+ // returns an error if failed to load or empty pool on windows.
+ func SystemCertPool() (*x509.CertPool, error) {
+ 	certpool, err := x509.SystemCertPool()
+-	if err != nil && runtime.GOOS == "windows" {
++	if err != nil && "linux" == "windows" {
+ 		return x509.NewCertPool(), nil
+ 	}
+ 	return certpool, err
+diff --git a/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go b/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
+index bad85f7..4e87347 100644
+--- a/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
++++ b/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
+@@ -3,7 +3,7 @@ package sdk
+ import (
+ 	"crypto/tls"
+ 	"net"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/docker/go-connections/sockets"
+ )
+@@ -17,7 +17,7 @@ func newTCPListener(address, pluginName, daemonDir string, tlsConfig *tls.Config
+ 	addr := listener.Addr().String()
+ 
+ 	var specDir string
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		specDir, err = createPluginSpecDirWindows(pluginName, addr, daemonDir)
+ 	} else {
+ 		specDir, err = createPluginSpecDirUnix(pluginName, addr)
+diff --git a/podman/vendor/github.com/ebitengine/purego/func.go b/podman/vendor/github.com/ebitengine/purego/func.go
+index a8a3d62..e72f098 100644
+--- a/podman/vendor/github.com/ebitengine/purego/func.go
++++ b/podman/vendor/github.com/ebitengine/purego/func.go
+@@ -162,7 +162,7 @@ func RegisterFunc(fptr interface{}, cfn uintptr) {
+ 					stack++
+ 				}
+ 			case reflect.Struct:
+-				if runtime.GOOS != "darwin" || (runtime.GOARCH != "amd64" && runtime.GOARCH != "arm64") {
++				if "linux" != "darwin" || (runtime.GOARCH != "amd64" && runtime.GOARCH != "arm64") {
+ 					panic("purego: struct arguments are only supported on darwin amd64 & arm64")
+ 				}
+ 				if arg.Size() == 0 {
+@@ -183,7 +183,7 @@ func RegisterFunc(fptr interface{}, cfn uintptr) {
+ 			}
+ 		}
+ 		if ty.NumOut() == 1 && ty.Out(0).Kind() == reflect.Struct {
+-			if runtime.GOOS != "darwin" {
++			if "linux" != "darwin" {
+ 				panic("purego: struct return values only supported on darwin arm64 & amd64")
+ 			}
+ 			outType := ty.Out(0)
+@@ -219,7 +219,7 @@ func RegisterFunc(fptr interface{}, cfn uintptr) {
+ 		var numFloats int
+ 		var numStack int
+ 		var addStack, addInt, addFloat func(x uintptr)
+-		if runtime.GOARCH == "arm64" || runtime.GOOS != "windows" {
++		if runtime.GOARCH == "arm64" || "linux" != "windows" {
+ 			// Windows arm64 uses the same calling convention as macOS and Linux
+ 			addStack = func(x uintptr) {
+ 				stack[numStack] = x
+@@ -307,7 +307,7 @@ func RegisterFunc(fptr interface{}, cfn uintptr) {
+ 				panic("purego: unsupported kind: " + v.Kind().String())
+ 			}
+ 		}
+-		if runtime.GOARCH == "arm64" || runtime.GOOS != "windows" {
++		if runtime.GOARCH == "arm64" || "linux" != "windows" {
+ 			// Use the normal arm64 calling convention even on Windows
+ 			syscall = syscall15Args{
+ 				cfn,
+diff --git a/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go b/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
+index d8de5ab..5fa6ec1 100644
+--- a/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
++++ b/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
+@@ -510,7 +510,7 @@ func (w *kqueue) readEvents() {
+ 			//
+ 			// Technically fd 0 is a valid descriptor, so only skip it if
+ 			// there's no path, and if we're on macOS.
+-			if !ok && kevent.Ident == 0 && runtime.GOOS == "darwin" {
++			if !ok && kevent.Ident == 0 && "linux" == "darwin" {
+ 				continue
+ 			}
+ 
+@@ -722,7 +722,7 @@ func (w *kqueue) read(events []unix.Kevent_t) ([]unix.Kevent_t, error) {
+ }
+ 
+ func (w *kqueue) xSupports(op Op) bool {
+-	if runtime.GOOS == "freebsd" {
++	if "linux" == "freebsd" {
+ 		//return true // Supports everything.
+ 	}
+ 	if op.Has(xUnportableOpen) || op.Has(xUnportableRead) ||
+diff --git a/podman/vendor/github.com/go-openapi/swag/loading.go b/podman/vendor/github.com/go-openapi/swag/loading.go
+index 783442f..8678dac 100644
+--- a/podman/vendor/github.com/go-openapi/swag/loading.go
++++ b/podman/vendor/github.com/go-openapi/swag/loading.go
+@@ -23,7 +23,7 @@ import (
+ 	"os"
+ 	"path"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 	"time"
+ )
+@@ -97,7 +97,7 @@ func LoadStrategy(pth string, local, remote func(string) ([]byte, error)) func(s
+ 			return local(filepath.FromSlash(upth))
+ 		}
+ 
+-		if runtime.GOOS != "windows" {
++		if "linux" != "windows" {
+ 			// crude processing: this leaves full URIs with a host with a (mostly) unexpected result
+ 			upth = strings.TrimPrefix(upth, `file://`)
+ 
+diff --git a/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go b/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go
+index db99eb6..8355283 100644
+--- a/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go
++++ b/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go
+@@ -1298,7 +1298,7 @@ func support() flagSet {
+ 			// ZMM16-ZMM31 state are enabled by OS)
+ 			/// and that XCR0[2:1] = ‘11b’ (XMM state and YMM state are enabled by OS).
+ 			hasAVX512 := (eax>>5)&7 == 7 && (eax>>1)&3 == 3
+-			if runtime.GOOS == "darwin" {
++			if "linux" == "darwin" {
+ 				hasAVX512 = fs.inSet(AVX) && darwinHasAVX512()
+ 			}
+ 			if hasAVX512 {
+diff --git a/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go b/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
+index 566743d..c3d8dfd 100644
+--- a/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
++++ b/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
+@@ -25,7 +25,7 @@ func addInfo(c *CPUInfo, safe bool) {
+ 	detectOS(c)
+ 
+ 	// ARM64 disabled since it may crash if interrupt is not intercepted by OS.
+-	if safe && !c.Has(ARMCPUID) && runtime.GOOS != "freebsd" {
++	if safe && !c.Has(ARMCPUID) && "linux" != "freebsd" {
+ 		return
+ 	}
+ 	midr := getMidr()
+diff --git a/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go b/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
+index ee278b9..b8b691d 100644
+--- a/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
++++ b/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
+@@ -120,7 +120,7 @@ func detectOS(c *CPUInfo) bool {
+ 	// The Samsung S9+ kernel reports support for atomics, but not all cores
+ 	// actually support them, resulting in SIGILL. See issue #28431.
+ 	// TODO(elias.naur): Only disable the optimization on bad chipsets on android.
+-	c.featureSet.setIf(isSet(hwcap, hwcap_ATOMICS) && runtime.GOOS != "android", ATOMICS)
++	c.featureSet.setIf(isSet(hwcap, hwcap_ATOMICS) && "linux" != "android", ATOMICS)
+ 
+ 	return true
+ }
+diff --git a/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go b/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
+index 050419b..40687cc 100644
+--- a/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
++++ b/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
+@@ -14,9 +14,9 @@ func Supported() bool {
+ }
+ 
+ func Dial(raddr Addr) (Conn, error) {
+-	return nil, fmt.Errorf("Dial() not implemented on %s", runtime.GOOS)
++	return nil, fmt.Errorf("Dial() not implemented on %s", "linux")
+ }
+ 
+ func Listen(addr Addr) (net.Listener, error) {
+-	return nil, fmt.Errorf("Listen() not implemented on %s", runtime.GOOS)
++	return nil, fmt.Errorf("Listen() not implemented on %s", "linux")
+ }
+diff --git a/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go b/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go
+index b69942b..aa788b5 100644
+--- a/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go
++++ b/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go
+@@ -7,7 +7,7 @@ import (
+ 	"io"
+ 	"os/exec"
+ 	"regexp"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 
+@@ -121,7 +121,7 @@ func (d *Dataset) parseLine(line []string) error {
+ 		return err
+ 	}
+ 
+-	if runtime.GOOS == "solaris" {
++	if "linux" == "solaris" {
+ 		return nil
+ 	}
+ 
+diff --git a/podman/vendor/github.com/nxadm/tail/watch/polling.go b/podman/vendor/github.com/nxadm/tail/watch/polling.go
+index 74e10aa..67e0b83 100644
+--- a/podman/vendor/github.com/nxadm/tail/watch/polling.go
++++ b/podman/vendor/github.com/nxadm/tail/watch/polling.go
+@@ -6,7 +6,7 @@ package watch
+ 
+ import (
+ 	"os"
+-	"runtime"
++	_ "runtime"
+ 	"time"
+ 
+ 	"github.com/nxadm/tail/util"
+@@ -71,7 +71,7 @@ func (fw *PollingFileWatcher) ChangeEvents(t *tomb.Tomb, pos int64) (*FileChange
+ 			if err != nil {
+ 				// Windows cannot delete a file if a handle is still open (tail keeps one open)
+ 				// so it gives access denied to anything trying to read it until all handles are released.
+-				if os.IsNotExist(err) || (runtime.GOOS == "windows" && os.IsPermission(err)) {
++				if os.IsNotExist(err) || ("linux" == "windows" && os.IsPermission(err)) {
+ 					// File does not exist (has been deleted).
+ 					changes.NotifyDeleted()
+ 					return
+diff --git a/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go b/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
+index df99875..e09f3f6 100644
+--- a/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
++++ b/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
+@@ -193,7 +193,7 @@ func precompiledTestSuite(path string) (TestSuite, error) {
+ 		return TestSuite{}, errors.New("this is not a .test binary")
+ 	}
+ 
+-	if filepath.Ext(path) == ".test" && runtime.GOOS != "windows" && info.Mode()&0111 == 0 {
++	if filepath.Ext(path) == ".test" && "linux" != "windows" && info.Mode()&0111 == 0 {
+ 		return TestSuite{}, errors.New("this is not executable")
+ 	}
+ 
+diff --git a/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go b/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
+index 4807304..3cb09fe 100644
+--- a/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
++++ b/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
+@@ -56,7 +56,7 @@ func NewDefaultReporter(conf types.ReporterConfig, writer io.Writer) *DefaultRep
+ 		formatter:    formatter.NewWithNoColorBool(conf.NoColor),
+ 		lock:         &sync.Mutex{},
+ 	}
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		reporter.specDenoter = "+"
+ 		reporter.retryDenoter = "R"
+ 	}
+diff --git a/podman/vendor/github.com/onsi/gomega/gexec/build.go b/podman/vendor/github.com/onsi/gomega/gexec/build.go
+index 0ddb210..acc896f 100644
+--- a/podman/vendor/github.com/onsi/gomega/gexec/build.go
++++ b/podman/vendor/github.com/onsi/gomega/gexec/build.go
+@@ -198,7 +198,7 @@ func newExecutablePath(gopath, packagePath string, suffixes ...string) (string,
+ 
+ 	executable := filepath.Join(tmpDir, path.Base(packagePath))
+ 
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		executable += ".exe"
+ 	}
+ 
+diff --git a/podman/vendor/github.com/openshift/imagebuilder/builder.go b/podman/vendor/github.com/openshift/imagebuilder/builder.go
+index 818ed42..7024a24 100644
+--- a/podman/vendor/github.com/openshift/imagebuilder/builder.go
++++ b/podman/vendor/github.com/openshift/imagebuilder/builder.go
+@@ -7,7 +7,7 @@ import (
+ 	"log"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 
+@@ -622,7 +622,7 @@ func (b *Builder) FromImage(image *docker.Image, node *parser.Node) error {
+ 
+ 	// Check to see if we have a default PATH, note that windows won't
+ 	// have one as it's set by HCS
+-	if runtime.GOOS != "windows" && !hasEnvName(b.Env, "PATH") {
++	if "linux" != "windows" && !hasEnvName(b.Env, "PATH") {
+ 		b.RunConfig.Env = append(b.RunConfig.Env, "PATH="+defaultPathEnv)
+ 	}
+ 
+diff --git a/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go b/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go
+index 2a4f454..12df420 100644
+--- a/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go
++++ b/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go
+@@ -12,7 +12,7 @@ import (
+ 	"fmt"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 
+@@ -355,7 +355,7 @@ func from(b *Builder, args []string, attributes map[string]bool, flagArgs []stri
+ 
+ 	// Windows cannot support a container with no base image.
+ 	if name == NoBaseImageSpecifier {
+-		if runtime.GOOS == "windows" {
++		if "linux" == "windows" {
+ 			return fmt.Errorf("Windows does not support FROM scratch")
+ 		}
+ 	}
+@@ -506,7 +506,7 @@ func cmd(b *Builder, args []string, attributes map[string]bool, flagArgs []strin
+ 	cmdSlice := handleJSONArgs(args, attributes)
+ 
+ 	if !attributes["json"] {
+-		if runtime.GOOS != "windows" {
++		if "linux" != "windows" {
+ 			cmdSlice = append([]string{"/bin/sh", "-c"}, cmdSlice...)
+ 		} else {
+ 			cmdSlice = append([]string{"cmd", "/S", "/C"}, cmdSlice...)
+@@ -539,7 +539,7 @@ func entrypoint(b *Builder, args []string, attributes map[string]bool, flagArgs
+ 		b.RunConfig.Entrypoint = nil
+ 	default:
+ 		// ENTRYPOINT echo hi
+-		if runtime.GOOS != "windows" {
++		if "linux" != "windows" {
+ 			b.RunConfig.Entrypoint = strslice.StrSlice{"/bin/sh", "-c", parsed[0]}
+ 		} else {
+ 			b.RunConfig.Entrypoint = strslice.StrSlice{"cmd", "/S", "/C", parsed[0]}
+diff --git a/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go b/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
+index 5e4f4a0..20dee61 100644
+--- a/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
++++ b/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
+@@ -8,7 +8,7 @@ import (
+ 	"fmt"
+ 	"io"
+ 	"regexp"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 	"unicode"
+@@ -118,7 +118,7 @@ var (
+ const DefaultEscapeToken = '\\'
+ 
+ // defaultPlatformToken is the platform assumed for the build if not explicitly provided
+-var defaultPlatformToken = runtime.GOOS
++var defaultPlatformToken = "linux"
+ 
+ var (
+ 	// Directives allowed to contain heredocs
+@@ -158,7 +158,7 @@ func (d *Directive) setEscapeToken(s string) error {
+ // setPlatformToken sets the default platform for pulling images in a Dockerfile.
+ func (d *Directive) setPlatformToken(s string) error {
+ 	s = strings.ToLower(s)
+-	valid := []string{runtime.GOOS}
++	valid := []string{"linux"}
+ 	if system.LCOWSupported() {
+ 		valid = append(valid, "linux")
+ 	}
+diff --git a/podman/vendor/github.com/openshift/imagebuilder/internals.go b/podman/vendor/github.com/openshift/imagebuilder/internals.go
+index d4b9539..8ce9ffa 100644
+--- a/podman/vendor/github.com/openshift/imagebuilder/internals.go
++++ b/podman/vendor/github.com/openshift/imagebuilder/internals.go
+@@ -5,7 +5,7 @@ import (
+ 	"fmt"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 	"time"
+ )
+@@ -23,7 +23,7 @@ func hasEnvName(env []string, name string) bool {
+ // platformSupports is a short-term function to give users a quality error
+ // message if a Dockerfile uses a command not supported on the platform.
+ func platformSupports(command string) error {
+-	if runtime.GOOS != "windows" {
++	if "linux" != "windows" {
+ 		return nil
+ 	}
+ 	switch command {
+diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
+index 9bc3dfb..8786288 100644
+--- a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
++++ b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
+@@ -7,7 +7,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"math"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 	"sync"
+@@ -105,7 +105,7 @@ func (c InfoStat) String() string {
+ 
+ func getAllBusy(t TimesStat) (float64, float64) {
+ 	tot := t.Total()
+-	if runtime.GOOS == "linux" {
++	if "linux" == "linux" {
+ 		tot -= t.Guest     // Linux 2.6.24+
+ 		tot -= t.GuestNice // Linux 3.2.0+
+ 	}
+diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
+index 868ea4d..b99ba4b 100644
+--- a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
++++ b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
+@@ -22,7 +22,7 @@ import (
+ 	"path"
+ 	"path/filepath"
+ 	"reflect"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 	"time"
+@@ -77,7 +77,7 @@ func (i FakeInvoke) Command(name string, arg ...string) ([]byte, error) {
+ 		return []byte{}, i.Error
+ 	}
+ 
+-	arch := runtime.GOOS
++	arch := "linux"
+ 
+ 	commandName := filepath.Base(name)
+ 
+diff --git a/podman/vendor/github.com/sirupsen/logrus/text_formatter.go b/podman/vendor/github.com/sirupsen/logrus/text_formatter.go
+index be2c6ef..ae68d55 100644
+--- a/podman/vendor/github.com/sirupsen/logrus/text_formatter.go
++++ b/podman/vendor/github.com/sirupsen/logrus/text_formatter.go
+@@ -115,7 +115,7 @@ func (f *TextFormatter) init(entry *Entry) {
+ }
+ 
+ func (f *TextFormatter) isColored() bool {
+-	isColored := f.ForceColors || (f.isTerminal && (runtime.GOOS != "windows"))
++	isColored := f.ForceColors || (f.isTerminal && ("linux" != "windows"))
+ 
+ 	if f.EnvironmentOverrideColors {
+ 		switch force, ok := os.LookupEnv("CLICOLOR_FORCE"); {
+diff --git a/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go b/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
+index 9e77e38..7c9ad0c 100644
+--- a/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
++++ b/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
+@@ -29,7 +29,7 @@ func getConfigured() (int, error) {
+ }
+ 
+ func getKernelMax() (int, error) {
+-	if runtime.GOOS == "freebsd" {
++	if "linux" == "freebsd" {
+ 		n, err := unix.SysctlUint32("kern.smp.maxcpus")
+ 		return int(n), err
+ 	}
+@@ -43,7 +43,7 @@ func getOffline() (int, error) {
+ func getOnline() (int, error) {
+ 	var n uint32
+ 	var err error
+-	switch runtime.GOOS {
++	switch "linux" {
+ 	case "netbsd", "openbsd":
+ 		n, err = unix.SysctlUint32("hw.ncpuonline")
+ 		if err != nil {
+diff --git a/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go b/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
+index 4b43d74..b30ed5f 100644
+--- a/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
++++ b/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
+@@ -27,7 +27,7 @@ var mmapLimit int32 = 1<<31 - 1
+ 
+ func init() {
+ 	// Linux is the only practically concerning OS.
+-	if runtime.GOOS == "linux" {
++	if "linux" == "linux" {
+ 		mmapLimit = 30000
+ 	}
+ }
+diff --git a/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go b/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
+index 868105f..ebac667 100644
+--- a/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
++++ b/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
+@@ -9,7 +9,7 @@ package tar
+ import (
+ 	"os"
+ 	"os/user"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"sync"
+ 	"syscall"
+@@ -53,7 +53,7 @@ func statUnix(fi os.FileInfo, h *Header) error {
+ 	// Best effort at populating Devmajor and Devminor.
+ 	if h.Typeflag == TypeChar || h.Typeflag == TypeBlock {
+ 		dev := uint64(sys.Rdev) // May be int32 or uint32
+-		switch runtime.GOOS {
++		switch "linux" {
+ 		case "linux":
+ 			// Copied from golang.org/x/sys/unix/dev_linux.go.
+ 			major := uint32((dev & 0x00000000000fff00) >> 8)
+diff --git a/podman/vendor/go.etcd.io/bbolt/db.go b/podman/vendor/go.etcd.io/bbolt/db.go
+index 822798e..ce90736 100644
+--- a/podman/vendor/go.etcd.io/bbolt/db.go
++++ b/podman/vendor/go.etcd.io/bbolt/db.go
+@@ -6,7 +6,7 @@ import (
+ 	"hash/fnv"
+ 	"io"
+ 	"os"
+-	"runtime"
++	_ "runtime"
+ 	"sort"
+ 	"sync"
+ 	"time"
+@@ -28,7 +28,7 @@ const pgidNoFreelist pgid = 0xffffffffffffffff
+ // syncing changes to a file.  This is required as some operating systems,
+ // such as OpenBSD, do not have a unified buffer cache (UBC) and writes
+ // must be synchronized using the msync(2) syscall.
+-const IgnoreNoSync = runtime.GOOS == "openbsd"
++const IgnoreNoSync = "linux" == "openbsd"
+ 
+ // Default values if not set in a DB instance.
+ const (
+@@ -1158,7 +1158,7 @@ func (db *DB) grow(sz int) error {
+ 	// Truncate and fsync to ensure file size metadata is flushed.
+ 	// https://github.com/boltdb/bolt/issues/284
+ 	if !db.NoGrowSync && !db.readOnly {
+-		if runtime.GOOS != "windows" {
++		if "linux" != "windows" {
+ 			// gofail: var resizeFileError string
+ 			// return errors.New(resizeFileError)
+ 			if err := db.file.Truncate(int64(sz)); err != nil {
+diff --git a/podman/vendor/golang.org/x/net/http2/server.go b/podman/vendor/golang.org/x/net/http2/server.go
+index b55547a..7d5b0e7 100644
+--- a/podman/vendor/golang.org/x/net/http2/server.go
++++ b/podman/vendor/golang.org/x/net/http2/server.go
+@@ -777,7 +777,7 @@ func isClosedConnError(err error) bool {
+ 	// build tags, so I can't make an http2_windows.go file with
+ 	// Windows-specific stuff. Fix that and move this, once we
+ 	// have a way to bundle this into std's net/http somehow.
+-	if runtime.GOOS == "windows" {
++	if "linux" == "windows" {
+ 		if oe, ok := err.(*net.OpError); ok && oe.Op == "read" {
+ 			if se, ok := oe.Err.(*os.SyscallError); ok && se.Syscall == "wsarecv" {
+ 				const WSAECONNABORTED = 10053
+diff --git a/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go b/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go
+index af2aa99..c5fbaea 100644
+--- a/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go
++++ b/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go
+@@ -4,7 +4,7 @@
+ 
+ package cpu
+ 
+-import "runtime"
++// import "runtime"
+ 
+ // cacheLineSize is used to prevent false sharing of cache lines.
+ // We choose 128 because Apple Silicon, a.k.a. M1, has 128-byte cache line size.
+@@ -44,7 +44,7 @@ func initOptions() {
+ }
+ 
+ func archInit() {
+-	switch runtime.GOOS {
++	switch "linux" {
+ 	case "freebsd":
+ 		readARM64Registers()
+ 	case "linux", "netbsd", "openbsd":
+diff --git a/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go b/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go
+index 600a680..422c996 100644
+--- a/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go
++++ b/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go
+@@ -91,7 +91,7 @@ func archInit() {
+ 		// Check if XMM and YMM registers have OS support.
+ 		osSupportsAVX = isSet(1, eax) && isSet(2, eax)
+ 
+-		if runtime.GOOS == "darwin" {
++		if "linux" == "darwin" {
+ 			// Darwin requires special AVX512 checks, see cpu_darwin_x86.go
+ 			osSupportsAVX512 = osSupportsAVX && darwinSupportsAVX512()
+ 		} else {
+diff --git a/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go b/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
+index 4a1eab3..487b87c 100644
+--- a/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
++++ b/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
+@@ -16,7 +16,7 @@ func cmsgAlignOf(salen int) int {
+ 
+ 	// dragonfly needs to check ABI version at runtime, see cmsgAlignOf in
+ 	// sockcmsg_dragonfly.go
+-	switch runtime.GOOS {
++	switch "linux" {
+ 	case "aix":
+ 		// There is no alignment on AIX.
+ 		salign = 1
+@@ -33,7 +33,7 @@ func cmsgAlignOf(salen int) int {
+ 			salign = 8
+ 		}
+ 		// NetBSD aarch64 requires 128-bit alignment.
+-		if runtime.GOOS == "netbsd" && runtime.GOARCH == "arm64" {
++		if "linux" == "netbsd" && runtime.GOARCH == "arm64" {
+ 			salign = 16
+ 		}
+ 	case "zos":
+diff --git a/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go b/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go
+index a00c3e5..9b2a740 100644
+--- a/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go
++++ b/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go
+@@ -13,7 +13,7 @@
+ package unix
+ 
+ import (
+-	"runtime"
++	_ "runtime"
+ 	"syscall"
+ 	"unsafe"
+ )
+@@ -274,7 +274,7 @@ func Accept(fd int) (nfd int, sa Sockaddr, err error) {
+ 	if err != nil {
+ 		return
+ 	}
+-	if (runtime.GOOS == "darwin" || runtime.GOOS == "ios") && len == 0 {
++	if ("linux" == "darwin" || "linux" == "ios") && len == 0 {
+ 		// Accepted socket has no address.
+ 		// This is likely due to a bug in xnu kernels,
+ 		// where instead of ECONNABORTED error socket
+@@ -298,7 +298,7 @@ func Getsockname(fd int) (sa Sockaddr, err error) {
+ 	}
+ 	// TODO(jsing): DragonFly has a "bug" (see issue 3349), which should be
+ 	// reported upstream.
+-	if runtime.GOOS == "dragonfly" && rsa.Addr.Family == AF_UNSPEC && rsa.Addr.Len == 0 {
++	if "linux" == "dragonfly" && rsa.Addr.Family == AF_UNSPEC && rsa.Addr.Len == 0 {
+ 		rsa.Addr.Family = AF_UNIX
+ 		rsa.Addr.Len = SizeofSockaddrUnix
+ 	}
+-- 
+2.47.2
+
