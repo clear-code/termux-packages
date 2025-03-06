@@ -1,0 +1,66 @@
+From 0af876dcb10db15c00ad644594c7c972fd9016e6 Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Tue, 4 Mar 2025 18:10:27 +0900
+Subject: [PATCH 3/7] Omit shm lock support
+
+Android does not have /dev/shm support, so disable it
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ podman/libpod/lock/shm/shm_lock.go           | 2 +-
+ podman/libpod/lock/shm_lock_manager_linux.go | 2 +-
+ podman/libpod/runtime.go                     | 4 +++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/podman/libpod/lock/shm/shm_lock.go b/podman/libpod/lock/shm/shm_lock.go
+index 24031a8..a3c568f 100644
+--- a/podman/libpod/lock/shm/shm_lock.go
++++ b/podman/libpod/lock/shm/shm_lock.go
+@@ -1,4 +1,4 @@
+-//go:build (linux || freebsd) && cgo
++//go:build ((linux && !android) || freebsd) && cgo
+ 
+ package shm
+ 
+diff --git a/podman/libpod/lock/shm_lock_manager_linux.go b/podman/libpod/lock/shm_lock_manager_linux.go
+index ba438b9..6a1dd61 100644
+--- a/podman/libpod/lock/shm_lock_manager_linux.go
++++ b/podman/libpod/lock/shm_lock_manager_linux.go
+@@ -1,4 +1,4 @@
+-//go:build linux
++//go:build linux && !android
+ 
+ package lock
+ 
+diff --git a/podman/libpod/runtime.go b/podman/libpod/runtime.go
+index fc358de..4d8cb40 100644
+--- a/podman/libpod/runtime.go
++++ b/podman/libpod/runtime.go
+@@ -13,7 +13,7 @@ import (
+ 	"slices"
+ 	"strings"
+ 	"sync"
+-	"syscall"
++	_ "syscall"
+ 	"time"
+ 
+ 	"github.com/containers/buildah/pkg/parse"
+@@ -252,6 +252,7 @@ func getLockManager(runtime *Runtime) (lock.Manager, error) {
+ 			}
+ 		}
+ 
++	/*
+ 	case "", "shm":
+ 		lockPath := define.DefaultSHMLockPath
+ 		if rootless.IsRootless() {
+@@ -284,6 +285,7 @@ func getLockManager(runtime *Runtime) (lock.Manager, error) {
+ 				return nil, err
+ 			}
+ 		}
++	*/
+ 	default:
+ 		return nil, fmt.Errorf("unknown lock type %s: %w", runtime.config.Engine.LockType, define.ErrInvalidArg)
+ 	}
+-- 
+2.47.2
+
