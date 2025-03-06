@@ -1,0 +1,54 @@
+From 4d0dbd9a72812983bbed751c449dbea6083204d2 Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Thu, 27 Feb 2025 16:47:25 +0900
+Subject: [PATCH 6/7] Fix runtime directory path with @TERMUX_PREFIX@
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ podman/pkg/machine/env/dir_linux.go                             | 2 +-
+ .../github.com/containers/storage/pkg/homedir/homedir_unix.go   | 2 +-
+ podman/vendor/github.com/godbus/dbus/v5/conn_other.go           | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/podman/pkg/machine/env/dir_linux.go b/podman/pkg/machine/env/dir_linux.go
+index 67f8142..921bf27 100644
+--- a/podman/pkg/machine/env/dir_linux.go
++++ b/podman/pkg/machine/env/dir_linux.go
+@@ -7,7 +7,7 @@ import (
+ 
+ func getRuntimeDir() (string, error) {
+ 	if !rootless.IsRootless() {
+-		return "/run", nil
++		return "@TERMUX_PREFIX@/run", nil
+ 	}
+ 	return util.GetRootlessRuntimeDir()
+ }
+diff --git a/podman/vendor/github.com/containers/storage/pkg/homedir/homedir_unix.go b/podman/vendor/github.com/containers/storage/pkg/homedir/homedir_unix.go
+index f351b48..c9f68be 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/homedir/homedir_unix.go
++++ b/podman/vendor/github.com/containers/storage/pkg/homedir/homedir_unix.go
+@@ -153,7 +153,7 @@ func GetRuntimeDir() (string, error) {
+ 
+ 		uid := strconv.Itoa(unshare.GetRootlessUID())
+ 		if runtimeDir == "" {
+-			tmpDir := filepath.Join("/run", "user", uid)
++			tmpDir := filepath.Join("@TERMUX_PREFIX@/run", "user", uid)
+ 			if err := os.MkdirAll(tmpDir, 0o700); err != nil {
+ 				logrus.Debug(err)
+ 			}
+diff --git a/podman/vendor/github.com/godbus/dbus/v5/conn_other.go b/podman/vendor/github.com/godbus/dbus/v5/conn_other.go
+index 1e99594..5ddfb53 100644
+--- a/podman/vendor/github.com/godbus/dbus/v5/conn_other.go
++++ b/podman/vendor/github.com/godbus/dbus/v5/conn_other.go
+@@ -79,7 +79,7 @@ func getRuntimeDirectory() (string, error) {
+ 	if currentUser, err := user.Current(); err != nil {
+ 		return "", err
+ 	} else {
+-		return fmt.Sprintf("/run/user/%s", currentUser.Uid), nil
++		return fmt.Sprintf("@TERMUX_PREFIX@/run/user/%s", currentUser.Uid), nil
+ 	}
+ }
+ 
+-- 
+2.47.2
+
