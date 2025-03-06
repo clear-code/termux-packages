@@ -1,0 +1,598 @@
+From 64ecd8e3eabfeed9cdef5bff2d96ba93ba174db4 Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Thu, 27 Feb 2025 11:00:22 +0900
+Subject: [PATCH 4/7] Fix homedir path with @TERMUX_...@
+
+* homedir.Get() => @TERMUX_HOME@
+* homedir.GetDataHome => @TERMUX_HOME@/.local/share
+* homedir.GetCacheHome => @TERMUX_HOME@/.cache
+* homedir.GetConfigHome => @TERMUX_HOME@/.config
+
+T.B.D. should we use @TERMUX_CACHE_DIR@ for homedir.GetCacheHome()?
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ podman/pkg/machine/env/dir.go                      | 14 +++-----------
+ podman/pkg/machine/ocipull/policy_unix.go          |  6 ++----
+ podman/pkg/trust/policy.go                         |  4 ++--
+ podman/pkg/trust/registries.go                     |  4 ++--
+ podman/pkg/util/utils_supported.go                 |  2 +-
+ .../common/libnetwork/network/interface_cni.go     |  9 ++-------
+ .../github.com/containers/common/pkg/auth/auth.go  |  4 ++--
+ .../containers/common/pkg/chown/chown.go           |  4 ++--
+ .../containers/common/pkg/config/default.go        |  8 ++------
+ .../containers/common/pkg/config/modules.go        |  8 ++------
+ .../containers/common/pkg/ssh/connection_golang.go |  6 +++---
+ .../containers/image/v5/docker/docker_client.go    |  4 ++--
+ .../containers/image/v5/docker/registries_d.go     |  6 +++---
+ .../image/v5/openshift/openshift-copies.go         |  4 ++--
+ .../image/v5/pkg/docker/config/config.go           | 12 ++++++------
+ .../image/v5/pkg/sysregistriesv2/shortnames.go     |  8 ++------
+ .../v5/pkg/sysregistriesv2/system_registries_v2.go |  4 ++--
+ .../image/v5/signature/mechanism_openpgp.go        |  4 ++--
+ .../containers/image/v5/signature/policy_config.go |  4 ++--
+ .../github.com/containers/storage/types/options.go |  5 +----
+ .../github.com/containers/storage/types/utils.go   |  4 ++--
+ .../github.com/fsouza/go-dockerclient/client.go    |  4 ++--
+ 22 files changed, 49 insertions(+), 79 deletions(-)
+
+diff --git a/podman/pkg/machine/env/dir.go b/podman/pkg/machine/env/dir.go
+index 18dda22..483901e 100644
+--- a/podman/pkg/machine/env/dir.go
++++ b/podman/pkg/machine/env/dir.go
+@@ -8,7 +8,7 @@ import (
+ 
+ 	"github.com/containers/podman/v5/pkg/machine/define"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ )
+ 
+ // GetCacheDir returns the dir where VM images are downloaded into when pulled
+@@ -110,11 +110,7 @@ func GetMachineDirs(vmType define.VMType) (*define.MachineDirs, error) {
+ 
+ // DataDirPrefix returns the path prefix for all machine data files
+ func DataDirPrefix() (string, error) {
+-	data, err := homedir.GetDataHome()
+-	if err != nil {
+-		return "", err
+-	}
+-	dataDir := filepath.Join(data, "containers", "podman", "machine")
++	dataDir := filepath.Join("@TERMUX_HOME@/.local/share", "containers", "podman", "machine")
+ 	return dataDir, nil
+ }
+ 
+@@ -135,11 +131,7 @@ func GetConfDir(vmType define.VMType) (string, error) {
+ 
+ // ConfDirPrefix returns the path prefix for all machine config files
+ func ConfDirPrefix() (string, error) {
+-	conf, err := homedir.GetConfigHome()
+-	if err != nil {
+-		return "", err
+-	}
+-	confDir := filepath.Join(conf, "containers", "podman", "machine")
++	confDir := filepath.Join("@TERMUX_HOME@/.config", "containers", "podman", "machine")
+ 	return confDir, nil
+ }
+ 
+diff --git a/podman/pkg/machine/ocipull/policy_unix.go b/podman/pkg/machine/ocipull/policy_unix.go
+index 2fd0443..14c5d89 100644
+--- a/podman/pkg/machine/ocipull/policy_unix.go
++++ b/podman/pkg/machine/ocipull/policy_unix.go
+@@ -6,14 +6,12 @@ import (
+ 	"path/filepath"
+ 
+ 	"github.com/containers/common/pkg/config"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ )
+ 
+ func localPolicyOverwrites() []string {
+ 	var dirs []string
+-	if p, err := homedir.GetConfigHome(); err == nil {
+-		dirs = append(dirs, filepath.Join(p, "containers", policyfile))
+-	}
++	dirs = append(dirs, filepath.Join("@TERMUX_HOME@/.config", "containers", policyfile))
+ 	dirs = append(dirs, config.DefaultSignaturePolicyPath)
+ 	return dirs
+ }
+diff --git a/podman/pkg/trust/policy.go b/podman/pkg/trust/policy.go
+index 42532e6..99beb00 100644
+--- a/podman/pkg/trust/policy.go
++++ b/podman/pkg/trust/policy.go
+@@ -16,7 +16,7 @@ import (
+ 	"github.com/containers/common/pkg/config"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/sirupsen/logrus"
+ )
+ 
+@@ -61,7 +61,7 @@ func DefaultPolicyPath(sys *types.SystemContext) string {
+ 		return sys.SignaturePolicyPath
+ 	}
+ 
+-	userPolicyFilePath := filepath.Join(homedir.Get(), filepath.FromSlash(".config/containers/policy.json"))
++	userPolicyFilePath := filepath.Join("@TERMUX_HOME@", filepath.FromSlash(".config/containers/policy.json"))
+ 	err := fileutils.Exists(userPolicyFilePath)
+ 	if err == nil {
+ 		return userPolicyFilePath
+diff --git a/podman/pkg/trust/registries.go b/podman/pkg/trust/registries.go
+index d4516f7..6383712 100644
+--- a/podman/pkg/trust/registries.go
++++ b/podman/pkg/trust/registries.go
+@@ -8,7 +8,7 @@ import (
+ 
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/docker/docker/pkg/homedir"
++	_ "github.com/docker/docker/pkg/homedir"
+ 	"sigs.k8s.io/yaml"
+ )
+ 
+@@ -39,7 +39,7 @@ func RegistriesDirPath(sys *types.SystemContext) string {
+ 	if sys != nil && sys.RegistriesDirPath != "" {
+ 		return sys.RegistriesDirPath
+ 	}
+-	userRegistriesDirPath := filepath.Join(homedir.Get(), userRegistriesDir)
++	userRegistriesDirPath := filepath.Join("@TERMUX_HOME@", userRegistriesDir)
+ 	if err := fileutils.Exists(userRegistriesDirPath); err == nil {
+ 		return userRegistriesDirPath
+ 	}
+diff --git a/podman/pkg/util/utils_supported.go b/podman/pkg/util/utils_supported.go
+index 28c52f2..79f634b 100644
+--- a/podman/pkg/util/utils_supported.go
++++ b/podman/pkg/util/utils_supported.go
+@@ -22,7 +22,7 @@ func GetRootlessRuntimeDir() (string, error) {
+ 
+ // GetRootlessConfigHomeDir returns the config home directory when running as non root
+ func GetRootlessConfigHomeDir() (string, error) {
+-	return homedir.GetConfigHome()
++	return "@TERMUX_HOME@/.config", nil
+ }
+ 
+ // GetRootlessPauseProcessPidPath returns the path to the file that holds the pid for
+diff --git a/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go b/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
+index 3de3a30..d3d6b06 100644
+--- a/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
++++ b/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
+@@ -13,7 +13,7 @@ import (
+ 	"github.com/containers/common/pkg/config"
+ 	"github.com/containers/common/pkg/machine"
+ 	"github.com/containers/storage"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/containers/storage/pkg/unshare"
+ )
+ 
+@@ -46,12 +46,7 @@ func getDefaultCNIConfigDir() (string, error) {
+ 		return cniConfigDir, nil
+ 	}
+ 
+-	configHome, err := homedir.GetConfigHome()
+-	if err != nil {
+-		return "", err
+-	}
+-
+-	return filepath.Join(configHome, cniConfigDirRootless), nil
++	return filepath.Join("@TERMUX_HOME@/.config", cniConfigDirRootless), nil
+ }
+ 
+ func networkBackendFromStore(store storage.Store, conf *config.Config) (backend types.NetworkBackend, err error) {
+diff --git a/podman/vendor/github.com/containers/common/pkg/auth/auth.go b/podman/vendor/github.com/containers/common/pkg/auth/auth.go
+index a3d333a..86bb75d 100644
+--- a/podman/vendor/github.com/containers/common/pkg/auth/auth.go
++++ b/podman/vendor/github.com/containers/common/pkg/auth/auth.go
+@@ -17,7 +17,7 @@ import (
+ 	"github.com/containers/image/v5/pkg/sysregistriesv2"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/sirupsen/logrus"
+ )
+ 
+@@ -88,7 +88,7 @@ func systemContextWithOptions(sys *types.SystemContext, authFile, dockerCompatAu
+ 		sys = &types.SystemContext{}
+ 	}
+ 
+-	defaultDockerConfigPath := filepath.Join(homedir.Get(), ".docker", "config.json")
++	defaultDockerConfigPath := filepath.Join("@TERMUX_HOME@", ".docker", "config.json")
+ 	switch {
+ 	case authFile != "" && dockerCompatAuthFile != "":
+ 		return nil, errors.New("options for paths to the credential file and to the Docker-compatible credential file can not be set simultaneously")
+diff --git a/podman/vendor/github.com/containers/common/pkg/chown/chown.go b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
+index fb7d67f..5cb0089 100644
+--- a/podman/vendor/github.com/containers/common/pkg/chown/chown.go
++++ b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
+@@ -5,7 +5,7 @@ import (
+ 	"os/user"
+ 	"path/filepath"
+ 
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ )
+ 
+ // DangerousHostPath validates if a host path is dangerous and should not be modified
+@@ -37,7 +37,7 @@ func DangerousHostPath(path string) (bool, error) {
+ 		"/var/log":    true,
+ 	}
+ 
+-	if home := homedir.Get(); home != "" {
++	if home := "@TERMUX_HOME@"; home != "" {
+ 		excludePaths[home] = true
+ 	}
+ 
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/default.go b/podman/vendor/github.com/containers/common/pkg/config/default.go
+index 22620cf..e40eb40 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/default.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/default.go
+@@ -200,11 +200,7 @@ func defaultConfig() (*Config, error) {
+ 	// NOTE: For now we want Windows to use system locations.
+ 	// GetRootlessUID == -1 on Windows, so exclude negative range
+ 	if unshare.GetRootlessUID() > 0 {
+-		configHome, err := homedir.GetConfigHome()
+-		if err != nil {
+-			return nil, err
+-		}
+-		sigPath := filepath.Join(configHome, DefaultRootlessSignaturePolicyPath)
++		sigPath := filepath.Join("@TERMUX_HOME@/.config", DefaultRootlessSignaturePolicyPath)
+ 		defaultEngineConfig.SignaturePolicyPath = sigPath
+ 		if err := fileutils.Exists(sigPath); err != nil {
+ 			if err := fileutils.Exists(DefaultSignaturePolicyPath); err == nil {
+@@ -693,7 +689,7 @@ func getDefaultSSHConfig() string {
+ 	if path, ok := os.LookupEnv("CONTAINERS_SSH_CONF"); ok {
+ 		return path
+ 	}
+-	dirname := homedir.Get()
++	dirname := "@TERMUX_HOME@"
+ 	return filepath.Join(dirname, ".ssh", "config")
+ }
+ 
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/modules.go b/podman/vendor/github.com/containers/common/pkg/config/modules.go
+index 4f23694..26c04e2 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/modules.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/modules.go
+@@ -5,7 +5,7 @@ import (
+ 	"path/filepath"
+ 
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/containers/storage/pkg/unshare"
+ 	"github.com/hashicorp/go-multierror"
+ )
+@@ -66,11 +66,7 @@ func ModuleDirectories() ([]string, error) { // Public API for shell completions
+ 	}
+ 
+ 	// Prepend the user modules dir.
+-	configHome, err := homedir.GetConfigHome()
+-	if err != nil {
+-		return nil, err
+-	}
+-	return append([]string{filepath.Join(configHome, moduleSubdir)}, modules...), nil
++	return append([]string{filepath.Join("@TERMUX_HOME@/.config", moduleSubdir)}, modules...), nil
+ }
+ 
+ // Resolve the specified path to a module.
+diff --git a/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go b/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
+index 0439354..deaaa47 100644
+--- a/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
++++ b/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
+@@ -23,7 +23,7 @@ import (
+ 	// https://github.com/containers/podman/issues/23575
+ 	"github.com/containers/common/pkg/config"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/pkg/sftp"
+ 	"github.com/sirupsen/logrus"
+ 	"github.com/skeema/knownhosts"
+@@ -306,7 +306,7 @@ func ValidateAndConfigure(uri *url.URL, iden string, insecureIsMachineConnection
+ 		return nil, err
+ 	}
+ 
+-	keyFilePath := filepath.Join(homedir.Get(), ".ssh", "known_hosts")
++	keyFilePath := filepath.Join("@TERMUX_HOME@", ".ssh", "known_hosts")
+ 	known, err := knownhosts.NewDB(keyFilePath)
+ 	if err != nil {
+ 		if !errors.Is(err, os.ErrNotExist) {
+@@ -410,7 +410,7 @@ func getUDS(uri *url.URL, iden string) (string, error) {
+ 
+ // addKnownHostsEntry adds (host, pubKey) to user’s known_hosts.
+ func addKnownHostsEntry(host string, pubKey ssh.PublicKey) error {
+-	hd := homedir.Get()
++	hd := "@TERMUX_HOME@"
+ 	known := filepath.Join(hd, ".ssh", "known_hosts")
+ 	f, err := os.OpenFile(known, os.O_APPEND|os.O_WRONLY, 0o600)
+ 	if err != nil {
+diff --git a/podman/vendor/github.com/containers/image/v5/docker/docker_client.go b/podman/vendor/github.com/containers/image/v5/docker/docker_client.go
+index 220afd0..d7a3f3f 100644
+--- a/podman/vendor/github.com/containers/image/v5/docker/docker_client.go
++++ b/podman/vendor/github.com/containers/image/v5/docker/docker_client.go
+@@ -27,7 +27,7 @@ import (
+ 	"github.com/containers/image/v5/pkg/tlsclientconfig"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/docker/distribution/registry/api/errcode"
+ 	v2 "github.com/docker/distribution/registry/api/v2"
+ 	"github.com/docker/go-connections/tlsconfig"
+@@ -158,7 +158,7 @@ func dockerCertDir(sys *types.SystemContext, hostPort string) (string, error) {
+ 		fullCertDirPath string
+ 	)
+ 
+-	for _, perHostCertDir := range append([]certPath{{path: filepath.Join(homedir.Get(), homeCertDir), absolute: false}}, perHostCertDirs...) {
++	for _, perHostCertDir := range append([]certPath{{path: filepath.Join("@TERMUX_HOME@", homeCertDir), absolute: false}}, perHostCertDirs...) {
+ 		if sys != nil && sys.RootForImplicitAbsolutePaths != "" && perHostCertDir.absolute {
+ 			hostCertDir = filepath.Join(sys.RootForImplicitAbsolutePaths, perHostCertDir.path)
+ 		} else {
+diff --git a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
+index 89d48cc..e001d6b 100644
+--- a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
++++ b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
+@@ -14,7 +14,7 @@ import (
+ 	"github.com/containers/image/v5/internal/rootless"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/opencontainers/go-digest"
+ 	"github.com/sirupsen/logrus"
+ 	"gopkg.in/yaml.v3"
+@@ -85,7 +85,7 @@ func loadRegistryConfiguration(sys *types.SystemContext) (*registryConfiguration
+ 
+ // registriesDirPath returns a path to registries.d
+ func registriesDirPath(sys *types.SystemContext) string {
+-	return registriesDirPathWithHomeDir(sys, homedir.Get())
++	return registriesDirPathWithHomeDir(sys, "@TERMUX_HOME@")
+ }
+ 
+ // registriesDirPathWithHomeDir is an internal implementation detail of registriesDirPath,
+@@ -195,7 +195,7 @@ func (config *registryConfiguration) lookasideStorageBaseURL(dr dockerReference,
+ // builtinDefaultLookasideStorageDir returns default signature storage URL as per euid
+ func builtinDefaultLookasideStorageDir(euid int) *url.URL {
+ 	if euid != 0 {
+-		return &url.URL{Scheme: "file", Path: filepath.Join(homedir.Get(), defaultUserDockerDir)}
++		return &url.URL{Scheme: "file", Path: filepath.Join("@TERMUX_HOME@", defaultUserDockerDir)}
+ 	}
+ 	return &url.URL{Scheme: "file", Path: defaultDockerDir}
+ }
+diff --git a/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go b/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
+index cef3dcc..ba9917e 100644
+--- a/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
++++ b/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
+@@ -20,7 +20,7 @@ import (
+ 
+ 	"dario.cat/mergo"
+ 	"github.com/containers/image/v5/internal/multierr"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/sirupsen/logrus"
+ 	"gopkg.in/yaml.v3"
+ )
+@@ -91,7 +91,7 @@ func defaultClientConfig() clientConfig {
+ 	return clientConfig
+ }
+ 
+-var recommendedHomeFile = path.Join(homedir.Get(), ".kube/config")
++var recommendedHomeFile = path.Join("@TERMUX_HOME@", ".kube/config")
+ 
+ // newOpenShiftClientConfigLoadingRules is a modified copy of openshift/origin/pkg/cmd/cli/config.NewOpenShiftClientConfigLoadingRules.
+ // NewOpenShiftClientConfigLoadingRules returns file priority loading rules for OpenShift.
+diff --git a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+index 1544ac3..a40a527 100644
+--- a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
++++ b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+@@ -18,7 +18,7 @@ import (
+ 	"github.com/containers/image/v5/pkg/sysregistriesv2"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/containers/storage/pkg/ioutils"
+ 	helperclient "github.com/docker/docker-credential-helpers/client"
+ 	"github.com/docker/docker-credential-helpers/credentials"
+@@ -84,7 +84,7 @@ func GetAllCredentials(sys *types.SystemContext) (map[string]types.DockerAuthCon
+ 		switch helper {
+ 		// Special-case the built-in helper for auth files.
+ 		case sysregistriesv2.AuthenticationFileHelper:
+-			for _, path := range getAuthFilePaths(sys, homedir.Get()) {
++			for _, path := range getAuthFilePaths(sys, "@TERMUX_HOME@") {
+ 				// parse returns an empty map in case the path doesn't exist.
+ 				fileContents, err := path.parse()
+ 				if err != nil {
+@@ -180,7 +180,7 @@ func getAuthFilePaths(sys *types.SystemContext, homeDir string) []authPath {
+ //
+ // GetCredentialsForRef should almost always be used in favor of this API.
+ func GetCredentials(sys *types.SystemContext, key string) (types.DockerAuthConfig, error) {
+-	return getCredentialsWithHomeDir(sys, key, homedir.Get())
++	return getCredentialsWithHomeDir(sys, key, "@TERMUX_HOME@")
+ }
+ 
+ // GetCredentialsForRef returns the registry credentials necessary for
+@@ -188,7 +188,7 @@ func GetCredentials(sys *types.SystemContext, key string) (types.DockerAuthConfi
+ // appropriate for sys and the users’ configuration.
+ // If an entry is not found, an empty struct is returned.
+ func GetCredentialsForRef(sys *types.SystemContext, ref reference.Named) (types.DockerAuthConfig, error) {
+-	return getCredentialsWithHomeDir(sys, ref.Name(), homedir.Get())
++	return getCredentialsWithHomeDir(sys, ref.Name(), "@TERMUX_HOME@")
+ }
+ 
+ // getCredentialsWithHomeDir is an internal implementation detail of
+@@ -284,7 +284,7 @@ func getCredentialsWithHomeDir(sys *types.SystemContext, key, homeDir string) (t
+ // GetCredentialsForRef and GetCredentials API. The new API should be used and this API is kept to
+ // maintain backward compatibility.
+ func GetAuthentication(sys *types.SystemContext, key string) (string, string, error) {
+-	return getAuthenticationWithHomeDir(sys, key, homedir.Get())
++	return getAuthenticationWithHomeDir(sys, key, "@TERMUX_HOME@")
+ }
+ 
+ // getAuthenticationWithHomeDir is an internal implementation detail of GetAuthentication,
+@@ -571,7 +571,7 @@ func getPathToAuthWithOS(sys *types.SystemContext, goOS string) (authPath, bool,
+ 		}
+ 	}
+ 	if goOS != "linux" {
+-		return newAuthPathDefault(filepath.Join(homedir.Get(), nonLinuxAuthFilePath)), false, nil
++		return newAuthPathDefault(filepath.Join("@TERMUX_HOME@", nonLinuxAuthFilePath)), false, nil
+ 	}
+ 
+ 	runtimeDir := os.Getenv("XDG_RUNTIME_DIR")
+diff --git a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+index 71f5bc8..20e5216 100644
+--- a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
++++ b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+@@ -13,7 +13,7 @@ import (
+ 	"github.com/containers/image/v5/internal/multierr"
+ 	"github.com/containers/image/v5/internal/rootless"
+ 	"github.com/containers/image/v5/types"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/containers/storage/pkg/lockfile"
+ 	"github.com/sirupsen/logrus"
+ )
+@@ -38,12 +38,8 @@ func shortNameAliasesConfPath(ctx *types.SystemContext) (string, error) {
+ 	}
+ 
+ 	// Rootless user
+-	cacheRoot, err := homedir.GetCacheHome()
+-	if err != nil {
+-		return "", err
+-	}
+ 
+-	return filepath.Join(cacheRoot, userShortNamesFile), nil
++	return filepath.Join("@TERMUX_HOME@/.cache", userShortNamesFile), nil
+ }
+ 
+ // shortNameAliasConf is a subset of the `V2RegistriesConf` format.  It's used in the
+diff --git a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
+index 9ac0505..3217efd 100644
+--- a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
++++ b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
+@@ -15,7 +15,7 @@ import (
+ 	"github.com/containers/image/v5/docker/reference"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/containers/storage/pkg/regexp"
+ 	"github.com/sirupsen/logrus"
+ 	"golang.org/x/exp/maps"
+@@ -558,7 +558,7 @@ type configWrapper struct {
+ 
+ // newConfigWrapper returns a configWrapper for the specified SystemContext.
+ func newConfigWrapper(ctx *types.SystemContext) configWrapper {
+-	return newConfigWrapperWithHomeDir(ctx, homedir.Get())
++	return newConfigWrapperWithHomeDir(ctx, "@TERMUX_HOME@")
+ }
+ 
+ // newConfigWrapperWithHomeDir is an internal implementation detail of newConfigWrapper,
+diff --git a/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go b/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
+index bd1979a..2c4de0c 100644
+--- a/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
++++ b/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
+@@ -14,7 +14,7 @@ import (
+ 	"time"
+ 
+ 	"github.com/containers/image/v5/signature/internal"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 
+ 	// This is a fallback code; the primary recommendation is to use the gpgme mechanism
+ 	// implementation, which is out-of-process and more appropriate for handling long-term private key material
+@@ -42,7 +42,7 @@ func newGPGSigningMechanismInDirectory(optionalDir string) (signingMechanismWith
+ 	if gpgHome == "" {
+ 		gpgHome = os.Getenv("GNUPGHOME")
+ 		if gpgHome == "" {
+-			gpgHome = path.Join(homedir.Get(), ".gnupg")
++			gpgHome = path.Join("@TERMUX_HOME@", ".gnupg")
+ 		}
+ 	}
+ 
+diff --git a/podman/vendor/github.com/containers/image/v5/signature/policy_config.go b/podman/vendor/github.com/containers/image/v5/signature/policy_config.go
+index 8de705c..6d73c77 100644
+--- a/podman/vendor/github.com/containers/image/v5/signature/policy_config.go
++++ b/podman/vendor/github.com/containers/image/v5/signature/policy_config.go
+@@ -25,7 +25,7 @@ import (
+ 	"github.com/containers/image/v5/transports"
+ 	"github.com/containers/image/v5/types"
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/containers/storage/pkg/regexp"
+ )
+ 
+@@ -60,7 +60,7 @@ func DefaultPolicy(sys *types.SystemContext) (*Policy, error) {
+ 
+ // defaultPolicyPath returns a path to the relevant policy of the system, or an error if the policy is missing.
+ func defaultPolicyPath(sys *types.SystemContext) (string, error) {
+-	policyFilePath, err := defaultPolicyPathWithHomeDir(sys, homedir.Get(), systemDefaultPolicyPath)
++	policyFilePath, err := defaultPolicyPathWithHomeDir(sys, "@TERMUX_HOME@", systemDefaultPolicyPath)
+ 	if err != nil {
+ 		return "", err
+ 	}
+diff --git a/podman/vendor/github.com/containers/storage/types/options.go b/podman/vendor/github.com/containers/storage/types/options.go
+index efc08c4..9c32126 100644
+--- a/podman/vendor/github.com/containers/storage/types/options.go
++++ b/podman/vendor/github.com/containers/storage/types/options.go
+@@ -290,10 +290,7 @@ func getRootlessStorageOpts(systemOpts StoreOptions) (StoreOptions, error) {
+ 
+ 	rootlessUID := unshare.GetRootlessUID()
+ 
+-	dataDir, err := homedir.GetDataHome()
+-	if err != nil {
+-		return opts, err
+-	}
++	dataDir := "@TERMUX_HOME@/.local/share"
+ 
+ 	rootlessRuntime, err := homedir.GetRuntimeDir()
+ 	if err != nil {
+diff --git a/podman/vendor/github.com/containers/storage/types/utils.go b/podman/vendor/github.com/containers/storage/types/utils.go
+index 73fcd24..44791b5 100644
+--- a/podman/vendor/github.com/containers/storage/types/utils.go
++++ b/podman/vendor/github.com/containers/storage/types/utils.go
+@@ -8,7 +8,7 @@ import (
+ 	"strings"
+ 
+ 	"github.com/containers/storage/pkg/fileutils"
+-	"github.com/containers/storage/pkg/homedir"
++	_ "github.com/containers/storage/pkg/homedir"
+ 	"github.com/sirupsen/logrus"
+ )
+ 
+@@ -41,7 +41,7 @@ func DefaultConfigFile() (string, error) {
+ 	if configHome := os.Getenv("XDG_CONFIG_HOME"); configHome != "" {
+ 		return filepath.Join(configHome, "containers/storage.conf"), nil
+ 	}
+-	home := homedir.Get()
++	home := "@TERMUX_HOME@"
+ 	if home == "" {
+ 		return "", errors.New("cannot determine user's homedir")
+ 	}
+diff --git a/podman/vendor/github.com/fsouza/go-dockerclient/client.go b/podman/vendor/github.com/fsouza/go-dockerclient/client.go
+index e1a4200..48bf400 100644
+--- a/podman/vendor/github.com/fsouza/go-dockerclient/client.go
++++ b/podman/vendor/github.com/fsouza/go-dockerclient/client.go
+@@ -30,7 +30,7 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	"github.com/docker/docker/pkg/homedir"
++	_ "github.com/docker/docker/pkg/homedir"
+ 	"github.com/docker/docker/pkg/jsonmessage"
+ 	"github.com/docker/docker/pkg/stdcopy"
+ )
+@@ -1098,7 +1098,7 @@ func getDockerEnv() (*dockerEnv, error) {
+ 	if dockerTLSVerify {
+ 		dockerCertPath = os.Getenv("DOCKER_CERT_PATH")
+ 		if dockerCertPath == "" {
+-			home := homedir.Get()
++			home := "@TERMUX_HOME@"
+ 			if home == "" {
+ 				return nil, errors.New("environment variable HOME must be set if DOCKER_CERT_PATH is not set")
+ 			}
+-- 
+2.47.2
+
