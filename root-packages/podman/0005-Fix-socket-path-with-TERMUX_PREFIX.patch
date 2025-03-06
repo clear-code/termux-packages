@@ -1,0 +1,79 @@
+From 92e99def1c8b1598db361afb2e8c7fb47de46f6f Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Thu, 27 Feb 2025 16:34:55 +0900
+Subject: [PATCH 5/7] Fix socket path with @TERMUX_PREFIX@
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ podman/libpod/plugin/volume_api.go                             | 2 +-
+ podman/pkg/domain/infra/abi/system.go                          | 2 +-
+ podman/vendor/github.com/crc-org/vfkit/pkg/rest/rest.go        | 2 +-
+ podman/vendor/github.com/docker/docker/client/client_unix.go   | 2 +-
+ podman/vendor/github.com/fsouza/go-dockerclient/client_unix.go | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/podman/libpod/plugin/volume_api.go b/podman/libpod/plugin/volume_api.go
+index 834d9c9..8c3f068 100644
+--- a/podman/libpod/plugin/volume_api.go
++++ b/podman/libpod/plugin/volume_api.go
+@@ -183,7 +183,7 @@ func GetVolumePlugin(name string, path string, timeout *uint, cfg *config.Config
+ }
+ 
+ func (p *VolumePlugin) getURI() string {
+-	return "unix://" + p.SocketPath
++	return "unix://@TERMUX_PREFIX@" + p.SocketPath
+ }
+ 
+ // Verify the plugin is still available.
+diff --git a/podman/pkg/domain/infra/abi/system.go b/podman/pkg/domain/infra/abi/system.go
+index fd7c32e..9050e73 100644
+--- a/podman/pkg/domain/infra/abi/system.go
++++ b/podman/pkg/domain/infra/abi/system.go
+@@ -50,7 +50,7 @@ func (ic *ContainerEngine) Info(ctx context.Context) (*define.Info, error) {
+ 	}
+ 
+ 	// check if the unix path exits, if not unix socket we always we assume it exists, i.e. tcp socket
+-	path, found := strings.CutPrefix(info.Host.RemoteSocket.Path, "unix://")
++	path, found := strings.CutPrefix(info.Host.RemoteSocket.Path, "unix://@TERMUX_PREFIX@")
+ 	if found {
+ 		err := fileutils.Exists(path)
+ 		info.Host.RemoteSocket.Exists = err == nil
+diff --git a/podman/vendor/github.com/crc-org/vfkit/pkg/rest/rest.go b/podman/vendor/github.com/crc-org/vfkit/pkg/rest/rest.go
+index 3db945c..e19d896 100644
+--- a/podman/vendor/github.com/crc-org/vfkit/pkg/rest/rest.go
++++ b/podman/vendor/github.com/crc-org/vfkit/pkg/rest/rest.go
+@@ -46,7 +46,7 @@ func (ep *Endpoint) ToCmdLine() ([]string, error) {
+ 	args := []string{"--restful-uri"}
+ 	switch ep.Scheme {
+ 	case Unix:
+-		args = append(args, fmt.Sprintf("unix://%s", ep.Path))
++		args = append(args, fmt.Sprintf("unix://@TERMUX_PREFIX@%s", ep.Path))
+ 	case TCP:
+ 		args = append(args, fmt.Sprintf("tcp://%s%s", ep.Host, ep.Path))
+ 	case None:
+diff --git a/podman/vendor/github.com/docker/docker/client/client_unix.go b/podman/vendor/github.com/docker/docker/client/client_unix.go
+index 9fe78ea..4d65bbd 100644
+--- a/podman/vendor/github.com/docker/docker/client/client_unix.go
++++ b/podman/vendor/github.com/docker/docker/client/client_unix.go
+@@ -4,4 +4,4 @@ package client // import "github.com/docker/docker/client"
+ 
+ // DefaultDockerHost defines OS-specific default host if the DOCKER_HOST
+ // (EnvOverrideHost) environment variable is unset or empty.
+-const DefaultDockerHost = "unix:///var/run/docker.sock"
++const DefaultDockerHost = "unix://@TERMUX_PREFIX@/var/run/docker.sock"
+diff --git a/podman/vendor/github.com/fsouza/go-dockerclient/client_unix.go b/podman/vendor/github.com/fsouza/go-dockerclient/client_unix.go
+index ee4dba2..705b742 100644
+--- a/podman/vendor/github.com/fsouza/go-dockerclient/client_unix.go
++++ b/podman/vendor/github.com/fsouza/go-dockerclient/client_unix.go
+@@ -12,7 +12,7 @@ import (
+ 	"net/http"
+ )
+ 
+-const defaultHost = "unix:///var/run/docker.sock"
++const defaultHost = "unix://@TERMUX_PREFIX@/var/run/docker.sock"
+ 
+ // initializeNativeClient initializes the native Unix domain socket client on
+ // Unix-style operating systems
+-- 
+2.47.2
+
