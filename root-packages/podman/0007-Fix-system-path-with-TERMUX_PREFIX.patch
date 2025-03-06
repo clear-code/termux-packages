@@ -1,0 +1,1636 @@
+From 0023c3195e0a9d9749679c1a9881a02dd2783b6a Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Thu, 27 Feb 2025 18:02:29 +0900
+Subject: [PATCH 7/7] Fix system path with @TERMUX_PREFIX@
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ podman/cmd/podman-mac-helper/main.go          |   6 +-
+ podman/cmd/podman/kube/play.go                |   2 +-
+ podman/libpod/container_internal_linux.go     |   2 +-
+ podman/libpod/runtime_ctr.go                  |  14 +-
+ .../pkg/api/handlers/libpod/swagger_spec.go   |   2 +-
+ podman/pkg/env/env.go                         |   2 +-
+ podman/pkg/machine/apple/apple.go             |   2 +-
+ podman/pkg/machine/hyperv/stubber.go          |   4 +-
+ podman/pkg/machine/ignition/ignition.go       |  36 ++--
+ podman/pkg/machine/ignition/ready.go          |   6 +-
+ podman/pkg/machine/proxyenv/env.go            |  12 +-
+ .../pkg/machine/qemu/options_linux_arm64.go   |   4 +-
+ podman/pkg/machine/shim/networking.go         |   6 +-
+ .../pkg/specgen/generate/container_create.go  |   8 +-
+ podman/pkg/specgen/generate/storage.go        |   2 +-
+ podman/pkg/systemd/generate/containers.go     |   2 +-
+ podman/pkg/systemd/generate/pods.go           |   2 +-
+ podman/pkg/systemd/quadlet/podmancmdline.go   |   2 +-
+ podman/pkg/systemd/quadlet/quadlet.go         |   6 +-
+ podman/pkg/util/utils.go                      |   2 +-
+ .../containernetworking/cni/libcni/api.go     |   2 +-
+ .../buildah/define/mount_unsupported.go       |   2 +-
+ .../buildah/internal/mkcw/attest.go           |  12 +-
+ .../buildah/internal/tmpdir/tmpdir.go         |   2 +-
+ .../containers/buildah/pkg/binfmt/binfmt.go   |   2 +-
+ .../containers/buildah/run_common.go          |   2 +-
+ .../containers/buildah/run_linux.go           |   2 +-
+ .../common/libnetwork/cni/cni_exec.go         |   4 +-
+ .../internal/rootlessnetns/netns_linux.go     |   2 +-
+ .../common/libnetwork/netavark/exec.go        |   4 +-
+ .../pkg/apparmor/apparmor_linux_template.go   |   6 +-
+ .../containers/common/pkg/chown/chown.go      |  36 ++--
+ .../common/pkg/config/config_linux.go         |  14 +-
+ .../common/pkg/config/config_local.go         |   4 +-
+ .../containers/common/pkg/config/default.go   | 168 +++++++++---------
+ .../common/pkg/config/default_common.go       |   2 +-
+ .../common/pkg/config/default_linux.go        |   4 +-
+ .../common/pkg/config/default_unsupported.go  |   2 +-
+ .../containers/common/pkg/config/modules.go   |   4 +-
+ .../containers/common/pkg/config/systemd.go   |   2 +-
+ .../containers/common/pkg/hooks/hooks.go      |   4 +-
+ .../common/pkg/subscriptions/subscriptions.go |  12 +-
+ .../common/pkg/timezone/timezone.go           |   2 +-
+ .../containers/common/pkg/version/version.go  |  26 +--
+ .../conmon/runner/config/config_unix.go       |   2 +-
+ .../image/v5/docker/registries_d.go           |   2 +-
+ .../image/v5/internal/tmpdir/tmpdir.go        |   2 +-
+ .../image/v5/pkg/blobinfocache/default.go     |   2 +-
+ .../v5/pkg/sysregistriesv2/shortnames.go      |   2 +-
+ .../ocicrypt/crypto/pkcs11/common.go          |  10 +-
+ .../containers/storage/pkg/system/path.go     |   2 +-
+ .../containers/storage/types/options_linux.go |   8 +-
+ .../go-libvirt/socket/dialers/local.go        |   2 +-
+ .../docker/go-plugins-helpers/volume/api.go   |   2 +-
+ .../mimetype/internal/magic/text.go           |  52 +++---
+ .../github.com/godbus/dbus/v5/conn_unix.go    |   2 +-
+ .../kevinburke/ssh_config/validators.go       |   2 +-
+ .../runtime-tools/generate/generate.go        |   2 +-
+ .../selinux/go-selinux/selinux_linux.go       |  42 ++---
+ .../openshift/imagebuilder/constants.go       |   2 +-
+ .../shirou/gopsutil/v4/cpu/cpu_dragonfly.go   |   2 +-
+ .../v4/internal/common/common_linux.go        |   2 +-
+ .../twitchyliquid64/golang-asm/dwarf/dwarf.go |   2 +-
+ .../vishvananda/netns/netns_linux.go          |   2 +-
+ .../pkg/cdi/spec-dirs.go                      |   4 +-
+ 65 files changed, 295 insertions(+), 295 deletions(-)
+
+diff --git a/podman/cmd/podman-mac-helper/main.go b/podman/cmd/podman-mac-helper/main.go
+index cb77393..2d21606 100644
+--- a/podman/cmd/podman-mac-helper/main.go
++++ b/podman/cmd/podman-mac-helper/main.go
+@@ -16,8 +16,8 @@ import (
+ )
+ 
+ const (
+-	defaultPrefix = "/usr/local"
+-	dockerSock    = "/var/run/docker.sock"
++	defaultPrefix = "@TERMUX_PREFIX@/usr/local"
++	dockerSock    = "@TERMUX_PREFIX@/var/run/docker.sock"
+ )
+ 
+ var installPrefix string
+@@ -59,7 +59,7 @@ func main() {
+ func getUserInfo(name string) (string, string, string, error) {
+ 	// We exec id instead of using user.Lookup to remain compat
+ 	// with CGO disabled.
+-	cmd := exec.Command("/usr/bin/id", "-P", name)
++	cmd := exec.Command("@TERMUX_PREFIX@/usr/bin/id", "-P", name)
+ 	output, err := cmd.StdoutPipe()
+ 	if err != nil {
+ 		return "", "", "", err
+diff --git a/podman/cmd/podman/kube/play.go b/podman/cmd/podman/kube/play.go
+index 3766934..1943830 100644
+--- a/podman/cmd/podman/kube/play.go
++++ b/podman/cmd/podman/kube/play.go
+@@ -44,7 +44,7 @@ type playKubeOptionsWrapper struct {
+ 
+ var (
+ 	// https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/
+-	defaultSeccompRoot = "/var/lib/kubelet/seccomp"
++	defaultSeccompRoot = "@TERMUX_PREFIX@/var/lib/kubelet/seccomp"
+ 	playOptions        = playKubeOptionsWrapper{}
+ 	playDescription    = `Reads in a structured file of Kubernetes YAML.
+ 
+diff --git a/podman/libpod/container_internal_linux.go b/podman/libpod/container_internal_linux.go
+index c1be78d..09ec29c 100644
+--- a/podman/libpod/container_internal_linux.go
++++ b/podman/libpod/container_internal_linux.go
+@@ -252,7 +252,7 @@ func (c *Container) setupSystemd(mounts []spec.Mount, g generate.Generator) erro
+ 		}
+ 		g.AddMount(tmpfsMnt)
+ 	}
+-	for _, dest := range []string{"/tmp", "/var/log/journal"} {
++	for _, dest := range []string{"@TERMUX_PREFIX@/tmp", "@TERMUX_PREFIX@/var/log/journal"} {
+ 		if MountExists(mounts, dest) {
+ 			continue
+ 		}
+diff --git a/podman/libpod/runtime_ctr.go b/podman/libpod/runtime_ctr.go
+index 87d8484..1779de2 100644
+--- a/podman/libpod/runtime_ctr.go
++++ b/podman/libpod/runtime_ctr.go
+@@ -428,13 +428,13 @@ func (r *Runtime) setupContainer(ctx context.Context, ctr *Container) (_ *Contai
+ 		g := generate.NewFromSpec(ctr.config.Spec)
+ 		g.RemoveMount("/dev/shm")
+ 		ctr.config.ShmDir = ""
+-		g.RemoveMount("/etc/resolv.conf")
+-		g.RemoveMount("/etc/hostname")
+-		g.RemoveMount("/etc/hosts")
+-		g.RemoveMount("/run/.containerenv")
+-		g.RemoveMount("/run/secrets")
+-		g.RemoveMount("/var/run/.containerenv")
+-		g.RemoveMount("/var/run/secrets")
++		g.RemoveMount("@TERMUX_PREFIX@/etc/resolv.conf")
++		g.RemoveMount("@TERMUX_PREFIX@/etc/hostname")
++		g.RemoveMount("@TERMUX_PREFIX@/etc/hosts")
++		g.RemoveMount("@TERMUX_PREFIX@/run/.containerenv")
++		g.RemoveMount("@TERMUX_PREFIX@/run/secrets")
++		g.RemoveMount("@TERMUX_PREFIX@/var/run/.containerenv")
++		g.RemoveMount("@TERMUX_PREFIX@/var/run/secrets")
+ 
+ 		// Regenerate Cgroup paths so they don't point to the old
+ 		// container ID.
+diff --git a/podman/pkg/api/handlers/libpod/swagger_spec.go b/podman/pkg/api/handlers/libpod/swagger_spec.go
+index bcfb407..edaedb4 100644
+--- a/podman/pkg/api/handlers/libpod/swagger_spec.go
++++ b/podman/pkg/api/handlers/libpod/swagger_spec.go
+@@ -13,7 +13,7 @@ import (
+ )
+ 
+ // DefaultPodmanSwaggerSpec provides the default path to the podman swagger spec file
+-const DefaultPodmanSwaggerSpec = "/usr/share/containers/podman/swagger.yaml"
++const DefaultPodmanSwaggerSpec = "@TERMUX_PREFIX@/usr/share/containers/podman/swagger.yaml"
+ 
+ func ServeSwagger(w http.ResponseWriter, r *http.Request) {
+ 	path := DefaultPodmanSwaggerSpec
+diff --git a/podman/pkg/env/env.go b/podman/pkg/env/env.go
+index 31ec789..f601629 100644
+--- a/podman/pkg/env/env.go
++++ b/podman/pkg/env/env.go
+@@ -16,7 +16,7 @@ const whiteSpaces = " \t"
+ // DefaultEnvVariables returns a default environment, with $PATH and $TERM set.
+ func DefaultEnvVariables() map[string]string {
+ 	return map[string]string{
+-		"PATH":      "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
++		"PATH":      "@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin",
+ 		"container": "podman",
+ 	}
+ }
+diff --git a/podman/pkg/machine/apple/apple.go b/podman/pkg/machine/apple/apple.go
+index 4f720b8..4384e9e 100644
+--- a/podman/pkg/machine/apple/apple.go
++++ b/podman/pkg/machine/apple/apple.go
+@@ -306,7 +306,7 @@ func StartGenericAppleVM(mc *vmconfigs.MachineConfig, cmdBinary string, bootload
+ 			return nil, nil, err
+ 		}
+ 
+-		cmd = exec.Command("/usr/bin/open", "-Wa", "Terminal", kdFile.Path)
++		cmd = exec.Command("@TERMUX_PREFIX@/usr/bin/open", "-Wa", "Terminal", kdFile.Path)
+ 	}
+ 
+ 	if err := cmd.Start(); err != nil {
+diff --git a/podman/pkg/machine/hyperv/stubber.go b/podman/pkg/machine/hyperv/stubber.go
+index ed538d0..be46ed8 100644
+--- a/podman/pkg/machine/hyperv/stubber.go
++++ b/podman/pkg/machine/hyperv/stubber.go
+@@ -547,8 +547,8 @@ func createNetworkUnit(netPort uint64) (string, error) {
+ 	netUnit := parser.NewUnitFile()
+ 	netUnit.Add("Unit", "Description", "vsock_network")
+ 	netUnit.Add("Unit", "After", "NetworkManager.service")
+-	netUnit.Add("Service", "ExecStart", fmt.Sprintf("/usr/libexec/podman/gvforwarder -preexisting -iface vsock0 -url vsock://2:%d/connect", netPort))
+-	netUnit.Add("Service", "ExecStartPost", "/usr/bin/nmcli c up vsock0")
++	netUnit.Add("Service", "ExecStart", fmt.Sprintf("@TERMUX_PREFIX@/usr/libexec/podman/gvforwarder -preexisting -iface vsock0 -url vsock://2:%d/connect", netPort))
++	netUnit.Add("Service", "ExecStartPost", "@TERMUX_PREFIX@/usr/bin/nmcli c up vsock0")
+ 	netUnit.Add("Install", "WantedBy", "multi-user.target")
+ 	return netUnit.ToString()
+ }
+diff --git a/podman/pkg/machine/ignition/ignition.go b/podman/pkg/machine/ignition/ignition.go
+index 3995ef7..394e522 100644
+--- a/podman/pkg/machine/ignition/ignition.go
++++ b/podman/pkg/machine/ignition/ignition.go
+@@ -168,7 +168,7 @@ func (ign *DynamicIgnition) GenerateIgnitionConfig() error {
+ 				// We always want this value in unix form (/path/to/something) because this is being
+ 				// set in the machine OS (always Linux).  However, filepath.join on windows will use a "\\"
+ 				// separator; therefore we use ToSlash to convert the path to unix style
+-				Target: filepath.ToSlash(filepath.Join("/usr/share/zoneinfo", tz)),
++				Target: filepath.ToSlash(filepath.Join("@TERMUX_PREFIX@/usr/share/zoneinfo", tz)),
+ 			},
+ 		}
+ 		ignStorage.Links = append(ignStorage.Links, tzLink)
+@@ -188,25 +188,25 @@ func (ign *DynamicIgnition) GenerateIgnitionConfig() error {
+ 	envset.Add("Service", "Type", "oneshot")
+ 	envset.Add("Service", "RemainAfterExit", "yes")
+ 	envset.Add("Service", "Environment", "FWCFGRAW=/sys/firmware/qemu_fw_cfg/by_name/opt/com.coreos/environment/raw")
+-	envset.Add("Service", "Environment", "SYSTEMD_CONF=/etc/systemd/system.conf.d/default-env.conf")
+-	envset.Add("Service", "Environment", "ENVD_CONF=/etc/environment.d/default-env.conf")
+-	envset.Add("Service", "Environment", "PROFILE_CONF=/etc/profile.d/default-env.sh")
+-	envset.Add("Service", "ExecStart", `/usr/bin/bash -c '/usr/bin/test -f ${FWCFGRAW} &&\
+-        echo "[Manager]\n#Got from QEMU FW_CFG\nDefaultEnvironment=$(/usr/bin/base64 -d ${FWCFGRAW} | sed -e "s+|+ +g")\n" > ${SYSTEMD_CONF} ||\
++	envset.Add("Service", "Environment", "SYSTEMD_CONF=@TERMUX_PREFIX@/etc/systemd/system.conf.d/default-env.conf")
++	envset.Add("Service", "Environment", "ENVD_CONF=@TERMUX_PREFIX@/etc/environment.d/default-env.conf")
++	envset.Add("Service", "Environment", "PROFILE_CONF=@TERMUX_PREFIX@/etc/profile.d/default-env.sh")
++	envset.Add("Service", "ExecStart", `@TERMUX_PREFIX@/usr/bin/bash -c '@TERMUX_PREFIX@/usr/bin/test -f ${FWCFGRAW} &&\
++        echo "[Manager]\n#Got from QEMU FW_CFG\nDefaultEnvironment=$(@TERMUX_PREFIX@/usr/bin/base64 -d ${FWCFGRAW} | sed -e "s+|+ +g")\n" > ${SYSTEMD_CONF} ||\
+         echo "[Manager]\n#Got nothing from QEMU FW_CFG\n#DefaultEnvironment=\n" > ${SYSTEMD_CONF}'`)
+-	envset.Add("Service", "ExecStart", `/usr/bin/bash -c '/usr/bin/test -f ${FWCFGRAW} && (\
++	envset.Add("Service", "ExecStart", `@TERMUX_PREFIX@/usr/bin/bash -c '@TERMUX_PREFIX@/usr/bin/test -f ${FWCFGRAW} && (\
+         echo "#Got from QEMU FW_CFG"> ${ENVD_CONF};\
+         IFS="|";\
+-        for iprxy in $(/usr/bin/base64 -d ${FWCFGRAW}); do\
++        for iprxy in $(@TERMUX_PREFIX@/usr/bin/base64 -d ${FWCFGRAW}); do\
+             echo "$iprxy" >> ${ENVD_CONF}; done ) || \
+         echo "#Got nothing from QEMU FW_CFG"> ${ENVD_CONF}'`)
+-	envset.Add("Service", "ExecStart", `/usr/bin/bash -c '/usr/bin/test -f ${FWCFGRAW} && (\
++	envset.Add("Service", "ExecStart", `@TERMUX_PREFIX@/usr/bin/bash -c '@TERMUX_PREFIX@/usr/bin/test -f ${FWCFGRAW} && (\
+         echo "#Got from QEMU FW_CFG"> ${PROFILE_CONF};\
+         IFS="|";\
+-        for iprxy in $(/usr/bin/base64 -d ${FWCFGRAW}); do\
++        for iprxy in $(@TERMUX_PREFIX@/usr/bin/base64 -d ${FWCFGRAW}); do\
+             echo "export $iprxy" >> ${PROFILE_CONF}; done ) || \
+         echo "#Got nothing from QEMU FW_CFG"> ${PROFILE_CONF}'`)
+-	envset.Add("Service", "ExecStartPost", "/usr/bin/systemctl daemon-reload")
++	envset.Add("Service", "ExecStartPost", "@TERMUX_PREFIX@/usr/bin/systemctl daemon-reload")
+ 
+ 	envset.Add("Install", "WantedBy", "sysinit.target")
+ 	envsetFile, err := envset.ToString()
+@@ -300,7 +300,7 @@ func getFiles(usrName string, uid int, rootful bool, vmtype define.VMType, _ boo
+ 	lingerExample.Add("Unit", "Description", "A systemd user unit demo")
+ 	lingerExample.Add("Unit", "After", "network-online.target")
+ 	lingerExample.Add("Unit", "Wants", "network-online.target podman.socket")
+-	lingerExample.Add("Service", "ExecStart", "/usr/bin/sleep infinity")
++	lingerExample.Add("Service", "ExecStart", "@TERMUX_PREFIX@/usr/bin/sleep infinity")
+ 	lingerExampleFile, err := lingerExample.ToString()
+ 	if err != nil {
+ 		logrus.Warn(err.Error())
+@@ -381,7 +381,7 @@ pids_limit=0
+ 	files = append(files, File{
+ 		Node: Node{
+ 			Group: GetNodeGrp("root"),
+-			Path:  "/etc/containers/podman-machine",
++			Path:  "@TERMUX_PREFIX@/etc/containers/podman-machine",
+ 			User:  GetNodeUsr("root"),
+ 		},
+ 		FileEmbedded1: FileEmbedded1{
+@@ -580,13 +580,13 @@ func getLinks(usrName string) []Link {
+ 	}, {
+ 		Node: Node{
+ 			Group:     GetNodeGrp("root"),
+-			Path:      "/usr/local/bin/docker",
++			Path:      "@TERMUX_PREFIX@/usr/local/bin/docker",
+ 			Overwrite: BoolToPtr(true),
+ 			User:      GetNodeUsr("root"),
+ 		},
+ 		LinkEmbedded1: LinkEmbedded1{
+ 			Hard:   BoolToPtr(false),
+-			Target: "/usr/bin/podman",
++			Target: "@TERMUX_PREFIX@/usr/bin/podman",
+ 		},
+ 	}}
+ }
+@@ -599,14 +599,14 @@ func GetPodmanDockerTmpConfig(uid int, rootful bool, newline bool) string {
+ 	// Derived from https://github.com/containers/podman/blob/main/contrib/systemd/system/podman-docker.conf
+ 	podmanSock := "/run/podman/podman.sock"
+ 	if !rootful {
+-		podmanSock = fmt.Sprintf("/run/user/%d/podman/podman.sock", uid)
++		podmanSock = fmt.Sprintf("@TERMUX_PREFIX@/run/user/%d/podman/podman.sock", uid)
+ 	}
+ 	suffix := ""
+ 	if newline {
+ 		suffix = "\n"
+ 	}
+ 
+-	return fmt.Sprintf("L+  /run/docker.sock   -    -    -     -   %s%s", podmanSock, suffix)
++	return fmt.Sprintf("L+  @TERMUX_PREFIX@/run/docker.sock   -    -    -     -   %s%s", podmanSock, suffix)
+ }
+ 
+ // SetIgnitionFile creates a new Machine File for the machine's ignition file
+@@ -734,7 +734,7 @@ func GetNetRecoveryUnitFile() *parser.UnitFile {
+ 	recoveryUnit := parser.NewUnitFile()
+ 	recoveryUnit.Add("Unit", "Description", "Verifies health of network and recovers if necessary")
+ 	recoveryUnit.Add("Unit", "After", "sshd.socket sshd.service")
+-	recoveryUnit.Add("Service", "ExecStart", "/usr/local/bin/net-health-recovery.sh")
++	recoveryUnit.Add("Service", "ExecStart", "@TERMUX_PREFIX@/usr/local/bin/net-health-recovery.sh")
+ 	recoveryUnit.Add("Service", "StandardOutput", "journal")
+ 	recoveryUnit.Add("Service", "StandardError", "journal")
+ 	recoveryUnit.Add("Service", "StandardInput", "null")
+diff --git a/podman/pkg/machine/ignition/ready.go b/podman/pkg/machine/ignition/ready.go
+index 8ee5156..e8eda40 100644
+--- a/podman/pkg/machine/ignition/ready.go
++++ b/podman/pkg/machine/ignition/ready.go
+@@ -22,10 +22,10 @@ func CreateReadyUnitFile(provider define.VMType, opts *ReadyUnitOpts) (string, e
+ 	case define.QemuVirt:
+ 		readyUnit.Add("Unit", "Requires", "dev-virtio\\x2dports-vport1p1.device")
+ 		readyUnit.Add("Unit", "After", "systemd-user-sessions.service")
+-		readyUnit.Add("Service", "ExecStart", "/bin/sh -c '/usr/bin/echo Ready >/dev/vport1p1'")
++		readyUnit.Add("Service", "ExecStart", "@TERMUX_PREFIX@/bin/sh -c '@TERMUX_PREFIX@/usr/bin/echo Ready >/dev/vport1p1'")
+ 	case define.AppleHvVirt, define.LibKrun:
+ 		readyUnit.Add("Unit", "Requires", "dev-virtio\\x2dports-vsock.device")
+-		readyUnit.Add("Service", "ExecStart", "/bin/sh -c '/usr/bin/echo Ready | socat - VSOCK-CONNECT:2:1025'")
++		readyUnit.Add("Service", "ExecStart", "@TERMUX_PREFIX@/bin/sh -c '@TERMUX_PREFIX@/usr/bin/echo Ready | socat - VSOCK-CONNECT:2:1025'")
+ 	case define.HyperVVirt:
+ 		if opts == nil || opts.Port == 0 {
+ 			return "", errors.New("no port provided for hyperv ready unit")
+@@ -33,7 +33,7 @@ func CreateReadyUnitFile(provider define.VMType, opts *ReadyUnitOpts) (string, e
+ 		readyUnit.Add("Unit", "Requires", "sys-devices-virtual-net-vsock0.device")
+ 		readyUnit.Add("Unit", "After", "systemd-user-sessions.service")
+ 		readyUnit.Add("Unit", "After", "vsock-network.service")
+-		readyUnit.Add("Service", "ExecStart", fmt.Sprintf("/bin/sh -c '/usr/bin/echo Ready | socat - VSOCK-CONNECT:2:%d'", opts.Port))
++		readyUnit.Add("Service", "ExecStart", fmt.Sprintf("@TERMUX_PREFIX@/bin/sh -c '@TERMUX_PREFIX@/usr/bin/echo Ready | socat - VSOCK-CONNECT:2:%d'", opts.Port))
+ 	case define.WSLVirt: // WSL does not use ignition
+ 		return "", nil
+ 	default:
+diff --git a/podman/pkg/machine/proxyenv/env.go b/podman/pkg/machine/proxyenv/env.go
+index 8fd68ea..b858ee0 100644
+--- a/podman/pkg/machine/proxyenv/env.go
++++ b/podman/pkg/machine/proxyenv/env.go
+@@ -13,13 +13,13 @@ import (
+ 	"github.com/sirupsen/logrus"
+ )
+ 
+-const proxySetupScriptTemplate = `#!/bin/bash
++const proxySetupScriptTemplate = `#!@TERMUX_PREFIX@/bin/bash
+ 
+-SYSTEMD_CONF=/etc/systemd/system.conf.d/default-env.conf
+-ENVD_CONF=/etc/environment.d/default-env.conf
+-PROFILE_CONF=/etc/profile.d/default-env.sh
++SYSTEMD_CONF=@TERMUX_PREFIX@/etc/systemd/system.conf.d/default-env.conf
++ENVD_CONF=@TERMUX_PREFIX@/etc/environment.d/default-env.conf
++PROFILE_CONF=@TERMUX_PREFIX@/etc/profile.d/default-env.sh
+ 
+-mkdir -p /etc/profile.d /etc/environment.d /etc/systemd/system.conf.d/
++mkdir -p @TERMUX_PREFIX@/etc/profile.d @TERMUX_PREFIX@/etc/environment.d @TERMUX_PREFIX@/etc/systemd/system.conf.d/
+ rm -f $SYSTEMD_CONF $ENVD_CONF $PROFILE_CONF
+ 
+ echo "[Manager]" >> $SYSTEMD_CONF
+@@ -52,6 +52,6 @@ func getProxyScript(isWSL bool) io.Reader {
+ }
+ 
+ func ApplyProxies(mc *vmconfigs.MachineConfig) error {
+-	return machine.CommonSSHWithStdin("root", mc.SSH.IdentityPath, mc.Name, mc.SSH.Port, []string{"/usr/bin/bash"},
++	return machine.CommonSSHWithStdin("root", mc.SSH.IdentityPath, mc.Name, mc.SSH.Port, []string{"@TERMUX_PREFIX@/usr/bin/bash"},
+ 		getProxyScript(mc.WSLHypervisor != nil))
+ }
+diff --git a/podman/pkg/machine/qemu/options_linux_arm64.go b/podman/pkg/machine/qemu/options_linux_arm64.go
+index 09be86a..aa459ad 100644
+--- a/podman/pkg/machine/qemu/options_linux_arm64.go
++++ b/podman/pkg/machine/qemu/options_linux_arm64.go
+@@ -24,8 +24,8 @@ func (q *QEMUStubber) addArchOptions(_ *setNewMachineCMDOpts) []string {
+ 
+ func getQemuUefiFile(name string) string {
+ 	dirs := []string{
+-		"/usr/share/qemu-efi-aarch64",
+-		"/usr/share/edk2/aarch64",
++		"@TERMUX_PREFIX@/usr/share/qemu-efi-aarch64",
++		"@TERMUX_PREFIX@/usr/share/edk2/aarch64",
+ 	}
+ 	for _, dir := range dirs {
+ 		if err := fileutils.Exists(dir); err == nil {
+diff --git a/podman/pkg/machine/shim/networking.go b/podman/pkg/machine/shim/networking.go
+index d7ebd8e..cbfab80 100644
+--- a/podman/pkg/machine/shim/networking.go
++++ b/podman/pkg/machine/shim/networking.go
+@@ -20,8 +20,8 @@ import (
+ )
+ 
+ const (
+-	dockerSock           = "/var/run/docker.sock"
+-	defaultGuestSock     = "/run/user/%d/podman/podman.sock"
++	dockerSock           = "@TERMUX_PREFIX@/var/run/docker.sock"
++	defaultGuestSock     = "@TERMUX_PREFIX@/var/run/user/%d/podman/podman.sock"
+ 	dockerConnectTimeout = 5 * time.Second
+ )
+ 
+@@ -37,7 +37,7 @@ func startHostForwarder(mc *vmconfigs.MachineConfig, provider vmconfigs.VMProvid
+ 	// the guestSock is "inside" the guest machine
+ 	guestSock := fmt.Sprintf(defaultGuestSock, mc.HostUser.UID)
+ 	if mc.HostUser.Rootful {
+-		guestSock = "/run/podman/podman.sock"
++		guestSock = "@TERMUX_PREFIX@/var/run/podman/podman.sock"
+ 		forwardUser = "root"
+ 	}
+ 
+diff --git a/podman/pkg/specgen/generate/container_create.go b/podman/pkg/specgen/generate/container_create.go
+index ca77218..140d950 100644
+--- a/podman/pkg/specgen/generate/container_create.go
++++ b/podman/pkg/specgen/generate/container_create.go
+@@ -402,16 +402,16 @@ func createContainerOptions(rt *libpod.Runtime, s *specgen.SpecGenerator, pod *l
+ 
+ 		if len(command) > 0 {
+ 			useSystemdCommands := map[string]bool{
+-				"/sbin/init":           true,
+-				"/usr/sbin/init":       true,
+-				"/usr/local/sbin/init": true,
++				"@TERMUX_PREFIX@/sbin/init":           true,
++				"@TERMUX_PREFIX@/usr/sbin/init":       true,
++				"@TERMUX_PREFIX@/usr/local/sbin/init": true,
+ 			}
+ 			// Grab last command in case this is launched from a shell
+ 			cmd := command
+ 			if len(command) > 2 {
+ 				// Podman build will add "/bin/sh" "-c" to
+ 				// Entrypoint. Remove and search for systemd
+-				if command[0] == "/bin/sh" && command[1] == "-c" {
++				if command[0] == "@TERMUX_PREFIX@/bin/sh" && command[1] == "-c" {
+ 					cmd = command[2:]
+ 				}
+ 			}
+diff --git a/podman/pkg/specgen/generate/storage.go b/podman/pkg/specgen/generate/storage.go
+index a79a6cf..c5630f3 100644
+--- a/podman/pkg/specgen/generate/storage.go
++++ b/podman/pkg/specgen/generate/storage.go
+@@ -463,7 +463,7 @@ func InitFSMounts(mounts []spec.Mount) error {
+ }
+ 
+ func addReadWriteTmpfsMounts(mounts map[string]spec.Mount, volumes []*specgen.NamedVolume, runPath string) map[string]spec.Mount {
+-	readonlyTmpfs := []string{"/tmp", "/var/tmp", runPath}
++	readonlyTmpfs := []string{"@TERMUX_PREFIX@/tmp", "@TERMUX_PREFIX@/var/tmp", runPath}
+ 	options := []string{"rw", "rprivate", "nosuid", "nodev", "tmpcopyup"}
+ 	for _, dest := range readonlyTmpfs {
+ 		if _, ok := mounts[dest]; ok {
+diff --git a/podman/pkg/systemd/generate/containers.go b/podman/pkg/systemd/generate/containers.go
+index ade2824..badbd56 100644
+--- a/podman/pkg/systemd/generate/containers.go
++++ b/podman/pkg/systemd/generate/containers.go
+@@ -300,7 +300,7 @@ func executeContainerTemplate(info *containerInfo, options entities.GenerateSyst
+ 	if info.Executable == "" {
+ 		executable, err := os.Executable()
+ 		if err != nil {
+-			executable = "/usr/bin/podman"
++			executable = "@TERMUX_PREFIX@/usr/bin/podman"
+ 			logrus.Warnf("Could not obtain podman executable location, using default %s", executable)
+ 		}
+ 		info.Executable = executable
+diff --git a/podman/pkg/systemd/generate/pods.go b/podman/pkg/systemd/generate/pods.go
+index 3c97973..63aeaf0 100644
+--- a/podman/pkg/systemd/generate/pods.go
++++ b/podman/pkg/systemd/generate/pods.go
+@@ -285,7 +285,7 @@ func executePodTemplate(info *podInfo, options entities.GenerateSystemdOptions)
+ 	if info.Executable == "" {
+ 		executable, err := os.Executable()
+ 		if err != nil {
+-			executable = "/usr/bin/podman"
++			executable = "@TERMUX_PREFIX@/usr/bin/podman"
+ 			logrus.Warnf("Could not obtain podman executable location, using default %s: %v", executable, err)
+ 		}
+ 		info.Executable = executable
+diff --git a/podman/pkg/systemd/quadlet/podmancmdline.go b/podman/pkg/systemd/quadlet/podmancmdline.go
+index 0983923..a6ee119 100644
+--- a/podman/pkg/systemd/quadlet/podmancmdline.go
++++ b/podman/pkg/systemd/quadlet/podmancmdline.go
+@@ -9,7 +9,7 @@ import (
+ 
+ // Overwritten at build time
+ var (
+-	_binDir = "/usr/bin"
++	_binDir = "@TERMUX_PREFIX@/usr/bin"
+ )
+ 
+ func podmanBinary() string {
+diff --git a/podman/pkg/systemd/quadlet/quadlet.go b/podman/pkg/systemd/quadlet/quadlet.go
+index 1c01679..89db21b 100644
+--- a/podman/pkg/systemd/quadlet/quadlet.go
++++ b/podman/pkg/systemd/quadlet/quadlet.go
+@@ -21,11 +21,11 @@ const (
+ 	// but it is causing bloat
+ 	autoUpdateLabel = "io.containers.autoupdate"
+ 	// Directory for temporary Quadlet files (sysadmin owned)
+-	UnitDirTemp = "/run/containers/systemd"
++	UnitDirTemp = "@TERMUX_PREFIX@/var/run/containers/systemd"
+ 	// Directory for global Quadlet files (sysadmin owned)
+-	UnitDirAdmin = "/etc/containers/systemd"
++	UnitDirAdmin = "@TERMUX_PREFIX@/etc/containers/systemd"
+ 	// Directory for global Quadlet files (distro owned)
+-	UnitDirDistro = "/usr/share/containers/systemd"
++	UnitDirDistro = "@TERMUX_PREFIX@/usr/share/containers/systemd"
+ 
+ 	// Names of commonly used systemd/quadlet group names
+ 	ContainerGroup  = "Container"
+diff --git a/podman/pkg/util/utils.go b/podman/pkg/util/utils.go
+index 00c2d19..609a6e1 100644
+--- a/podman/pkg/util/utils.go
++++ b/podman/pkg/util/utils.go
+@@ -1167,7 +1167,7 @@ func ExitCode(err error) int {
+ func Tmpdir() string {
+ 	tmpdir := os.Getenv("TMPDIR")
+ 	if tmpdir == "" {
+-		tmpdir = "/var/tmp"
++		tmpdir = "@TERMUX_PREFIX@/var/tmp"
+ 	}
+ 
+ 	return tmpdir
+diff --git a/podman/vendor/github.com/containernetworking/cni/libcni/api.go b/podman/vendor/github.com/containernetworking/cni/libcni/api.go
+index 201a12e..0c8e65c 100644
+--- a/podman/vendor/github.com/containernetworking/cni/libcni/api.go
++++ b/podman/vendor/github.com/containernetworking/cni/libcni/api.go
+@@ -38,7 +38,7 @@ import (
+ )
+ 
+ var (
+-	CacheDir = "/var/lib/cni"
++	CacheDir = "@TERMUX_PREFIX@/var/lib/cni"
+ 	// slightly awkward wording to preserve anyone matching on error strings
+ 	ErrorCheckNotSupp = fmt.Errorf("does not support the CHECK command")
+ )
+diff --git a/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go b/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go
+index 3feab28..36f1cf6 100644
+--- a/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go
++++ b/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go
+@@ -7,7 +7,7 @@ const (
+ 	TypeBind = "bind"
+ 
+ 	// TempDir is the default for storing temporary files
+-	TempDir = "/var/tmp"
++	TempDir = "@TERMUX_PREFIX@/var/tmp"
+ )
+ 
+ // Mount potions for bind
+diff --git a/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go b/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go
+index 400884a..c3612e4 100644
+--- a/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go
++++ b/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go
+@@ -185,12 +185,12 @@ func GenerateMeasurement(workloadConfig WorkloadConfig, firmwareLibrary string)
+ 	}
+ 
+ 	sharedLibraryDirs := []string{
+-		"/usr/local/lib64",
+-		"/usr/local/lib",
+-		"/lib64",
+-		"/lib",
+-		"/usr/lib64",
+-		"/usr/lib",
++		"@TERMUX_PREFIX@/usr/local/lib64",
++		"@TERMUX_PREFIX@/usr/local/lib",
++		"@TERMUX_PREFIX@/lib64",
++		"@TERMUX_PREFIX@/lib",
++		"@TERMUX_PREFIX@/usr/lib64",
++		"@TERMUX_PREFIX@/usr/lib",
+ 	}
+ 	if llp, ok := os.LookupEnv("LD_LIBRARY_PATH"); ok {
+ 		sharedLibraryDirs = append(sharedLibraryDirs, strings.Split(llp, ":")...)
+diff --git a/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go b/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
+index ff966b2..da03469 100644
+--- a/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
++++ b/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
+@@ -22,5 +22,5 @@ func GetTempDir() string {
+ 			return tmpdir
+ 		}
+ 	}
+-	return "/var/tmp"
++	return "@TERMUX_PREFIX@/var/tmp"
+ }
+diff --git a/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go b/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
+index e6f0ac6..080e382 100644
+--- a/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
++++ b/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
+@@ -33,7 +33,7 @@ func MaybeRegister(configurationSearchDirectories []string) error {
+ // in the current mount namespace first, ignoring only EPERM and EACCES errors.
+ func Register(configurationSearchDirectories []string) error {
+ 	if len(configurationSearchDirectories) == 0 {
+-		configurationSearchDirectories = []string{"/etc/binfmt.d", "/run/binfmt.d", "/usr/lib/binfmt.d"}
++		configurationSearchDirectories = []string{"@TERMUX_PREFIX@/etc/binfmt.d", "@TERMUX_PREFIX@/var/run/binfmt.d", "@TERMUX_PREFIX@/usr/lib/binfmt.d"}
+ 	}
+ 	mounted := false
+ 	for _, searchDir := range configurationSearchDirectories {
+diff --git a/podman/vendor/github.com/containers/buildah/run_common.go b/podman/vendor/github.com/containers/buildah/run_common.go
+index 80569e3..dbec443 100644
+--- a/podman/vendor/github.com/containers/buildah/run_common.go
++++ b/podman/vendor/github.com/containers/buildah/run_common.go
+@@ -238,7 +238,7 @@ func runLookupPath(g *generate.Generator, command []string) []string {
+ 	}
+ 	// If there is no configured $PATH, supply one.
+ 	if envPath == "" {
+-		defaultPath := "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
++		defaultPath := "@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/bin:@TERMUX_PREFIX@/sbin"
+ 		envPath = "PATH=" + defaultPath
+ 		g.AddProcessEnv("PATH", defaultPath)
+ 	}
+diff --git a/podman/vendor/github.com/containers/buildah/run_linux.go b/podman/vendor/github.com/containers/buildah/run_linux.go
+index 5d040cb..3408fbd 100644
+--- a/podman/vendor/github.com/containers/buildah/run_linux.go
++++ b/podman/vendor/github.com/containers/buildah/run_linux.go
+@@ -241,7 +241,7 @@ func (b *Builder) Run(command []string, options RunOptions) error {
+ 	}
+ 
+ 	// hardwire the environment to match docker build to avoid subtle and hard-to-debug differences due to containers.conf
+-	b.configureEnvironment(g, options, []string{"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"})
++	b.configureEnvironment(g, options, []string{"PATH=@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin"})
+ 
+ 	if b.CommonBuildOpts == nil {
+ 		return fmt.Errorf("invalid format on container you must recreate the container")
+diff --git a/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go b/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
+index 9ccf4ef..e6254e8 100644
+--- a/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
++++ b/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
+@@ -86,8 +86,8 @@ func (e *cniExec) ExecPlugin(ctx context.Context, pluginPath string, stdinData [
+ 	// We might break existing users and we cannot expect everyone to change their $PATH so
+ 	// let's add /usr/sbin to $PATH ourselves.
+ 	path := os.Getenv("PATH")
+-	if !strings.Contains(path, "/usr/sbin") {
+-		path += ":/usr/sbin"
++	if !strings.Contains(path, "@TERMUX_PREFIX@/usr/sbin") {
++		path += ":@TERMUX_PREFIX@/usr/sbin"
+ 		c.Env = append(c.Env, "PATH="+path)
+ 	}
+ 
+diff --git a/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go b/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
+index 2655587..8542c5c 100644
+--- a/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
++++ b/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
+@@ -42,7 +42,7 @@ const (
+ 	rootlessNetNsConnPidFile = "rootless-netns-conn.pid"
+ 
+ 	// persistentCNIDir is the directory where the CNI files are stored
+-	persistentCNIDir = "/var/lib/cni"
++	persistentCNIDir = "@TERMUX_PREFIX@/var/lib/cni"
+ 
+ 	tmpfs          = "tmpfs"
+ 	none           = "none"
+diff --git a/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go b/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go
+index 2a52a47..158fb9e 100644
+--- a/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go
++++ b/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go
+@@ -84,8 +84,8 @@ func (n *netavarkNetwork) execNetavark(args []string, needPlugin bool, stdin, re
+ 	// We might break existing users and we cannot expect everyone to change their $PATH so
+ 	// let's add /usr/sbin to $PATH ourselves.
+ 	path := os.Getenv("PATH")
+-	if !strings.Contains(path, "/usr/sbin") {
+-		path += ":/usr/sbin"
++	if !strings.Contains(path, "@TERMUX_PREFIX@/usr/sbin") {
++		path += ":@TERMUX_PREFIX@/usr/sbin"
+ 		env = append(env, "PATH="+path)
+ 	}
+ 	// if we run with debug log level lets also set RUST_BACKTRACE=1 so we can get the full stack trace in case of panics
+diff --git a/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go b/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
+index 4870752..4ab2aca 100644
+--- a/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
++++ b/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
+@@ -22,9 +22,9 @@ profile {{.Name}} flags=(attach_disconnected,mediate_deleted) {
+   signal (receive) peer=unconfined,
+   signal (send,receive) peer={{.Name}},
+   # Allow certain signals from OCI runtimes (podman, runc and crun)
+-  signal (receive) peer={/usr/bin/,/usr/sbin/,}runc,
+-  signal (receive) peer={/usr/bin/,/usr/sbin/,}crun*,
+-  signal (receive) set=(int, quit, kill, term) peer={/usr/bin/,/usr/sbin/,}podman,
++  signal (receive) peer={@TERMUX_PREFIX@/usr/bin/,@TERMUX_PREFIX@/usr/sbin/,}runc,
++  signal (receive) peer={@TERMUX_PREFIX@/usr/bin/,@TERMUX_PREFIX@/usr/sbin/,}crun*,
++  signal (receive) set=(int, quit, kill, term) peer={@TERMUX_PREFIX@/usr/bin/,@TERMUX_PREFIX@/usr/sbin/,}podman,
+ {{end}}
+ 
+   deny @{PROC}/* w,   # deny write for all files directly in /proc (not in a subdir)
+diff --git a/podman/vendor/github.com/containers/common/pkg/chown/chown.go b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
+index 5cb0089..84e0899 100644
+--- a/podman/vendor/github.com/containers/common/pkg/chown/chown.go
++++ b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
+@@ -12,29 +12,29 @@ import (
+ func DangerousHostPath(path string) (bool, error) {
+ 	excludePaths := map[string]bool{
+ 		"/":           true,
+-		"/bin":        true,
++		"@TERMUX_PREFIX@/bin":        true,
+ 		"/boot":       true,
+ 		"/dev":        true,
+-		"/etc":        true,
+-		"/etc/passwd": true,
+-		"/etc/pki":    true,
+-		"/etc/shadow": true,
+-		"/home":       true,
+-		"/lib":        true,
+-		"/lib64":      true,
+-		"/media":      true,
+-		"/opt":        true,
++		"@TERMUX_PREFIX@/etc":        true,
++		"@TERMUX_PREFIX@/etc/passwd": true,
++		"@TERMUX_PREFIX@/etc/pki":    true,
++		"@TERMUX_PREFIX@/etc/shadow": true,
++		"@TERMUX_PREFIX@/home":       true,
++		"@TERMUX_PREFIX@/lib":        true,
++		"@TERMUX_PREFIX@/lib64":      true,
++		"@TERMUX_PREFIX@/media":      true,
++		"@TERMUX_PREFIX@/opt":        true,
+ 		"/proc":       true,
+ 		"/root":       true,
+-		"/run":        true,
+-		"/sbin":       true,
+-		"/srv":        true,
++		"@TERMUX_PREFIX@/run":        true,
++		"@TERMUX_PREFIX@/sbin":       true,
++		"@TERMUX_PREFIX@/srv":        true,
+ 		"/sys":        true,
+-		"/tmp":        true,
+-		"/usr":        true,
+-		"/var":        true,
+-		"/var/lib":    true,
+-		"/var/log":    true,
++		"@TERMUX_PREFIX@/tmp":        true,
++		"@TERMUX_PREFIX@/usr":        true,
++		"@TERMUX_PREFIX@/var":        true,
++		"@TERMUX_PREFIX@/var/lib":    true,
++		"@TERMUX_PREFIX@/var/log":    true,
+ 	}
+ 
+ 	if home := "@TERMUX_HOME@"; home != "" {
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/config_linux.go b/podman/vendor/github.com/containers/common/pkg/config/config_linux.go
+index 66d1934..c0e80fe 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/config_linux.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/config_linux.go
+@@ -6,14 +6,14 @@ import (
+ 
+ const (
+ 	// OverrideContainersConfig holds the default config path overridden by the root user
+-	OverrideContainersConfig = "/etc/" + _configPath
++	OverrideContainersConfig = "@TERMUX_PREFIX@/etc/" + _configPath
+ 
+ 	// DefaultContainersConfig holds the default containers config path
+-	DefaultContainersConfig = "/usr/share/" + _configPath
++	DefaultContainersConfig = "@TERMUX_PREFIX@/share/" + _configPath
+ 
+ 	// DefaultSignaturePolicyPath is the default value for the
+ 	// policy.json file.
+-	DefaultSignaturePolicyPath = "/etc/containers/policy.json"
++	DefaultSignaturePolicyPath = "@TERMUX_PREFIX@/etc/containers/policy.json"
+ )
+ 
+ func selinuxEnabled() bool {
+@@ -21,8 +21,8 @@ func selinuxEnabled() bool {
+ }
+ 
+ var defaultHelperBinariesDir = []string{
+-	"/usr/local/libexec/podman",
+-	"/usr/local/lib/podman",
+-	"/usr/libexec/podman",
+-	"/usr/lib/podman",
++	"@TERMUX_PREFIX@/local/libexec/podman",
++	"@TERMUX_PREFIX@/local/lib/podman",
++	"@TERMUX_PREFIX@/libexec/podman",
++	"@TERMUX_PREFIX@/lib/podman",
+ }
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/config_local.go b/podman/vendor/github.com/containers/common/pkg/config/config_local.go
+index 3b8979c..083e6b6 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/config_local.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/config_local.go
+@@ -71,8 +71,8 @@ func (c *ContainersConfig) validateTZ() error {
+ 	}
+ 
+ 	lookupPaths := []string{
+-		"/usr/share/zoneinfo",
+-		"/etc/zoneinfo",
++		"@TERMUX_PREFIX@/usr/share/zoneinfo",
++		"@TERMUX_PREFIX@/etc/zoneinfo",
+ 	}
+ 
+ 	// Allow using TZDIR to override the lookupPaths. Ref:
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/default.go b/podman/vendor/github.com/containers/common/pkg/config/default.go
+index e40eb40..8a787f3 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/default.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/default.go
+@@ -23,7 +23,7 @@ import (
+ 
+ const (
+ 	// _defaultGraphRoot points to the default path of the graph root.
+-	_defaultGraphRoot = "/var/lib/containers/storage"
++	_defaultGraphRoot = "@TERMUX_PREFIX@/var/lib/containers/storage"
+ 
+ 	// _defaultTransport is a prefix that we apply to an image name to check
+ 	// docker hub first for the image.
+@@ -73,9 +73,9 @@ var (
+ 	// ErrInvalidArg indicates that an invalid argument was passed.
+ 	ErrInvalidArg = errors.New("invalid argument")
+ 	// DefaultHooksDirs defines the default hooks directory.
+-	DefaultHooksDirs = []string{"/usr/share/containers/oci/hooks.d"}
++	DefaultHooksDirs = []string{"@TERMUX_PREFIX@/share/containers/oci/hooks.d"}
+ 	// DefaultCdiSpecDirs defines the default cdi spec directories.
+-	DefaultCdiSpecDirs = []string{"/etc/cdi"}
++	DefaultCdiSpecDirs = []string{"@TERMUX_PREFIX@/etc/cdi"}
+ 	// DefaultCapabilities is the default for the default_capabilities option in the containers.conf file.
+ 	DefaultCapabilities = []string{
+ 		"CAP_CHOWN",
+@@ -93,17 +93,17 @@ var (
+ 
+ 	// Search these locations in which CNIPlugins can be installed.
+ 	DefaultCNIPluginDirs = []string{
+-		"/usr/local/libexec/cni",
+-		"/usr/libexec/cni",
+-		"/usr/local/lib/cni",
+-		"/usr/lib/cni",
++		"@TERMUX_PREFIX@/local/libexec/cni",
++		"@TERMUX_PREFIX@/libexec/cni",
++		"@TERMUX_PREFIX@/local/lib/cni",
++		"@TERMUX_PREFIX@/lib/cni",
+ 		"/opt/cni/bin",
+ 	}
+ 	DefaultNetavarkPluginDirs = []string{
+-		"/usr/local/libexec/netavark",
+-		"/usr/libexec/netavark",
+-		"/usr/local/lib/netavark",
+-		"/usr/lib/netavark",
++		"@TERMUX_PREFIX@/local/libexec/netavark",
++		"@TERMUX_PREFIX@/libexec/netavark",
++		"@TERMUX_PREFIX@/local/lib/netavark",
++		"@TERMUX_PREFIX@/lib/netavark",
+ 	}
+ 	DefaultSubnetPools = []SubnetPool{
+ 		// 10.89.0.0/24-10.255.255.0/24
+@@ -120,15 +120,15 @@ var (
+ 
+ 	defaultUnixComposeProviders = []string{
+ 		"$HOME/.docker/cli-plugins/docker-compose",
+-		"/usr/local/lib/docker/cli-plugins/docker-compose",
+-		"/usr/local/libexec/docker/cli-plugins/docker-compose",
+-		"/usr/lib/docker/cli-plugins/docker-compose",
+-		"/usr/libexec/docker/cli-plugins/docker-compose",
++		"@TERMUX_PREFIX@/local/lib/docker/cli-plugins/docker-compose",
++		"@TERMUX_PREFIX@/local/libexec/docker/cli-plugins/docker-compose",
++		"@TERMUX_PREFIX@/lib/docker/cli-plugins/docker-compose",
++		"@TERMUX_PREFIX@/libexec/docker/cli-plugins/docker-compose",
+ 		"docker-compose",
+ 		"podman-compose",
+ 	}
+ 
+-	defaultContainerEnv = []string{"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"}
++	defaultContainerEnv = []string{"PATH=@TERMUX_PREFIX@/local/sbin:@TERMUX_PREFIX@/local/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin:/sbin:/bin"}
+ )
+ 
+ // nolint:unparam
+@@ -373,75 +373,75 @@ func defaultEngineConfig() (*EngineConfig, error) {
+ 	c.Retry = 3
+ 	c.OCIRuntimes = map[string][]string{
+ 		"crun": {
+-			"/usr/bin/crun",
+-			"/usr/sbin/crun",
+-			"/usr/local/bin/crun",
+-			"/usr/local/sbin/crun",
+-			"/sbin/crun",
+-			"/bin/crun",
+-			"/run/current-system/sw/bin/crun",
++			"@TERMUX_PREFIX@/bin/crun",
++			"@TERMUX_PREFIX@/sbin/crun",
++			"@TERMUX_PREFIX@/local/bin/crun",
++			"@TERMUX_PREFIX@/local/sbin/crun",
++			"@TERMUX_PREFIX@/sbin/crun",
++			"@TERMUX_PREFIX@/bin/crun",
++			"@TERMUX_PREFIX@/var/run/current-system/sw/bin/crun",
+ 		},
+ 		"crun-vm": {
+-			"/usr/bin/crun-vm",
+-			"/usr/local/bin/crun-vm",
+-			"/usr/local/sbin/crun-vm",
+-			"/sbin/crun-vm",
+-			"/bin/crun-vm",
+-			"/run/current-system/sw/bin/crun-vm",
++			"@TERMUX_PREFIX@/bin/crun-vm",
++			"@TERMUX_PREFIX@/local/bin/crun-vm",
++			"@TERMUX_PREFIX@/local/sbin/crun-vm",
++			"@TERMUX_PREFIX@/sbin/crun-vm",
++			"@TERMUX_PREFIX@/bin/crun-vm",
++			"@TERMUX_PREFIX@/var/run/current-system/sw/bin/crun-vm",
+ 		},
+ 		"crun-wasm": {
+-			"/usr/bin/crun-wasm",
+-			"/usr/sbin/crun-wasm",
+-			"/usr/local/bin/crun-wasm",
+-			"/usr/local/sbin/crun-wasm",
+-			"/sbin/crun-wasm",
+-			"/bin/crun-wasm",
+-			"/run/current-system/sw/bin/crun-wasm",
++			"@TERMUX_PREFIX@/bin/crun-wasm",
++			"@TERMUX_PREFIX@/sbin/crun-wasm",
++			"@TERMUX_PREFIX@/local/bin/crun-wasm",
++			"@TERMUX_PREFIX@/local/sbin/crun-wasm",
++			"@TERMUX_PREFIX@/sbin/crun-wasm",
++			"@TERMUX_PREFIX@/bin/crun-wasm",
++			"@TERMUX_PREFIX@/var/run/current-system/sw/bin/crun-wasm",
+ 		},
+ 		"runc": {
+-			"/usr/bin/runc",
+-			"/usr/sbin/runc",
+-			"/usr/local/bin/runc",
+-			"/usr/local/sbin/runc",
+-			"/sbin/runc",
+-			"/bin/runc",
+-			"/usr/lib/cri-o-runc/sbin/runc",
+-			"/run/current-system/sw/bin/runc",
++			"@TERMUX_PREFIX@/bin/runc",
++			"@TERMUX_PREFIX@/sbin/runc",
++			"@TERMUX_PREFIX@/local/bin/runc",
++			"@TERMUX_PREFIX@/local/sbin/runc",
++			"@TERMUX_PREFIX@/sbin/runc",
++			"@TERMUX_PREFIX@/bin/runc",
++			"@TERMUX_PREFIX@/lib/cri-o-runc/sbin/runc",
++			"@TERMUX_PREFIX@/var/run/current-system/sw/bin/runc",
+ 		},
+ 		"runj": {
+-			"/usr/local/bin/runj",
++			"@TERMUX_PREFIX@/local/bin/runj",
+ 		},
+ 		"kata": {
+-			"/usr/bin/kata-runtime",
+-			"/usr/sbin/kata-runtime",
+-			"/usr/local/bin/kata-runtime",
+-			"/usr/local/sbin/kata-runtime",
+-			"/sbin/kata-runtime",
+-			"/bin/kata-runtime",
+-			"/usr/bin/kata-qemu",
+-			"/usr/bin/kata-fc",
++			"@TERMUX_PREFIX@/bin/kata-runtime",
++			"@TERMUX_PREFIX@/sbin/kata-runtime",
++			"@TERMUX_PREFIX@/local/bin/kata-runtime",
++			"@TERMUX_PREFIX@/local/sbin/kata-runtime",
++			"@TERMUX_PREFIX@/sbin/kata-runtime",
++			"@TERMUX_PREFIX@/bin/kata-runtime",
++			"@TERMUX_PREFIX@/bin/kata-qemu",
++			"@TERMUX_PREFIX@/bin/kata-fc",
+ 		},
+ 		"runsc": {
+-			"/usr/bin/runsc",
+-			"/usr/sbin/runsc",
+-			"/usr/local/bin/runsc",
+-			"/usr/local/sbin/runsc",
+-			"/bin/runsc",
+-			"/sbin/runsc",
+-			"/run/current-system/sw/bin/runsc",
++			"@TERMUX_PREFIX@/bin/runsc",
++			"@TERMUX_PREFIX@/sbin/runsc",
++			"@TERMUX_PREFIX@/local/bin/runsc",
++			"@TERMUX_PREFIX@/local/sbin/runsc",
++			"@TERMUX_PREFIX@/bin/runsc",
++			"@TERMUX_PREFIX@/sbin/runsc",
++			"@TERMUX_PREFIX@/var/run/current-system/sw/bin/runsc",
+ 		},
+ 		"youki": {
+-			"/usr/local/bin/youki",
+-			"/usr/bin/youki",
+-			"/bin/youki",
+-			"/run/current-system/sw/bin/youki",
++			"@TERMUX_PREFIX@/local/bin/youki",
++			"@TERMUX_PREFIX@/bin/youki",
++			"@TERMUX_PREFIX@/bin/youki",
++			"@TERMUX_PREFIX@/var/run/current-system/sw/bin/youki",
+ 		},
+ 		"krun": {
+-			"/usr/bin/krun",
+-			"/usr/local/bin/krun",
++			"@TERMUX_PREFIX@/bin/krun",
++			"@TERMUX_PREFIX@/local/bin/krun",
+ 		},
+ 		"ocijail": {
+-			"/usr/local/bin/ocijail",
++			"@TERMUX_PREFIX@/local/bin/ocijail",
+ 		},
+ 	}
+ 	c.PlatformToOCIRuntime = map[string]string{
+@@ -452,26 +452,26 @@ func defaultEngineConfig() (*EngineConfig, error) {
+ 	// Needs to be called after populating c.OCIRuntimes.
+ 	c.OCIRuntime = c.findRuntime()
+ 
+-	c.ConmonEnvVars.Set([]string{"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"})
++	c.ConmonEnvVars.Set([]string{"PATH=@TERMUX_PREFIX@/local/sbin:@TERMUX_PREFIX@/local/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin:/sbin:/bin"})
+ 	c.ConmonPath.Set([]string{
+-		"/usr/libexec/podman/conmon",
+-		"/usr/local/libexec/podman/conmon",
+-		"/usr/local/lib/podman/conmon",
+-		"/usr/bin/conmon",
+-		"/usr/sbin/conmon",
+-		"/usr/local/bin/conmon",
+-		"/usr/local/sbin/conmon",
+-		"/run/current-system/sw/bin/conmon",
++		"@TERMUX_PREFIX@/libexec/podman/conmon",
++		"@TERMUX_PREFIX@/local/libexec/podman/conmon",
++		"@TERMUX_PREFIX@/local/lib/podman/conmon",
++		"@TERMUX_PREFIX@/bin/conmon",
++		"@TERMUX_PREFIX@/sbin/conmon",
++		"@TERMUX_PREFIX@/local/bin/conmon",
++		"@TERMUX_PREFIX@/local/sbin/conmon",
++		"@TERMUX_PREFIX@/var/run/current-system/sw/bin/conmon",
+ 	})
+ 	c.ConmonRsPath.Set([]string{
+-		"/usr/libexec/podman/conmonrs",
+-		"/usr/local/libexec/podman/conmonrs",
+-		"/usr/local/lib/podman/conmonrs",
+-		"/usr/bin/conmonrs",
+-		"/usr/sbin/conmonrs",
+-		"/usr/local/bin/conmonrs",
+-		"/usr/local/sbin/conmonrs",
+-		"/run/current-system/sw/bin/conmonrs",
++		"@TERMUX_PREFIX@/libexec/podman/conmonrs",
++		"@TERMUX_PREFIX@/local/libexec/podman/conmonrs",
++		"@TERMUX_PREFIX@/local/lib/podman/conmonrs",
++		"@TERMUX_PREFIX@/bin/conmonrs",
++		"@TERMUX_PREFIX@/sbin/conmonrs",
++		"@TERMUX_PREFIX@/local/bin/conmonrs",
++		"@TERMUX_PREFIX@/local/sbin/conmonrs",
++		"@TERMUX_PREFIX@/var/run/current-system/sw/bin/conmonrs",
+ 	})
+ 	c.PullPolicy = DefaultPullPolicy
+ 	c.RuntimeSupportsJSON.Set([]string{
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/default_common.go b/podman/vendor/github.com/containers/common/pkg/config/default_common.go
+index ea5ded3..3505ccc 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/default_common.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/default_common.go
+@@ -3,4 +3,4 @@
+ package config
+ 
+ // DefaultInitPath is the default path to the container-init binary.
+-var DefaultInitPath = "/usr/libexec/podman/catatonit"
++var DefaultInitPath = "@TERMUX_PREFIX@/usr/libexec/podman/catatonit"
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/default_linux.go b/podman/vendor/github.com/containers/common/pkg/config/default_linux.go
+index 928ae9f..673ac42 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/default_linux.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/default_linux.go
+@@ -14,7 +14,7 @@ func getDefaultTmpDir() string {
+ 	if path, found := os.LookupEnv("TMPDIR"); found {
+ 		return path
+ 	}
+-	return "/var/tmp"
++	return "@TERMUX_PREFIX@/var/tmp"
+ }
+ 
+ func getDefaultLockType() string {
+@@ -22,7 +22,7 @@ func getDefaultLockType() string {
+ }
+ 
+ func getLibpodTmpDir() string {
+-	return "/run/libpod"
++	return "@TERMUX_PREFIX@/var/run/libpod"
+ }
+ 
+ // getDefaultMachineVolumes returns default mounted volumes (possibly with env vars, which will be expanded)
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go b/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go
+index 46653e3..64e9149 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go
+@@ -20,5 +20,5 @@ func getDefaultTmpDir() string {
+ 	if path, found := os.LookupEnv("TMPDIR"); found {
+ 		return path
+ 	}
+-	return "/var/tmp"
++	return "@TERMUX_PREFIX@/var/tmp"
+ }
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/modules.go b/podman/vendor/github.com/containers/common/pkg/config/modules.go
+index 26c04e2..90f981b 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/modules.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/modules.go
+@@ -16,8 +16,8 @@ const moduleSubdir = "containers/containers.conf.modules"
+ // Moving the base paths into variables allows for overriding them in units
+ // tests.
+ var (
+-	moduleBaseEtc = "/etc/"
+-	moduleBaseUsr = "/usr/share"
++	moduleBaseEtc = "@TERMUX_PREFIX@/etc/"
++	moduleBaseUsr = "@TERMUX_PREFIX@/usr/share"
+ )
+ 
+ // LoadedModules returns absolute paths to loaded containers.conf modules.
+diff --git a/podman/vendor/github.com/containers/common/pkg/config/systemd.go b/podman/vendor/github.com/containers/common/pkg/config/systemd.go
+index 5063746..82dcdce 100644
+--- a/podman/vendor/github.com/containers/common/pkg/config/systemd.go
++++ b/podman/vendor/github.com/containers/common/pkg/config/systemd.go
+@@ -66,7 +66,7 @@ func useJournald() bool {
+ 		if !useSystemd() {
+ 			return
+ 		}
+-		for _, root := range []string{"/run/log/journal", "/var/log/journal"} {
++		for _, root := range []string{"@TERMUX_PREFIX@/var/run/log/journal", "@TERMUX_PREFIX@/var/log/journal"} {
+ 			dirs, err := os.ReadDir(root)
+ 			if err != nil {
+ 				continue
+diff --git a/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go b/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go
+index 0b4ad05..2cce43e 100644
+--- a/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go
++++ b/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go
+@@ -20,10 +20,10 @@ const Version = current.Version
+ 
+ const (
+ 	// DefaultDir is the default directory containing system hook configuration files.
+-	DefaultDir = "/usr/share/containers/oci/hooks.d"
++	DefaultDir = "@TERMUX_PREFIX@/usr/share/containers/oci/hooks.d"
+ 
+ 	// OverrideDir is the directory for hook configuration files overriding the default entries.
+-	OverrideDir = "/etc/containers/oci/hooks.d"
++	OverrideDir = "@TERMUX_PREFIX@/etc/containers/oci/hooks.d"
+ )
+ 
+ // Manager provides an opaque interface for managing CRI-O hooks.
+diff --git a/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go b/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
+index 2c78cf1..e623676 100644
+--- a/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
++++ b/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
+@@ -20,10 +20,10 @@ import (
+ var (
+ 	// DefaultMountsFile holds the default mount paths in the form
+ 	// "host_path:container_path"
+-	DefaultMountsFile = "/usr/share/containers/mounts.conf"
++	DefaultMountsFile = "@TERMUX_PREFIX@/usr/share/containers/mounts.conf"
+ 	// OverrideMountsFile holds the default mount paths in the form
+ 	// "host_path:container_path" overridden by the user
+-	OverrideMountsFile = "/etc/containers/mounts.conf"
++	OverrideMountsFile = "@TERMUX_PREFIX@/etc/containers/mounts.conf"
+ 	// UserOverrideMountsFile holds the default mount paths in the form
+ 	// "host_path:container_path" overridden by the rootless user
+ 	UserOverrideMountsFile = filepath.Join(os.Getenv("HOME"), ".config/containers/mounts.conf")
+@@ -412,8 +412,8 @@ func addFIPSMounts(mounts *[]rspec.Mount, containerRunDir, mountPoint, mountLabe
+ 		}
+ 	}
+ 
+-	srcBackendDir := "/usr/share/crypto-policies/back-ends/FIPS"
+-	destDir := "/etc/crypto-policies/back-ends"
++	srcBackendDir := "@TERMUX_PREFIX@/usr/share/crypto-policies/back-ends/FIPS"
++	destDir := "@TERMUX_PREFIX@/etc/crypto-policies/back-ends"
+ 	srcOnHost, err := securejoin.SecureJoin(mountPoint, srcBackendDir)
+ 	if err != nil {
+ 		return fmt.Errorf("resolve %s in the container: %w", srcBackendDir, err)
+@@ -444,8 +444,8 @@ func addFIPSMounts(mounts *[]rspec.Mount, containerRunDir, mountPoint, mountLabe
+ 	//   /etc/crypto-policies/back-ends -> /usr/share/crypto-policies/back-ends/FIPS
+ 	//   /etc/crypto-policies/config -> /usr/share/crypto-policies/default-fips-config
+ 	// if they both exist.
+-	srcPolicyConfig := "/usr/share/crypto-policies/default-fips-config"
+-	destPolicyConfig := "/etc/crypto-policies/config"
++	srcPolicyConfig := "@TERMUX_PREFIX@/usr/share/crypto-policies/default-fips-config"
++	destPolicyConfig := "@TERMUX_PREFIX@/etc/crypto-policies/config"
+ 	srcPolicyConfigOnHost, err := securejoin.SecureJoin(mountPoint, srcPolicyConfig)
+ 	if err != nil {
+ 		return fmt.Errorf("Could not expand %q in container: %w", srcPolicyConfig, err)
+diff --git a/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go b/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go
+index b82dc30..9d2276c 100644
+--- a/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go
++++ b/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go
+@@ -34,7 +34,7 @@ func ConfigureContainerTimeZone(timezone, containerRunDir, mountPoint, etcPath,
+ 		zoneinfo := os.Getenv("TZDIR")
+ 		if zoneinfo == "" {
+ 			// default zoneinfo location
+-			zoneinfo = "/usr/share/zoneinfo"
++			zoneinfo = "@TERMUX_PREFIX@/usr/share/zoneinfo"
+ 		}
+ 		timezonePath = filepath.Join(zoneinfo, timezone)
+ 	}
+diff --git a/podman/vendor/github.com/containers/common/pkg/version/version.go b/podman/vendor/github.com/containers/common/pkg/version/version.go
+index a7b160b..49f031a 100644
+--- a/podman/vendor/github.com/containers/common/pkg/version/version.go
++++ b/podman/vendor/github.com/containers/common/pkg/version/version.go
+@@ -26,7 +26,7 @@ func queryPackageVersion(cmdArg ...string) string {
+ 		if outp, err := cmd.Output(); err == nil {
+ 			output = string(outp)
+ 			switch cmdArg[0] {
+-			case "/usr/bin/dlocate":
++			case "@TERMUX_PREFIX@/usr/bin/dlocate":
+ 				// can return multiple matches
+ 				l := strings.Split(output, "\n")
+ 				output = l[0]
+@@ -45,20 +45,20 @@ func queryPackageVersion(cmdArg ...string) string {
+ 						}
+ 					}
+ 				}
+-			case "/usr/bin/dpkg":
++			case "@TERMUX_PREFIX@/usr/bin/dpkg":
+ 				r := strings.Split(output, ": ")
+ 				queryFormat := `${Package}_${Version}_${Architecture}`
+-				cmd = exec.Command("/usr/bin/dpkg-query", "-f", queryFormat, "-W", r[0])
++				cmd = exec.Command("@TERMUX_PREFIX@/usr/bin/dpkg-query", "-f", queryFormat, "-W", r[0])
+ 				if outp, err := cmd.Output(); err == nil {
+ 					output = string(outp)
+ 				}
+-			case "/usr/bin/pacman":
++			case "@TERMUX_PREFIX@/usr/bin/pacman":
+ 				pkg := strings.Trim(output, "\n")
+ 				cmd = exec.Command(cmdArg[0], "-Q", "--", pkg)
+ 				if outp, err := cmd.Output(); err == nil {
+ 					output = strings.ReplaceAll(string(outp), " ", "-")
+ 				}
+-			case "/sbin/apk":
++			case "@TERMUX_PREFIX@/sbin/apk":
+ 				prefix := cmdArg[len(cmdArg)-1] + " is owned by "
+ 				output = strings.Replace(output, prefix, "", 1)
+ 			}
+@@ -80,14 +80,14 @@ func Package(program string) string { // program is full path
+ 		Command []string
+ 	}
+ 	packagers := []Packager{
+-		{"rpm", []string{"/usr/bin/rpm", "-q", "-f"}},
+-		{"deb", []string{"/usr/bin/dlocate", "-F"}},             // Debian, Ubuntu (quick)
+-		{"deb", []string{"/usr/bin/dpkg", "-S"}},                // Debian, Ubuntu (slow)
+-		{"pacman", []string{"/usr/bin/pacman", "-Qoq"}},         // Arch
+-		{"gentoo", []string{"/usr/bin/qfile", "-qv"}},           // Gentoo (quick)
+-		{"gentoo", []string{"/usr/bin/equery", "b"}},            // Gentoo (slow)
+-		{"apk", []string{"/sbin/apk", "info", "-W"}},            // Alpine
+-		{"pkg", []string{"/usr/local/sbin/pkg", "which", "-q"}}, // FreeBSD
++		{"rpm", []string{"@TERMUX_PREFIX@/usr/bin/rpm", "-q", "-f"}},
++		{"deb", []string{"@TERMUX_PREFIX@/usr/bin/dlocate", "-F"}},             // Debian, Ubuntu (quick)
++		{"deb", []string{"@TERMUX_PREFIX@/usr/bin/dpkg", "-S"}},                // Debian, Ubuntu (slow)
++		{"pacman", []string{"@TERMUX_PREFIX@/usr/bin/pacman", "-Qoq"}},         // Arch
++		{"gentoo", []string{"@TERMUX_PREFIX@/usr/bin/qfile", "-qv"}},           // Gentoo (quick)
++		{"gentoo", []string{"@TERMUX_PREFIX@/usr/bin/equery", "b"}},            // Gentoo (slow)
++		{"apk", []string{"@TERMUX_PREFIX@/sbin/apk", "info", "-W"}},            // Alpine
++		{"pkg", []string{"@TERMUX_PREFIX@/usr/local/sbin/pkg", "which", "-q"}}, // FreeBSD
+ 	}
+ 
+ 	lastformat := ""
+diff --git a/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go b/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go
+index 5caaca7..ada0bb5 100644
+--- a/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go
++++ b/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go
+@@ -3,5 +3,5 @@
+ package config
+ 
+ const (
+-	ContainerAttachSocketDir = "/var/run/crio"
++	ContainerAttachSocketDir = "@TERMUX_PREFIX@/var/run/crio"
+ )
+diff --git a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
+index e001d6b..68c14e6 100644
+--- a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
++++ b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
+@@ -36,7 +36,7 @@ var userRegistriesDir = filepath.FromSlash(".config/containers/registries.d")
+ var defaultUserDockerDir = filepath.FromSlash(".local/share/containers/sigstore")
+ 
+ // defaultDockerDir is the default lookaside directory for root
+-var defaultDockerDir = "/var/lib/containers/sigstore"
++var defaultDockerDir = "@TERMUX_PREFIX@/var/lib/containers/sigstore"
+ 
+ // registryConfiguration is one of the files in registriesDirPath configuring lookaside locations, or the result of merging them all.
+ // NOTE: Keep this in sync with docs/registries.d.md!
+diff --git a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+index 69193a9..9c1cf13 100644
+--- a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
++++ b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+@@ -15,7 +15,7 @@ var unixTempDirForBigFiles = builtinUnixTempDirForBigFiles
+ // builtinUnixTempDirForBigFiles is the directory path to store big files.
+ // Do not use the system default of os.TempDir(), usually /tmp, because with systemd it could be a tmpfs.
+ // DO NOT change this, instead see unixTempDirForBigFiles above.
+-const builtinUnixTempDirForBigFiles = "/var/tmp"
++const builtinUnixTempDirForBigFiles = "@TERMUX_PREFIX@/var/tmp"
+ 
+ const prefix = "container_images_"
+ 
+diff --git a/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go b/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
+index b413ec5..b5d311e 100644
+--- a/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
++++ b/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
+@@ -17,7 +17,7 @@ const (
+ 	// If the format changes in an incompatible way, increase the version number.
+ 	blobInfoCacheFilename = "blob-info-cache-v1.sqlite"
+ 	// systemBlobInfoCacheDir is the directory containing the blob info cache (in blobInfocacheFilename) for root-running processes.
+-	systemBlobInfoCacheDir = "/var/lib/containers/cache"
++	systemBlobInfoCacheDir = "@TERMUX_PREFIX@/var/lib/containers/cache"
+ )
+ 
+ // blobInfoCacheDir returns a path to a blob info cache appropriate for sys and euid.
+diff --git a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+index 20e5216..08593e9 100644
+--- a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
++++ b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+@@ -34,7 +34,7 @@ func shortNameAliasesConfPath(ctx *types.SystemContext) (string, error) {
+ 
+ 	if rootless.GetRootlessEUID() == 0 {
+ 		// Root user or in a non-conforming user NS
+-		return filepath.Join("/var/cache", userShortNamesFile), nil
++		return filepath.Join("@TERMUX_PREFIX@/var/cache", userShortNamesFile), nil
+ 	}
+ 
+ 	// Rootless user
+diff --git a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
+index 072d7fe..1f5b75a 100644
+--- a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
++++ b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
+@@ -96,16 +96,16 @@ type Pkcs11Config struct {
+ // a variety of Linux distros
+ func GetDefaultModuleDirectories() []string {
+ 	dirs := []string{
+-		"/usr/lib64/pkcs11/", // Fedora,RHEL,openSUSE
+-		"/usr/lib/pkcs11/",   // Fedora,ArchLinux
+-		"/usr/local/lib/pkcs11/",
+-		"/usr/lib/softhsm/", // Debian,Ubuntu
++		"@TERMUX_PREFIX@/usr/lib64/pkcs11/", // Fedora,RHEL,openSUSE
++		"@TERMUX_PREFIX@/usr/lib/pkcs11/",   // Fedora,ArchLinux
++		"@TERMUX_PREFIX@/usr/local/lib/pkcs11/",
++		"@TERMUX_PREFIX@/usr/lib/softhsm/", // Debian,Ubuntu
+ 	}
+ 
+ 	// Debian directory: /usr/lib/(x86_64|aarch64|arm|powerpc64le|riscv64|s390x)-linux-gnu/
+ 	hosttype, ostype, q := getHostAndOsType()
+ 	if len(hosttype) > 0 {
+-		dir := fmt.Sprintf("/usr/lib/%s-%s-%s/", hosttype, ostype, q)
++		dir := fmt.Sprintf("@TERMUX_PREFIX@/usr/lib/%s-%s-%s/", hosttype, ostype, q)
+ 		dirs = append(dirs, dir)
+ 	}
+ 	return dirs
+diff --git a/podman/vendor/github.com/containers/storage/pkg/system/path.go b/podman/vendor/github.com/containers/storage/pkg/system/path.go
+index 37014bb..88743b1 100644
+--- a/podman/vendor/github.com/containers/storage/pkg/system/path.go
++++ b/podman/vendor/github.com/containers/storage/pkg/system/path.go
+@@ -2,7 +2,7 @@ package system
+ 
+ // import "runtime"
+ 
+-const defaultUnixPathEnv = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
++const defaultUnixPathEnv = "@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin"
+ 
+ // DefaultPathEnv is unix style list of directories to search for
+ // executables. Each directory is separated from the next by a colon
+diff --git a/podman/vendor/github.com/containers/storage/types/options_linux.go b/podman/vendor/github.com/containers/storage/types/options_linux.go
+index 09cbae5..e4c6c3d 100644
+--- a/podman/vendor/github.com/containers/storage/types/options_linux.go
++++ b/podman/vendor/github.com/containers/storage/types/options_linux.go
+@@ -11,14 +11,14 @@ import (
+ const (
+ 	// these are default path for run and graph root for rootful users
+ 	// for rootless path is constructed via getRootlessStorageOpts
+-	defaultRunRoot   string = "/run/containers/storage"
+-	defaultGraphRoot string = "/var/lib/containers/storage"
+-	SystemConfigFile        = "/usr/share/containers/storage.conf"
++	defaultRunRoot   string = "@TERMUX_PREFIX@/var/run/containers/storage"
++	defaultGraphRoot string = "@TERMUX_PREFIX@/var/lib/containers/storage"
++	SystemConfigFile        = "@TERMUX_PREFIX@/usr/share/containers/storage.conf"
+ )
+ 
+ // defaultConfigFile path to the system wide storage.conf file
+ var (
+-	defaultOverrideConfigFile = "/etc/containers/storage.conf"
++	defaultOverrideConfigFile = "@TERMUX_PREFIX@/etc/containers/storage.conf"
+ )
+ 
+ // canUseRootlessOverlay returns true if the overlay driver can be used for rootless containers
+diff --git a/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go b/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
+index 1b71079..8ca911b 100644
+--- a/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
++++ b/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
+@@ -7,7 +7,7 @@ import (
+ 
+ const (
+ 	// defaultSocket specifies the default path to the libvirt unix socket.
+-	defaultSocket = "/var/run/libvirt/libvirt-sock"
++	defaultSocket = "@TERMUX_PREFIX@/var/run/libvirt/libvirt-sock"
+ 
+ 	// defaultLocalTimeout specifies the default libvirt dial timeout.
+ 	defaultLocalTimeout = 15 * time.Second
+diff --git a/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go b/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
+index 387e82a..f7ccc97 100644
+--- a/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
++++ b/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
+@@ -8,7 +8,7 @@ import (
+ 
+ const (
+ 	// DefaultDockerRootDirectory is the default directory where volumes will be created.
+-	DefaultDockerRootDirectory = "/var/lib/docker-volumes"
++	DefaultDockerRootDirectory = "@TERMUX_PREFIX@/var/lib/docker-volumes"
+ 
+ 	manifest         = `{"Implements": ["VolumeDriver"]}`
+ 	createPath       = "/VolumeDriver.Create"
+diff --git a/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go b/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
+index e2a03ca..7ea7b21 100644
+--- a/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
++++ b/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
+@@ -78,47 +78,47 @@ var (
+ 		[]byte("<? "),
+ 	)
+ 	phpScriptF = shebang(
+-		[]byte("/usr/local/bin/php"),
+-		[]byte("/usr/bin/php"),
+-		[]byte("/usr/bin/env php"),
++		[]byte("@TERMUX_PREFIX@/usr/local/bin/php"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/php"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env php"),
+ 	)
+ 	// Js matches a Javascript file.
+ 	Js = shebang(
+-		[]byte("/bin/node"),
+-		[]byte("/usr/bin/node"),
+-		[]byte("/bin/nodejs"),
+-		[]byte("/usr/bin/nodejs"),
+-		[]byte("/usr/bin/env node"),
+-		[]byte("/usr/bin/env nodejs"),
++		[]byte("@TERMUX_PREFIX@/bin/node"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/node"),
++		[]byte("@TERMUX_PREFIX@/bin/nodejs"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/nodejs"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env node"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env nodejs"),
+ 	)
+ 	// Lua matches a Lua programming language file.
+ 	Lua = shebang(
+-		[]byte("/usr/bin/lua"),
+-		[]byte("/usr/local/bin/lua"),
+-		[]byte("/usr/bin/env lua"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/lua"),
++		[]byte("@TERMUX_PREFIX@/usr/local/bin/lua"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env lua"),
+ 	)
+ 	// Perl matches a Perl programming language file.
+ 	Perl = shebang(
+-		[]byte("/usr/bin/perl"),
+-		[]byte("/usr/bin/env perl"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/perl"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env perl"),
+ 	)
+ 	// Python matches a Python programming language file.
+ 	Python = shebang(
+-		[]byte("/usr/bin/python"),
+-		[]byte("/usr/local/bin/python"),
+-		[]byte("/usr/bin/env python"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/python"),
++		[]byte("@TERMUX_PREFIX@/usr/local/bin/python"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env python"),
+ 	)
+ 	// Tcl matches a Tcl programming language file.
+ 	Tcl = shebang(
+-		[]byte("/usr/bin/tcl"),
+-		[]byte("/usr/local/bin/tcl"),
+-		[]byte("/usr/bin/env tcl"),
+-		[]byte("/usr/bin/tclsh"),
+-		[]byte("/usr/local/bin/tclsh"),
+-		[]byte("/usr/bin/env tclsh"),
+-		[]byte("/usr/bin/wish"),
+-		[]byte("/usr/local/bin/wish"),
+-		[]byte("/usr/bin/env wish"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/tcl"),
++		[]byte("@TERMUX_PREFIX@/usr/local/bin/tcl"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env tcl"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/tclsh"),
++		[]byte("@TERMUX_PREFIX@/usr/local/bin/tclsh"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env tclsh"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/wish"),
++		[]byte("@TERMUX_PREFIX@/usr/local/bin/wish"),
++		[]byte("@TERMUX_PREFIX@/usr/bin/env wish"),
+ 	)
+ 	// Rtf matches a Rich Text Format file.
+ 	Rtf = prefix([]byte("{\\rtf1"))
+diff --git a/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go b/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go
+index 1a0daa6..65c7bbc 100644
+--- a/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go
++++ b/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go
+@@ -7,7 +7,7 @@ import (
+ 	"os"
+ )
+ 
+-const defaultSystemBusAddress = "unix:path=/var/run/dbus/system_bus_socket"
++const defaultSystemBusAddress = "unix:path=@TERMUX_PREFIX@/var/run/dbus/system_bus_socket"
+ 
+ func getSystemBusPlatformAddress() string {
+ 	address := os.Getenv("DBUS_SYSTEM_BUS_ADDRESS")
+diff --git a/podman/vendor/github.com/kevinburke/ssh_config/validators.go b/podman/vendor/github.com/kevinburke/ssh_config/validators.go
+index 5977f90..4dc15fd 100644
+--- a/podman/vendor/github.com/kevinburke/ssh_config/validators.go
++++ b/podman/vendor/github.com/kevinburke/ssh_config/validators.go
+@@ -158,7 +158,7 @@ var defaults = map[string]string{
+ 	strings.ToLower("UserKnownHostsFile"): "~/.ssh/known_hosts ~/.ssh/known_hosts2",
+ 	strings.ToLower("VerifyHostKeyDNS"):   "no",
+ 	strings.ToLower("VisualHostKey"):      "no",
+-	strings.ToLower("XAuthLocation"):      "/usr/X11R6/bin/xauth",
++	strings.ToLower("XAuthLocation"):      "@TERMUX_PREFIX@/usr/X11R6/bin/xauth",
+ }
+ 
+ // these identities are used for SSH protocol 2
+diff --git a/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go b/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
+index 3e8f9ca..25fae1b 100644
+--- a/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
++++ b/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
+@@ -75,7 +75,7 @@ func New(os string) (generator Generator, err error) {
+ 	if os == "linux" || os == "solaris" || os == "freebsd" {
+ 		config.Process.User = rspec.User{}
+ 		config.Process.Env = []string{
+-			"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
++			"PATH=@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin",
+ 			"TERM=xterm",
+ 		}
+ 		config.Process.Cwd = "/"
+diff --git a/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go b/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
+index c80c109..5b7a890 100644
+--- a/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
++++ b/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
+@@ -23,8 +23,8 @@ import (
+ 
+ const (
+ 	minSensLen       = 2
+-	contextFile      = "/usr/share/containers/selinux/contexts"
+-	selinuxDir       = "/etc/selinux/"
++	contextFile      = "@TERMUX_PREFIX@/usr/share/containers/selinux/contexts"
++	selinuxDir       = "@TERMUX_PREFIX@/etc/selinux/"
+ 	selinuxUsersDir  = "contexts/users"
+ 	defaultContexts  = "contexts/default_contexts"
+ 	selinuxConfig    = selinuxDir + "config"
+@@ -1060,29 +1060,29 @@ func chcon(fpath string, label string, recurse bool) error {
+ 
+ 	excludePaths := map[string]bool{
+ 		"/":           true,
+-		"/bin":        true,
++		"@TERMUX_PREFIX@/bin":        true,
+ 		"/boot":       true,
+ 		"/dev":        true,
+-		"/etc":        true,
+-		"/etc/passwd": true,
+-		"/etc/pki":    true,
+-		"/etc/shadow": true,
+-		"/home":       true,
+-		"/lib":        true,
+-		"/lib64":      true,
+-		"/media":      true,
+-		"/opt":        true,
++		"@TERMUX_PREFIX@/etc":        true,
++		"@TERMUX_PREFIX@/etc/passwd": true,
++		"@TERMUX_PREFIX@/etc/pki":    true,
++		"@TERMUX_PREFIX@/etc/shadow": true,
++		"@TERMUX_PREFIX@/home":       true,
++		"@TERMUX_PREFIX@/lib":        true,
++		"@TERMUX_PREFIX@/lib64":      true,
++		"@TERMUX_PREFIX@/media":      true,
++		"@TERMUX_PREFIX@/opt":        true,
+ 		"/proc":       true,
+-		"/root":       true,
+-		"/run":        true,
+-		"/sbin":       true,
+-		"/srv":        true,
++		"@TERMUX_PREFIX@/root":       true,
++		"@TERMUX_PREFIX@/run":        true,
++		"@TERMUX_PREFIX@/sbin":       true,
++		"@TERMUX_PREFIX@/srv":        true,
+ 		"/sys":        true,
+-		"/tmp":        true,
+-		"/usr":        true,
+-		"/var":        true,
+-		"/var/lib":    true,
+-		"/var/log":    true,
++		"@TERMUX_PREFIX@/tmp":        true,
++		"@TERMUX_PREFIX@/usr":        true,
++		"@TERMUX_PREFIX@/var":        true,
++		"@TERMUX_PREFIX@/var/lib":    true,
++		"@TERMUX_PREFIX@/var/log":    true,
+ 	}
+ 
+ 	if home := os.Getenv("HOME"); home != "" {
+diff --git a/podman/vendor/github.com/openshift/imagebuilder/constants.go b/podman/vendor/github.com/openshift/imagebuilder/constants.go
+index 7b41e5a..1f7e803 100644
+--- a/podman/vendor/github.com/openshift/imagebuilder/constants.go
++++ b/podman/vendor/github.com/openshift/imagebuilder/constants.go
+@@ -5,5 +5,5 @@ const (
+ 	NoBaseImageSpecifier = "scratch"
+ 
+ 	// in docker/system
+-	defaultPathEnv = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
++	defaultPathEnv = "@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin"
+ )
+diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
+index 19b1e9d..ad8aba0 100644
+--- a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
++++ b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
+@@ -92,7 +92,7 @@ func Info() ([]InfoStat, error) {
+ }
+ 
+ func InfoWithContext(ctx context.Context) ([]InfoStat, error) {
+-	const dmesgBoot = "/var/run/dmesg.boot"
++	const dmesgBoot = "@TERMUX_PREFIX@/var/run/dmesg.boot"
+ 
+ 	c, err := parseDmesgBoot(dmesgBoot)
+ 	if err != nil {
+diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
+index 277034f..c64ef8c 100644
+--- a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
++++ b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
+@@ -282,7 +282,7 @@ func VirtualizationWithContext(ctx context.Context) (string, string, error) {
+ 			} else if StringsContains(contents, "machine-rkt") {
+ 				system = "rkt"
+ 				role = "guest"
+-			} else if PathExists("/usr/bin/lxc-version") {
++			} else if PathExists("@TERMUX_PREFIX@/usr/bin/lxc-version") {
+ 				system = "lxc"
+ 				role = "host"
+ 			}
+diff --git a/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go b/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
+index 2fee79d..30413cf 100644
+--- a/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
++++ b/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
+@@ -1627,7 +1627,7 @@ func IsDWARFEnabledOnAIXLd(extld string) (bool, error) {
+ 	// gcc -Wl,-V output should be:
+ 	//   /usr/bin/ld: LD X.X.X(date)
+ 	//   ...
+-	out = bytes.TrimPrefix(out, []byte("/usr/bin/ld: LD "))
++	out = bytes.TrimPrefix(out, []byte("@TERMUX_PREFIX@/usr/bin/ld: LD "))
+ 	vers := string(bytes.Split(out, []byte("("))[0])
+ 	subvers := strings.Split(vers, ".")
+ 	if len(subvers) != 3 {
+diff --git a/podman/vendor/github.com/vishvananda/netns/netns_linux.go b/podman/vendor/github.com/vishvananda/netns/netns_linux.go
+index 2ed7c7e..ed3e871 100644
+--- a/podman/vendor/github.com/vishvananda/netns/netns_linux.go
++++ b/podman/vendor/github.com/vishvananda/netns/netns_linux.go
+@@ -165,7 +165,7 @@ func findCgroupMountpoint(cgroupType string) (int, string, error) {
+ // borrowed from docker/utils/utils.go
+ // modified to get the docker pid instead of using /proc/self
+ func getDockerCgroup(cgroupVer int, cgroupType string) (string, error) {
+-	dockerpid, err := os.ReadFile("/var/run/docker.pid")
++	dockerpid, err := os.ReadFile("@TERMUX_PREFIX@/var/run/docker.pid")
+ 	if err != nil {
+ 		return "", err
+ 	}
+diff --git a/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go b/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
+index 09005d6..4a37e9b 100644
+--- a/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
++++ b/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
+@@ -25,9 +25,9 @@ import (
+ 
+ const (
+ 	// DefaultStaticDir is the default directory for static CDI Specs.
+-	DefaultStaticDir = "/etc/cdi"
++	DefaultStaticDir = "@TERMUX_PREFIX@/etc/cdi"
+ 	// DefaultDynamicDir is the default directory for generated CDI Specs
+-	DefaultDynamicDir = "/var/run/cdi"
++	DefaultDynamicDir = "@TERMUX_PREFIX@/var/run/cdi"
+ )
+ 
+ var (
+-- 
+2.47.2
+
