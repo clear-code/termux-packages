@@ -1,0 +1,249 @@
+From c8e28d7fef1e7d1ec2b50e333b76f7b4c28d42be Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Wed, 26 Feb 2025 16:43:03 +0900
+Subject: [PATCH 1/7] Use hardcoded runtime.GOOS/goruntime.GOOS
+
+Behaves as if "linux"
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ podman/cmd/podman/compose.go              | 4 ++--
+ podman/cmd/podman/machine/info.go         | 2 +-
+ podman/cmd/podman/registry/config.go      | 2 +-
+ podman/libpod/boltdb_state_internal.go    | 6 +++---
+ podman/libpod/define/version.go           | 4 ++--
+ podman/libpod/info.go                     | 2 +-
+ podman/libpod/sqlite_state.go             | 4 ++--
+ podman/pkg/api/handlers/compat/info.go    | 2 +-
+ podman/pkg/api/handlers/compat/ping.go    | 4 ++--
+ podman/pkg/api/handlers/compat/version.go | 4 ++--
+ podman/pkg/api/server/handler_api.go      | 4 ++--
+ podman/pkg/machine/compression/generic.go | 4 ++--
+ 12 files changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/podman/cmd/podman/compose.go b/podman/cmd/podman/compose.go
+index 3ff6865..de36a12 100644
+--- a/podman/cmd/podman/compose.go
++++ b/podman/cmd/podman/compose.go
+@@ -7,7 +7,7 @@ import (
+ 	"net/url"
+ 	"os"
+ 	"os/exec"
+-	"runtime"
++	_ "runtime"
+ 	"strconv"
+ 	"strings"
+ 	"text/template"
+@@ -110,7 +110,7 @@ func composeDockerHost() (string, error) {
+ 
+ 	conf := registry.PodmanConfig()
+ 	if conf.URI == "" {
+-		switch runtime.GOOS {
++		switch "linux" {
+ 		// If no default connection is set on Linux or FreeBSD,
+ 		// we just use the local socket by default - just as
+ 		// the remote client does.
+diff --git a/podman/cmd/podman/machine/info.go b/podman/cmd/podman/machine/info.go
+index 793bc4e..3e836db 100644
+--- a/podman/cmd/podman/machine/info.go
++++ b/podman/cmd/podman/machine/info.go
+@@ -98,7 +98,7 @@ func hostInfo() (*entities.MachineHostInfo, error) {
+ 	host := entities.MachineHostInfo{}
+ 
+ 	host.Arch = runtime.GOARCH
+-	host.OS = runtime.GOOS
++	host.OS = "linux"
+ 
+ 	dirs, err := env.GetMachineDirs(provider.VMType())
+ 	if err != nil {
+diff --git a/podman/cmd/podman/registry/config.go b/podman/cmd/podman/registry/config.go
+index 6a6d3ad..bee9bfc 100644
+--- a/podman/cmd/podman/registry/config.go
++++ b/podman/cmd/podman/registry/config.go
+@@ -100,7 +100,7 @@ func newPodmanConfig() {
+ 	}
+ 
+ 	var mode entities.EngineMode
+-	switch runtime.GOOS {
++	switch "linux" {
+ 	case "darwin", "windows":
+ 		mode = entities.TunnelMode
+ 	case "linux", "freebsd":
+diff --git a/podman/libpod/boltdb_state_internal.go b/podman/libpod/boltdb_state_internal.go
+index a9b8d27..3bc13e3 100644
+--- a/podman/libpod/boltdb_state_internal.go
++++ b/podman/libpod/boltdb_state_internal.go
+@@ -6,7 +6,7 @@ import (
+ 	"fmt"
+ 	"os"
+ 	"path/filepath"
+-	"runtime"
++	_ "runtime"
+ 	"strings"
+ 
+ 	"github.com/containers/podman/v5/libpod/define"
+@@ -108,9 +108,9 @@ func checkRuntimeConfig(db *bolt.DB, rt *Runtime) error {
+ 	checks := []dbConfigValidation{
+ 		{
+ 			"OS",
+-			runtime.GOOS,
++			"linux",
+ 			osKey,
+-			runtime.GOOS,
++			"linux",
+ 			false,
+ 		},
+ 		{
+diff --git a/podman/libpod/define/version.go b/podman/libpod/define/version.go
+index 6832aea..462ba16 100644
+--- a/podman/libpod/define/version.go
++++ b/podman/libpod/define/version.go
+@@ -54,7 +54,7 @@ func GetVersion() (Version, error) {
+ 		BuiltTime:   time.Unix(buildTime, 0).Format(time.ANSIC),
+ 		Built:       buildTime,
+ 		BuildOrigin: buildOrigin,
+-		OsArch:      runtime.GOOS + "/" + runtime.GOARCH,
+-		Os:          runtime.GOOS,
++		OsArch:      "linux" + "/" + runtime.GOARCH,
++		Os:          "linux",
+ 	}, nil
+ }
+diff --git a/podman/libpod/info.go b/podman/libpod/info.go
+index bb514ad..64831c7 100644
+--- a/podman/libpod/info.go
++++ b/podman/libpod/info.go
+@@ -125,7 +125,7 @@ func (r *Runtime) hostInfo() (*define.HostInfo, error) {
+ 		MemTotal:           mi.MemTotal,
+ 		NetworkBackend:     r.config.Network.NetworkBackend,
+ 		NetworkBackendInfo: r.network.NetworkInfo(),
+-		OS:                 runtime.GOOS,
++		OS:                 "linux",
+ 		RootlessNetworkCmd: r.config.Network.DefaultRootlessNetworkCmd,
+ 		SwapFree:           mi.SwapFree,
+ 		SwapTotal:          mi.SwapTotal,
+diff --git a/podman/libpod/sqlite_state.go b/podman/libpod/sqlite_state.go
+index ea42f8e..41b49a4 100644
+--- a/podman/libpod/sqlite_state.go
++++ b/podman/libpod/sqlite_state.go
+@@ -8,7 +8,7 @@ import (
+ 	"fmt"
+ 	"os"
+ 	"path/filepath"
+-	goruntime "runtime"
++	_ "runtime"
+ 	"strings"
+ 	"time"
+ 
+@@ -322,7 +322,7 @@ func (s *SQLiteState) ValidateDBConfig(runtime *Runtime) (defErr error) {
+ 
+ 	var (
+ 		dbOS, staticDir, tmpDir, graphRoot, runRoot, graphDriver, volumePath string
+-		runtimeOS                                                            = goruntime.GOOS
++		runtimeOS                                                            = "linux"
+ 		runtimeStaticDir                                                     = filepath.Clean(s.runtime.config.Engine.StaticDir)
+ 		runtimeTmpDir                                                        = filepath.Clean(s.runtime.config.Engine.TmpDir)
+ 		runtimeGraphRoot                                                     = filepath.Clean(s.runtime.StorageConfig().GraphRoot)
+diff --git a/podman/pkg/api/handlers/compat/info.go b/podman/pkg/api/handlers/compat/info.go
+index 1f6e249..b6e51f7 100644
+--- a/podman/pkg/api/handlers/compat/info.go
++++ b/podman/pkg/api/handlers/compat/info.go
+@@ -97,7 +97,7 @@ func GetInfo(w http.ResponseWriter, r *http.Request) {
+ 			NGoroutines:        goRuntime.NumGoroutine(),
+ 			Name:               infoData.Host.Hostname,
+ 			NoProxy:            getEnv("no_proxy"),
+-			OSType:             goRuntime.GOOS,
++			OSType:             "linux",
+ 			OSVersion:          infoData.Host.Distribution.Version,
+ 			OomKillDisable:     sysInfo.OomKillDisable,
+ 			OperatingSystem:    infoData.Host.Distribution.Distribution,
+diff --git a/podman/pkg/api/handlers/compat/ping.go b/podman/pkg/api/handlers/compat/ping.go
+index 2601788..9991160 100644
+--- a/podman/pkg/api/handlers/compat/ping.go
++++ b/podman/pkg/api/handlers/compat/ping.go
+@@ -5,7 +5,7 @@ package compat
+ import (
+ 	"fmt"
+ 	"net/http"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/containers/buildah"
+ )
+@@ -21,7 +21,7 @@ func Ping(w http.ResponseWriter, r *http.Request) {
+ 	w.Header().Set("Builder-Version", "")
+ 	w.Header().Set("Docker-Experimental", "true")
+ 	w.Header().Set("Cache-Control", "no-cache")
+-	w.Header().Set("OSType", runtime.GOOS)
++	w.Header().Set("OSType", "linux")
+ 	w.Header().Set("Pragma", "no-cache")
+ 
+ 	w.Header().Set("Libpod-Buildah-Version", buildah.Version)
+diff --git a/podman/pkg/api/handlers/compat/version.go b/podman/pkg/api/handlers/compat/version.go
+index e1c4000..37e8c71 100644
+--- a/podman/pkg/api/handlers/compat/version.go
++++ b/podman/pkg/api/handlers/compat/version.go
+@@ -44,7 +44,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
+ 			"GoVersion":     running.GoVersion,
+ 			"KernelVersion": info.Host.Kernel,
+ 			"MinAPIVersion": version.APIVersion[version.Libpod][version.MinimalAPI].String(),
+-			"Os":            goRuntime.GOOS,
++			"Os":            "linux",
+ 		},
+ 	}, {
+ 		Name:    "Conmon",
+@@ -68,7 +68,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
+ 			Platform: struct {
+ 				Name string
+ 			}{
+-				Name: fmt.Sprintf("%s/%s/%s-%s", goRuntime.GOOS, goRuntime.GOARCH, info.Host.Distribution.Distribution, info.Host.Distribution.Version),
++				Name: fmt.Sprintf("%s/%s/%s-%s", "linux", goRuntime.GOARCH, info.Host.Distribution.Distribution, info.Host.Distribution.Version),
+ 			},
+ 			APIVersion:    fmt.Sprintf("%d.%d", apiVersion.Major, apiVersion.Minor),
+ 			Arch:          components[0].Details["Arch"],
+diff --git a/podman/pkg/api/server/handler_api.go b/podman/pkg/api/server/handler_api.go
+index 9a895f0..0a20bd5 100644
+--- a/podman/pkg/api/server/handler_api.go
++++ b/podman/pkg/api/server/handler_api.go
+@@ -8,7 +8,7 @@ import (
+ 	"fmt"
+ 	"net"
+ 	"net/http"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/containers/podman/v5/version"
+ 	"github.com/sirupsen/logrus"
+@@ -49,7 +49,7 @@ func (s *APIServer) apiWrapper(h http.HandlerFunc, w http.ResponseWriter, r *htt
+ 
+ 	lv := version.APIVersion[version.Libpod][version.CurrentAPI].String()
+ 	w.Header().Set("Libpod-API-Version", lv)
+-	w.Header().Set("Server", "Libpod/"+lv+" ("+runtime.GOOS+")")
++	w.Header().Set("Server", "Libpod/"+lv+" (linux)")
+ 
+ 	if s.CorsHeaders != "" {
+ 		w.Header().Set("Access-Control-Allow-Origin", s.CorsHeaders)
+diff --git a/podman/pkg/machine/compression/generic.go b/podman/pkg/machine/compression/generic.go
+index 0b70ff9..e712faa 100644
+--- a/podman/pkg/machine/compression/generic.go
++++ b/podman/pkg/machine/compression/generic.go
+@@ -4,7 +4,7 @@ import (
+ 	"io"
+ 	"io/fs"
+ 	"os"
+-	"runtime"
++	_ "runtime"
+ 
+ 	"github.com/containers/image/v5/pkg/compression"
+ 	"github.com/sirupsen/logrus"
+@@ -58,7 +58,7 @@ func (d *genericDecompressor) decompress(w io.WriteSeeker, r io.Reader) error {
+ 	// Use sparse-optimized copy for macOS as applehv,
+ 	// macOS native hypervisor, uses large raw VM disk
+ 	// files mostly empty (~2GB of content ~8GB empty).
+-	if runtime.GOOS == macOs {
++	if "linux" == macOs {
+ 		err = d.sparseOptimizedCopy(w, decompressedFileReader)
+ 	} else {
+ 		_, err = io.Copy(w, decompressedFileReader)
+-- 
+2.47.2
+
