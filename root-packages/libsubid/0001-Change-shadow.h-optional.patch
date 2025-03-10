@@ -1,0 +1,378 @@
+From a2ca5757ba3f0fce7d48ed108ede16940a80492e Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Mon, 10 Mar 2025 14:45:47 +0900
+Subject: [PATCH 1/3] Change shadow.h optional
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ configure.ac      |  7 ++++++-
+ lib/Makefile.am   |  7 -------
+ lib/defines.h     |  2 ++
+ lib/groupio.c     |  5 +++++
+ lib/prefix_flag.c |  2 ++
+ lib/prototypes.h  | 14 ++++++++++++++
+ lib/pwdcheck.c    |  4 ++++
+ lib/pwio.c        |  5 +++++
+ lib/shadow.c      |  2 ++
+ lib/shadowio.c    | 29 +++++++++++++++++++++++++++++
+ lib/shadowio.h    |  6 ++++++
+ 11 files changed, 75 insertions(+), 8 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 36c57d8e..623a7eb9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -37,7 +37,11 @@ LT_LIB_DLLOAD
+ dnl Checks for libraries.
+ 
+ dnl shadow now uses the libc's shadow implementation
+-AC_CHECK_HEADER([shadow.h],,[AC_MSG_ERROR([You need a libc with shadow.h])])
++dnl AC_CHECK_HEADER([shadow.h],,[AC_MSG_ERROR([You need a libc with shadow.h])])
++AC_CHECK_HEADER([shadow.h],
++	[AC_DEFINE(HAVE_STRUCT_SPWD, 1, [Defined to 1 if you have struct spwd])],
++	[AC_MSG_WARN([No shadow.h for Android])]
++)
+ 
+ AC_CHECK_FUNCS(arc4random_buf futimes \
+ 	getentropy getrandom getspnam getusershell \
+@@ -62,6 +66,7 @@ dnl Checks for library functions.
+ AC_FUNC_UTIME_NULL
+ AC_REPLACE_FUNCS(putgrent putpwent putspent)
+ AC_REPLACE_FUNCS(sgetgrent sgetpwent sgetspent)
++AC_REPLACE_FUNCS(l64a)
+ 
+ AC_CHECK_FUNC(setpgrp)
+ AC_CHECK_FUNC(secure_getenv, [AC_DEFINE(HAS_SECURE_GETENV,
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 307e7046..e34ec825 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -26,7 +26,6 @@ libshadow_la_SOURCES = \
+ 	addgrps.c \
+ 	adds.c \
+ 	adds.h \
+-	age.c \
+ 	agetpass.c \
+ 	agetpass.h \
+ 	alloc/calloc.c \
+@@ -122,7 +121,6 @@ libshadow_la_SOURCES = \
+ 	hushed.c \
+ 	idmapping.h \
+ 	idmapping.c \
+-	isexpired.c \
+ 	limits.c \
+ 	list.c \
+ 	lockpw.c \
+@@ -140,14 +138,12 @@ libshadow_la_SOURCES = \
+ 	pam_pass_non_interactive.c \
+ 	port.c \
+ 	port.h \
+-	prefix_flag.c \
+ 	prototypes.h \
+ 	pwauth.c \
+ 	pwauth.h \
+ 	pwio.c \
+ 	pwio.h \
+ 	pwd_init.c \
+-	pwd2spwd.c \
+ 	pwdcheck.c \
+ 	pwmem.c \
+ 	remove_tree.c \
+@@ -169,7 +165,6 @@ libshadow_la_SOURCES = \
+ 	setupenv.c \
+ 	sgetgrent.c \
+ 	sgetpwent.c \
+-	sgetspent.c \
+ 	sgroupio.c \
+ 	sgroupio.h\
+ 	shadow.c \
+@@ -180,7 +175,6 @@ libshadow_la_SOURCES = \
+ 	shadowlog.c \
+ 	shadowlog.h \
+ 	shadowlog_internal.h \
+-	shadowmem.c \
+ 	shell.c \
+ 	sizeof.h \
+ 	spawn.c \
+@@ -253,7 +247,6 @@ libshadow_la_SOURCES = \
+ 	xgetpwuid.c \
+ 	xgetgrnam.c \
+ 	xgetgrgid.c \
+-	xgetspnam.c \
+ 	yesno.c
+ 
+ if WITH_TCB
+diff --git a/lib/defines.h b/lib/defines.h
+index 89300c93..69f96fef 100644
+--- a/lib/defines.h
++++ b/lib/defines.h
+@@ -50,7 +50,9 @@
+ 
+ #include <dirent.h>
+ 
++#if HAVE_SHADOW_H
+ #include <shadow.h>
++#endif
+ #if defined(SHADOWGRP)
+ #include "gshadow_.h"
+ #endif
+diff --git a/lib/groupio.c b/lib/groupio.c
+index 516e3ccd..428ad5b2 100644
+--- a/lib/groupio.c
++++ b/lib/groupio.c
+@@ -79,7 +79,12 @@ static int group_put (const void *ent, FILE * file)
+ 		}
+ 	}
+ 
++#if HAVE_PUTRGRENT
+ 	return (putgrent (gr, file) == -1) ? -1 : 0;
++#else
++#warning "putgrent is not supported on Android"
++	return -1;
++#endif
+ }
+ 
+ static int group_close_hook (void)
+diff --git a/lib/prefix_flag.c b/lib/prefix_flag.c
+index c09b8d08..690cbe9b 100644
+--- a/lib/prefix_flag.c
++++ b/lib/prefix_flag.c
+@@ -248,6 +248,7 @@ extern int prefix_getpwnam_r(const char* name, struct passwd* pwd,
+ 	}
+ }
+ #endif
++#ifdef HAVE_STRUCT_SPDW
+ extern struct spwd *prefix_getspnam(const char* name)
+ {
+ 	if (spw_db_file) {
+@@ -268,6 +269,7 @@ extern struct spwd *prefix_getspnam(const char* name)
+ 		return getspnam(name);
+ 	}
+ }
++#endif
+ 
+ extern void prefix_setpwent(void)
+ {
+diff --git a/lib/prototypes.h b/lib/prototypes.h
+index 79bd0fdd..05283187 100644
+--- a/lib/prototypes.h
++++ b/lib/prototypes.h
+@@ -26,7 +26,9 @@
+ #include <sys/types.h>
+ #include <pwd.h>
+ #include <grp.h>
++#if HAVE_SHADOW_H
+ #include <shadow.h>
++#endif
+ #ifdef ENABLE_LASTLOG
+ #include <lastlog.h>
+ #endif /* ENABLE_LASTLOG */
+@@ -41,11 +43,15 @@ extern int add_groups (const char *);
+ #endif
+ 
+ /* age.c */
++#if HAVE_STRUCT_SPWD
+ extern void agecheck (/*@null@*/const struct spwd *);
+ extern int expire (const struct passwd *, /*@null@*/const struct spwd *);
++#endif
+ 
+ /* isexpired.c */
++#if HAVE_STRUCT_SPWD
+ extern int isexpired (const struct passwd *, /*@null@*/const struct spwd *);
++#endif
+ 
+ /* btrfs.c */
+ #ifdef WITH_BTRFS
+@@ -324,7 +330,9 @@ extern struct passwd *prefix_getpwnam(const char* name);
+ extern int prefix_getpwnam_r(const char* name, struct passwd* pwd,
+                              char* buf, size_t buflen, struct passwd** result);
+ #endif
++#if HAVE_STRUCT_SPWD
+ extern struct spwd *prefix_getspnam(const char* name);
++#endif
+ extern struct group *prefix_getgr_nam_gid(const char *grname);
+ extern void prefix_setpwent(void);
+ extern struct passwd* prefix_getpwent(void);
+@@ -334,7 +342,9 @@ extern struct group* prefix_getgrent(void);
+ extern void prefix_endgrent(void);
+ 
+ /* pwd2spwd.c */
++#if HAVE_STRUCT_SPWD
+ extern struct spwd *pwd_to_spwd (const struct passwd *);
++#endif
+ 
+ /* pwdcheck.c */
+ #ifndef USE_PAM
+@@ -419,8 +429,10 @@ extern /*@dependent@*/ /*@null@*/struct commonio_entry *__spw_get_head (void);
+ extern void __spw_del_entry (const struct commonio_entry *ent);
+ 
+ /* shadowmem.c */
++#if HAVE_STRUCT_SPWD
+ extern /*@null@*/ /*@only@*/struct spwd *__spw_dup (const struct spwd *spent);
+ extern void spw_free(/*@only@*/struct spwd *spent);
++#endif
+ 
+ /* shell.c */
+ extern int shell (const char *file, /*@null@*/const char *arg, char *const envp[]);
+@@ -530,7 +542,9 @@ extern /*@null@*/ /*@only@*/struct group *xgetgrnam (const char *);
+ /* xgetgrgid.c */
+ extern /*@null@*/ /*@only@*/struct group *xgetgrgid (gid_t);
+ /* xgetspnam.c */
++#if HAVE_STRUCT_SPWD
+ extern /*@null@*/ /*@only@*/struct spwd *xgetspnam(const char *);
++#endif
+ 
+ /* yesno.c */
+ extern bool yes_or_no (bool read_only);
+diff --git a/lib/pwdcheck.c b/lib/pwdcheck.c
+index 5003d376..b37e17a1 100644
+--- a/lib/pwdcheck.c
++++ b/lib/pwdcheck.c
+@@ -12,7 +12,9 @@
+ #ifndef USE_PAM
+ 
+ #include <stdio.h>
++#if HAVE_SHADOW_H
+ #include <shadow.h>
++#endif
+ 
+ #include "attr.h"
+ #include "prototypes.h"
+@@ -20,6 +22,7 @@
+ #include "pwauth.h"
+ #include "shadowlog.h"
+ 
++#if HAVE_STRUCT_SPWD
+ void passwd_check (const char *user, const char *passwd, MAYBE_UNUSED const char *progname)
+ {
+ 	struct spwd *sp;
+@@ -35,6 +38,7 @@ void passwd_check (const char *user, const char *passwd, MAYBE_UNUSED const char
+ 		exit (EXIT_FAILURE);
+ 	}
+ }
++#endif
+ #else			/* USE_PAM */
+ extern int ISO_C_forbids_an_empty_translation_unit;
+ #endif			/* USE_PAM */
+diff --git a/lib/pwio.c b/lib/pwio.c
+index 3497c754..e7a57264 100644
+--- a/lib/pwio.c
++++ b/lib/pwio.c
+@@ -64,7 +64,12 @@ static int passwd_put (const void *ent, FILE * file)
+ 		return -1;
+ 	}
+ 
++#if HAVE_PUTPWENT
+ 	return (putpwent (pw, file) == -1) ? -1 : 0;
++#else
++#warning "putpwent is not supported on Android"
++	return -1;
++#endif
+ }
+ 
+ static struct commonio_ops passwd_ops = {
+diff --git a/lib/shadow.c b/lib/shadow.c
+index cc1edc96..1525d644 100644
+--- a/lib/shadow.c
++++ b/lib/shadow.c
+@@ -58,6 +58,7 @@ void endspent (void)
+ 	shadow = NULL;
+ }
+ 
++#if HAVE_STRUCT_SPWD
+ /*
+  * fgetspent - get an entry from a /etc/shadow formatted stream
+  */
+@@ -108,6 +109,7 @@ struct spwd *getspnam (const char *name)
+ 	endspent ();
+ 	return (sp);
+ }
++#endif
+ #else
+ extern int ISO_C_forbids_an_empty_translation_unit;
+ #endif
+diff --git a/lib/shadowio.c b/lib/shadowio.c
+index d2c3b473..24a849c5 100644
+--- a/lib/shadowio.c
++++ b/lib/shadowio.c
+@@ -14,7 +14,9 @@
+ 
+ #include "prototypes.h"
+ #include "defines.h"
++#if HAVE_SHADOW_H
+ #include <shadow.h>
++#endif
+ #include <stdio.h>
+ #include "commonio.h"
+ #include "getdef.h"
+@@ -24,6 +26,7 @@
+ #include "tcbfuncs.h"
+ #endif				/* WITH_TCB */
+ 
++#if HAVE_STRUCT_SPWD
+ static /*@null@*/ /*@only@*/void *shadow_dup (const void *ent)
+ {
+ 	const struct spwd *sp = ent;
+@@ -65,6 +68,32 @@ static int shadow_put (const void *ent, FILE * file)
+ 
+ 	return (putspent (sp, file) == -1) ? -1 : 0;
+ }
++#else
++static /*@null@*/ /*@only@*/void *shadow_dup (const void *ent)
++{
++	return NULL;
++}
++
++static void
++shadow_free(/*@only@*/void *ent)
++{
++}
++
++static const char *shadow_getname (const void *ent)
++{
++	return NULL;
++}
++
++static void *shadow_parse (const char *line)
++{
++	return NULL;
++}
++
++static int shadow_put (const void *ent, FILE * file)
++{
++	return -1;
++}
++#endif
+ 
+ static struct commonio_ops shadow_ops = {
+ 	shadow_dup,
+diff --git a/lib/shadowio.h b/lib/shadowio.h
+index 4dbeb6d6..4f4a743f 100644
+--- a/lib/shadowio.h
++++ b/lib/shadowio.h
+@@ -15,16 +15,22 @@
+ 
+ extern int spw_close (void);
+ extern bool spw_file_present (void);
++#if HAVE_STRUCT_SPWD
+ extern /*@observer@*/ /*@null@*/const struct spwd *spw_locate (const char *name);
++#endif
+ extern int spw_lock (void);
+ extern int spw_setdbname (const char *filename);
+ extern /*@observer@*/const char *spw_dbname (void);
++#if HAVE_STRUCT_SPWD
+ extern /*@observer@*/ /*@null@*/const struct spwd *spw_next (void);
++#endif
+ extern int spw_open (int mode);
+ extern int spw_remove (const char *name);
+ extern int spw_rewind (void);
+ extern int spw_unlock (void);
++#if HAVE_STRUCT_SPWD
+ extern int spw_update (const struct spwd *sp);
++#endif
+ extern int spw_sort (void);
+ 
+ #endif
+-- 
+2.47.2
+
