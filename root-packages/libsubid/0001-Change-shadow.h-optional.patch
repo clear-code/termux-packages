@@ -1,0 +1,26 @@
+From b4ca57b9ee8d3bd5419f12d31d5bfefb68012500 Mon Sep 17 00:00:00 2001
+From: Kentaro Hayashi <hayashi@clear-code.com>
+Date: Mon, 10 Mar 2025 14:45:47 +0900
+Subject: [PATCH] Change shadow.h optional
+
+Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 36c57d8e..8d6ef5ea 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -37,7 +37,7 @@ LT_LIB_DLLOAD
+ dnl Checks for libraries.
+ 
+ dnl shadow now uses the libc's shadow implementation
+-AC_CHECK_HEADER([shadow.h],,[AC_MSG_ERROR([You need a libc with shadow.h])])
++dnl AC_CHECK_HEADER([shadow.h],,[AC_MSG_ERROR([You need a libc with shadow.h])])
+ 
+ AC_CHECK_FUNCS(arc4random_buf futimes \
+ 	getentropy getrandom getspnam getusershell \
+-- 
+2.47.2
+
