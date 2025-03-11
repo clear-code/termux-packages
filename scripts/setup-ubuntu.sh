@@ -340,6 +340,11 @@ $SUDO apt-get -yq update
 $SUDO env DEBIAN_FRONTEND=noninteractive \
 	apt-get install -yq --no-install-recommends $PACKAGES
 
+LIBSUBID=/home/builder/termux-packages/output/libsubid_4.17.3-1_aarch64.deb
+if [ -f $LIBSUBID ]; then
+	$SUDO apt-get install $LIBSUBID
+fi
+
 $SUDO locale-gen --purge en_US.UTF-8
 echo -e 'LANG="en_US.UTF-8"\nLANGUAGE="en_US:en"\n' | $SUDO tee -a /etc/default/locale
 
