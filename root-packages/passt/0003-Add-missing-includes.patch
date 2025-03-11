@@ -1,14 +1,15 @@
-From 5df456946658ad4d4f6fd796c7bdf1ffb408d9c4 Mon Sep 17 00:00:00 2001
+From a0b521f8f89eaae31980a3c39624086ed94c96cf Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 13:39:18 +0900
-Subject: [PATCH 3/3] Add missing includes
+Subject: [PATCH 3/4] Add missing includes
 
 ---
  checksum.c  | 1 +
  icmp.c      | 1 +
  packet.c    | 2 ++
+ virtio.c    | 1 +
  vu_common.c | 1 +
- 4 files changed, 5 insertions(+)
+ 5 files changed, 6 insertions(+)
 
 diff --git a/checksum.c b/checksum.c
 index b01e0fe..a6de827 100644
@@ -47,6 +48,18 @@ index 03a11e6..3ebe22b 100644
  #include "packet.h"
  #include "util.h"
  #include "log.h"
+diff --git a/virtio.c b/virtio.c
+index 625bac3..e6282b9 100644
+--- a/virtio.c
++++ b/virtio.c
+@@ -78,6 +78,7 @@
+ #include <errno.h>
+ #include <sys/eventfd.h>
+ #include <sys/socket.h>
++#include <linux/virtio_ring.h>
+ 
+ #include "util.h"
+ #include "virtio.h"
 diff --git a/vu_common.c b/vu_common.c
 index 6d365be..2e4a808 100644
 --- a/vu_common.c

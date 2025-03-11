@@ -1,0 +1,58 @@
+From 3580e4828699fb79859c4c527922e3e7c7d10e5e Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Tue, 11 Mar 2025 15:24:21 +0900
+Subject: [PATCH 4/4] passt: Use SYS_getrandom for API Level < 28
+
+---
+ util.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/util.c b/util.c
+index 11973c4..645647c 100644
+--- a/util.c
++++ b/util.c
+@@ -36,6 +36,8 @@
+ #include "log.h"
+ #ifdef HAS_GETRANDOM
+ #include <sys/random.h>
++#elif defined __ANDROID__ && __ANDROID_API__ < 28
++#include <syscall.h>
+ #endif
+ 
+ /**
+@@ -800,7 +802,9 @@ bool snprintf_check(char *str, size_t size, const char *format, ...)
+ void raw_random(void *buf, size_t buflen)
+ {
+ 	size_t random_read = 0;
+-#ifndef HAS_GETRANDOM
++#ifdef HAS_GETRANDOM
++#elif defined __ANDROID__ && __ANDROID_API__ < 28
++#else
+ 	int fd = open(DEV_RANDOM, O_RDONLY);
+ 
+ 	if (fd < 0)
+@@ -813,6 +817,10 @@ void raw_random(void *buf, size_t buflen)
+ #ifdef HAS_GETRANDOM
+ 		ret = getrandom((char *)buf + random_read,
+ 				buflen - random_read, GRND_RANDOM);
++#elif defined __ANDROID__ && __ANDROID_API__ < 28
++		ret = syscall(SYS_getrandom,
++			      (char *)buf + random_read,
++			      buflen - random_read, 0);
+ #else
+ 		ret = read(dev_random, (char *)buf + random_read,
+ 			   buflen - random_read);
+@@ -830,7 +838,9 @@ void raw_random(void *buf, size_t buflen)
+ 		random_read += ret;
+ 	}
+ 
+-#ifndef HAS_GETRANDOM
++#ifdef HAS_GETRANDOM
++#elif defined __ANDROID__ && __ANDROID_API__ < 28
++#else
+ 	close(dev_random);
+ #endif
+ 
+-- 
+2.34.1
+
