@@ -1,0 +1,77 @@
+From 0d24a3b54afb875ae1c8d8b2c8e8aedc5f7f3d25 Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Tue, 11 Mar 2025 16:58:00 +0900
+Subject: [PATCH 5/7] Use __android_log_print() instead of /dev/log
+
+But it's not available on termux.
+---
+ log.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/log.c b/log.c
+index 95e4576..814d2bc 100644
+--- a/log.c
++++ b/log.c
+@@ -25,6 +25,9 @@
+ #include <syslog.h>
+ #include <stdarg.h>
+ #include <sys/socket.h>
++#if defined(__ANDROID__) && !defined(__TERMUX__)
++#include <android/log.h>
++#endif
+ 
+ #include "linux_dep.h"
+ #include "log.h"
+@@ -344,6 +347,8 @@ void __openlog(const char *ident, int option, int facility)
+ {
+ 	(void)option;
+ 
++#ifdef __ANDROID__
++#else /* __ANDROID__ */
+ 	if (log_sock < 0) {
+ 		struct sockaddr_un a = { .sun_family = AF_UNIX, };
+ 
+@@ -358,6 +363,7 @@ void __openlog(const char *ident, int option, int facility)
+ 			return;
+ 		}
+ 	}
++#endif /* __ANDROID__ */
+ 
+ 	log_mask |= facility;
+ 	strncpy(log_ident, ident, sizeof(log_ident) - 1);
+@@ -393,8 +399,32 @@ void passt_vsyslog(bool newline, int pri, const char *format, va_list ap)
+ 	if (newline && format[strlen(format)] != '\n')
+ 		n += snprintf(buf + n, BUFSIZ - n, "\n");
+ 
++#if defined(__ANDROID__) && !defined(__TERMUX__)
++	{
++		int android_pri = ANDROID_LOG_DEFAULT;
++		/* convert only used levels in this code */
++		switch(pri) {
++		case LOG_ERR:
++			android_pri = ANDROID_LOG_ERROR;
++			break;
++		case LOG_WARNING:
++			android_pri = ANDROID_LOG_WARN;
++			break;
++		case LOG_INFO:
++			android_pri = ANDROID_LOG_INFO;
++			break;
++		case LOG_DEBUG:
++			android_pri = ANDROID_LOG_DEBUG;
++			break;
++		default:
++			break;
++		}
++		__android_log_print(android_pri, log_ident, "%s", buf);
++	}
++#else /* __ANDROID__ && !__TERMUX__ */
+ 	if (log_sock >= 0 && send(log_sock, buf, n, 0) != n && log_stderr)
+ 		FPRINTF(stderr, "Failed to send %i bytes to syslog\n", n);
++#endif /* __ANDROID__ && !__TERMUX__ */
+ }
+ 
+ /**
+-- 
+2.34.1
+

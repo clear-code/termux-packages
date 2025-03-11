@@ -1,0 +1,50 @@
+From b0298b01e21801ba31bbba69533f13a7c1cb5fc3 Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Tue, 11 Mar 2025 13:26:36 +0900
+Subject: [PATCH 2/7] Remove ipv6hdr & ipv6_opt_hdr
+
+They are already defined in ipv6.h via netinst/in.h.
+
+```
+In file included from qrap.c:35:
+./ip.h:64:8: error: redefinition of 'ipv6hdr'
+   64 | struct ipv6hdr {
+      |        ^
+/home/builder/.termux-build/_cache/android-r27c-api-24-v1/bin/../sysroot/usr/include/linux/ipv6.h:67:8: note: previous definition is here
+   67 | struct ipv6hdr {
+      |        ^
+In file included from qrap.c:35:
+./ip.h:85:8: error: redefinition of 'ipv6_opt_hdr'
+   85 | struct ipv6_opt_hdr {
+      |        ^
+/home/builder/.termux-build/_cache/android-r27c-api-24-v1/bin/../sysroot/usr/include/linux/ipv6.h:43:8: note: previous definition is here
+   43 | struct ipv6_opt_hdr {
+      |        ^
+```
+---
+ ip.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/ip.h b/ip.h
+index 1544dbf..83dacba 100644
+--- a/ip.h
++++ b/ip.h
+@@ -61,6 +61,7 @@
+ 		.daddr		= IN6ADDR_ANY_INIT,			\
+ 	}
+ 
++#if 0
+ struct ipv6hdr {
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Wpedantic"
+@@ -89,6 +90,7 @@ struct ipv6_opt_hdr {
+ 	 * TLV encoded option data follows.
+ 	 */
+ } __attribute__((packed));	/* required for some archs */
++#endif
+ 
+ char *ipv6_l4hdr(const struct pool *p, int idx, size_t offset, uint8_t *proto,
+ 		 size_t *dlen);
+-- 
+2.34.1
+

@@ -1,0 +1,77 @@
+From a0b521f8f89eaae31980a3c39624086ed94c96cf Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Tue, 11 Mar 2025 13:39:18 +0900
+Subject: [PATCH 3/7] Add missing includes
+
+---
+ checksum.c  | 1 +
+ icmp.c      | 1 +
+ packet.c    | 2 ++
+ virtio.c    | 1 +
+ vu_common.c | 1 +
+ 5 files changed, 6 insertions(+)
+
+diff --git a/checksum.c b/checksum.c
+index b01e0fe..a6de827 100644
+--- a/checksum.c
++++ b/checksum.c
+@@ -49,6 +49,7 @@
+ #include <arpa/inet.h>
+ #include <netinet/ip.h>
+ #include <netinet/tcp.h>
++#include <netinet/udp.h>
+ #include <netinet/ip_icmp.h>
+ #include <stddef.h>
+ #include <stdint.h>
+diff --git a/icmp.c b/icmp.c
+index 143e93b..b4ad960 100644
+--- a/icmp.c
++++ b/icmp.c
+@@ -19,6 +19,7 @@
+ #include <netinet/ip.h>
+ #include <netinet/ip_icmp.h>
+ #include <stdio.h>
++#include <inttypes.h>
+ #include <limits.h>
+ #include <stdint.h>
+ #include <stddef.h>
+diff --git a/packet.c b/packet.c
+index 03a11e6..3ebe22b 100644
+--- a/packet.c
++++ b/packet.c
+@@ -18,6 +18,8 @@
+ 
+ #include <netinet/ip6.h>
+ 
++#include <linux/uio.h>
++
+ #include "packet.h"
+ #include "util.h"
+ #include "log.h"
+diff --git a/virtio.c b/virtio.c
+index 625bac3..e6282b9 100644
+--- a/virtio.c
++++ b/virtio.c
+@@ -78,6 +78,7 @@
+ #include <errno.h>
+ #include <sys/eventfd.h>
+ #include <sys/socket.h>
++#include <linux/virtio_ring.h>
+ 
+ #include "util.h"
+ #include "virtio.h"
+diff --git a/vu_common.c b/vu_common.c
+index 6d365be..2e4a808 100644
+--- a/vu_common.c
++++ b/vu_common.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <unistd.h>
++#include <inttypes.h>
+ #include <sys/uio.h>
+ #include <sys/eventfd.h>
+ #include <netinet/if_ether.h>
+-- 
+2.34.1
+
