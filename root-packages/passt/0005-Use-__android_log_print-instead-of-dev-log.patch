@@ -1,7 +1,7 @@
-From b76a9fb17d2ad98e421ae32c49857bbb140aaf65 Mon Sep 17 00:00:00 2001
+From 0d24a3b54afb875ae1c8d8b2c8e8aedc5f7f3d25 Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 16:58:00 +0900
-Subject: [PATCH 5/7] passt: Use __android_log_print() instead of /dev/log
+Subject: [PATCH 5/7] Use __android_log_print() instead of /dev/log
 
 But it's not available on termux.
 ---

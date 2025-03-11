@@ -1,4 +1,4 @@
-From a63149586616a577269f5ad22c548feae7898a45 Mon Sep 17 00:00:00 2001
+From 4c32c7952ecb0dd18b8c13e2c3fd628239691f7d Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 17:07:26 +0900
 Subject: [PATCH 6/7] Add missing vring_need_event()

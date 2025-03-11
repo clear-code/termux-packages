@@ -1,4 +1,4 @@
-From 4d77209c258a8028cc8593467b22931f1e77b6c3 Mon Sep 17 00:00:00 2001
+From 0012b057dab19c0480cdc39497d6f46b90f35a56 Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 17:42:00 +0900
 Subject: [PATCH 7/7] Add missing cast
