@@ -1,21 +1,22 @@
-From 75053b6a9d6026bf11efc4f61684775b3c2d4291 Mon Sep 17 00:00:00 2001
+From b76a9fb17d2ad98e421ae32c49857bbb140aaf65 Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 16:58:00 +0900
-Subject: [PATCH 5/6] passt: Use __android_log_print() instead of /dev/log
+Subject: [PATCH 5/7] passt: Use __android_log_print() instead of /dev/log
 
+But it's not available on termux.
 ---
  log.c | 30 ++++++++++++++++++++++++++++++
  1 file changed, 30 insertions(+)
 
 diff --git a/log.c b/log.c
-index 95e4576..ff973c4 100644
+index 95e4576..814d2bc 100644
 --- a/log.c
 +++ b/log.c
 @@ -25,6 +25,9 @@
  #include <syslog.h>
  #include <stdarg.h>
  #include <sys/socket.h>
-+#ifdef __ANDROID__
++#if defined(__ANDROID__) && !defined(__TERMUX__)
 +#include <android/log.h>
 +#endif
  
@@ -42,7 +43,7 @@ index 95e4576..ff973c4 100644
  	if (newline && format[strlen(format)] != '\n')
  		n += snprintf(buf + n, BUFSIZ - n, "\n");
  
-+#ifdef __ANDROID__
++#if defined(__ANDROID__) && !defined(__TERMUX__)
 +	{
 +		int android_pri = ANDROID_LOG_DEFAULT;
 +		/* convert only used levels in this code */
@@ -64,10 +65,10 @@ index 95e4576..ff973c4 100644
 +		}
 +		__android_log_print(android_pri, log_ident, "%s", buf);
 +	}
-+#else /* __ANDROID__ */
++#else /* __ANDROID__ && !__TERMUX__ */
  	if (log_sock >= 0 && send(log_sock, buf, n, 0) != n && log_stderr)
  		FPRINTF(stderr, "Failed to send %i bytes to syslog\n", n);
-+#endif /* __ANDROID__ */
++#endif /* __ANDROID__ && !__TERMUX__ */
  }
  
  /**

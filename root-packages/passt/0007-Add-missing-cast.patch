@@ -1,0 +1,25 @@
+From 4d77209c258a8028cc8593467b22931f1e77b6c3 Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Tue, 11 Mar 2025 17:42:00 +0900
+Subject: [PATCH 7/7] Add missing cast
+
+---
+ tcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tcp.c b/tcp.c
+index ec433f7..9b49e8f 100644
+--- a/tcp.c
++++ b/tcp.c
+@@ -693,7 +693,7 @@ static void tcp_rtt_dst_check(const struct tcp_tap_conn *conn,
+ 	for (i = 0; i < LOW_RTT_TABLE_SIZE; i++) {
+ 		if (inany_equals(&tapside->oaddr, low_rtt_dst + i))
+ 			return;
+-		if (hole == -1 && IN6_IS_ADDR_UNSPECIFIED(low_rtt_dst + i))
++		if (hole == -1 && IN6_IS_ADDR_UNSPECIFIED((const struct in6_addr *)(low_rtt_dst + i)))
+ 			hole = i;
+ 	}
+ 
+-- 
+2.34.1
+
