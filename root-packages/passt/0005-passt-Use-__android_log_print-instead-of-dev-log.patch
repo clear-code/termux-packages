@@ -1,7 +1,7 @@
 From 75053b6a9d6026bf11efc4f61684775b3c2d4291 Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 16:58:00 +0900
-Subject: [PATCH 5/5] passt: Use __android_log_print() instead of /dev/log
+Subject: [PATCH 5/6] passt: Use __android_log_print() instead of /dev/log
 
 ---
  log.c | 30 ++++++++++++++++++++++++++++++

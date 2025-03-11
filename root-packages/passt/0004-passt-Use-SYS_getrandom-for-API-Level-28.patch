@@ -1,7 +1,7 @@
 From 3580e4828699fb79859c4c527922e3e7c7d10e5e Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 15:24:21 +0900
-Subject: [PATCH 4/5] passt: Use SYS_getrandom for API Level < 28
+Subject: [PATCH 4/6] passt: Use SYS_getrandom for API Level < 28
 
 ---
  util.c | 14 ++++++++++++--

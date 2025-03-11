@@ -1,7 +1,7 @@
 From b0298b01e21801ba31bbba69533f13a7c1cb5fc3 Mon Sep 17 00:00:00 2001
 From: Takuro Ashie <ashie@clear-code.com>
 Date: Tue, 11 Mar 2025 13:26:36 +0900
-Subject: [PATCH 2/5] Remove ipv6hdr & ipv6_opt_hdr
+Subject: [PATCH 2/6] Remove ipv6hdr & ipv6_opt_hdr
 
 They are already defined in ipv6.h via netinst/in.h.
 
