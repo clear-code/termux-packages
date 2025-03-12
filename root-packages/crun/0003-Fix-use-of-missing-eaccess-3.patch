@@ -1,0 +1,25 @@
+From eb6c9c80f0b131a74f02bec2c231602279b8ed77 Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Wed, 12 Mar 2025 16:46:50 +0900
+Subject: [PATCH 3/3] Fix use of missing eaccess(3)
+
+---
+ src/libcrun/utils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libcrun/utils.c b/src/libcrun/utils.c
+index 4d64fde7..4db77604 100644
+--- a/src/libcrun/utils.c
++++ b/src/libcrun/utils.c
+@@ -1854,7 +1854,7 @@ check_access (const char *path)
+   int ret;
+   mode_t mode;
+ 
+-#ifdef ANDROID
++#ifdef __ANDROID__
+   ret = access (path, X_OK);
+ #else
+   ret = eaccess (path, X_OK);
+-- 
+2.34.1
+
