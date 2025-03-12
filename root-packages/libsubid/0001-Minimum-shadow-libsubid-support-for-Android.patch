@@ -1,25 +1,29 @@
-From a2ca5757ba3f0fce7d48ed108ede16940a80492e Mon Sep 17 00:00:00 2001
+From 02a308dd766460abfdcd491abd7166f3d143da9b Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Mon, 10 Mar 2025 14:45:47 +0900
-Subject: [PATCH 1/3] Change shadow.h optional
+Subject: [PATCH 1/2] Minimum shadow/libsubid support for Android
 
 Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
 ---
  configure.ac      |  7 ++++++-
- lib/Makefile.am   |  7 -------
+ lib/Makefile.am   |  6 ------
  lib/defines.h     |  2 ++
  lib/groupio.c     |  5 +++++
- lib/prefix_flag.c |  2 ++
+ lib/myname.c      | 21 +++++++++++++++++++++
+ lib/prefix_flag.c | 34 ++++++++++++++++++++++++++++++++--
  lib/prototypes.h  | 14 ++++++++++++++
  lib/pwdcheck.c    |  4 ++++
  lib/pwio.c        |  5 +++++
  lib/shadow.c      |  2 ++
  lib/shadowio.c    | 29 +++++++++++++++++++++++++++++
  lib/shadowio.h    |  6 ++++++
- 11 files changed, 75 insertions(+), 8 deletions(-)
+ lib/utmp.c        |  4 ++++
+ lib/xgetpwnam.c   |  5 +++++
+ src/Makefile.am   | 35 +++++++++--------------------------
+ 15 files changed, 144 insertions(+), 35 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 36c57d8e..623a7eb9 100644
+index 36c57d8e..99a4820a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -37,7 +37,11 @@ LT_LIB_DLLOAD
@@ -39,12 +43,12 @@ index 36c57d8e..623a7eb9 100644
  AC_FUNC_UTIME_NULL
  AC_REPLACE_FUNCS(putgrent putpwent putspent)
  AC_REPLACE_FUNCS(sgetgrent sgetpwent sgetspent)
-+AC_REPLACE_FUNCS(l64a)
++AC_REPLACE_FUNCS(l64a fgetgrent fgetpwent)
  
  AC_CHECK_FUNC(setpgrp)
  AC_CHECK_FUNC(secure_getenv, [AC_DEFINE(HAS_SECURE_GETENV,
 diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 307e7046..e34ec825 100644
+index 307e7046..484f7aaf 100644
 --- a/lib/Makefile.am
 +++ b/lib/Makefile.am
 @@ -26,7 +26,6 @@ libshadow_la_SOURCES = \
@@ -63,14 +67,7 @@ index 307e7046..e34ec825 100644
  	limits.c \
  	list.c \
  	lockpw.c \
-@@ -140,14 +138,12 @@ libshadow_la_SOURCES = \
- 	pam_pass_non_interactive.c \
- 	port.c \
- 	port.h \
--	prefix_flag.c \
- 	prototypes.h \
- 	pwauth.c \
- 	pwauth.h \
+@@ -147,7 +145,6 @@ libshadow_la_SOURCES = \
  	pwio.c \
  	pwio.h \
  	pwd_init.c \
@@ -78,7 +75,7 @@ index 307e7046..e34ec825 100644
  	pwdcheck.c \
  	pwmem.c \
  	remove_tree.c \
-@@ -169,7 +165,6 @@ libshadow_la_SOURCES = \
+@@ -169,7 +166,6 @@ libshadow_la_SOURCES = \
  	setupenv.c \
  	sgetgrent.c \
  	sgetpwent.c \
@@ -86,7 +83,7 @@ index 307e7046..e34ec825 100644
  	sgroupio.c \
  	sgroupio.h\
  	shadow.c \
-@@ -180,7 +175,6 @@ libshadow_la_SOURCES = \
+@@ -180,7 +176,6 @@ libshadow_la_SOURCES = \
  	shadowlog.c \
  	shadowlog.h \
  	shadowlog_internal.h \
@@ -94,7 +91,7 @@ index 307e7046..e34ec825 100644
  	shell.c \
  	sizeof.h \
  	spawn.c \
-@@ -253,7 +247,6 @@ libshadow_la_SOURCES = \
+@@ -253,7 +248,6 @@ libshadow_la_SOURCES = \
  	xgetpwuid.c \
  	xgetgrnam.c \
  	xgetgrgid.c \
@@ -133,25 +130,182 @@ index 516e3ccd..428ad5b2 100644
  }
  
  static int group_close_hook (void)
+diff --git a/lib/myname.c b/lib/myname.c
+index fab5d6b5..abe6a217 100644
+--- a/lib/myname.c
++++ b/lib/myname.c
+@@ -22,6 +22,11 @@
+ #include "string/strcmp/streq.h"
+ 
+ 
++#if __ANDROID__
++extern struct passwd *xandroid_polyfill_getpwnam (const char *cp);
++extern struct passwd *xandroid_polyfill_getpwuid (uid_t ruid);
++#endif
++
+ /*@null@*/ /*@only@*/struct passwd *get_my_pwent (void)
+ {
+ 	struct passwd *pw;
+@@ -39,7 +44,15 @@
+ 	 * the original user, like getlogin() does).  Does this matter?
+ 	 */
+ 	if ((NULL != cp) && !streq(cp, "")) {
++#if __ANDROID__
++		/*
++		 * xgetpwnam was expanded as xandroid_polyfill_getpwnam
++		 * in xgetpwnam.c
++		 */
++		pw = xandroid_polyfill_getpwnam (cp);
++#else
+ 		pw = xgetpwnam (cp);
++#endif
+ 		if ((NULL != pw) && (pw->pw_uid == ruid)) {
+ 			return pw;
+ 		}
+@@ -48,6 +61,14 @@
+ 		}
+ 	}
+ 
++#if __ANDROID__
++	/*
++	 * xgetpwuid was expanded as xandroid_polyfill_getpwuid
++	 * in xgetpwuid.c
++	 */
++	return xandroid_polyfill_getpwuid (ruid);
++#else
+ 	return xgetpwuid (ruid);
++#endif
+ }
+ 
 diff --git a/lib/prefix_flag.c b/lib/prefix_flag.c
-index c09b8d08..690cbe9b 100644
+index c09b8d08..cd4cb9d5 100644
 --- a/lib/prefix_flag.c
 +++ b/lib/prefix_flag.c
-@@ -248,6 +248,7 @@ extern int prefix_getpwnam_r(const char* name, struct passwd* pwd,
+@@ -154,10 +154,14 @@ extern struct group *prefix_getgrnam(const char *name)
+ 		fg = fopen(group_db_file, "rt");
+ 		if (!fg)
+ 			return NULL;
++#if HAVE_FGETGRENT
+ 		while ((grp = fgetgrent(fg)) != NULL) {
+ 			if (streq(name, grp->gr_name))
+ 				break;
+ 		}
++#else
++#warning "fgetgrent in prefix_getgrnam is not supported for Android"
++#endif
+ 		fclose(fg);
+ 		return grp;
+ 	}
+@@ -174,10 +178,14 @@ extern struct group *prefix_getgrgid(gid_t gid)
+ 		fg = fopen(group_db_file, "rt");
+ 		if (!fg)
+ 			return NULL;
++#if HAVE_FGETGRENT
+ 		while ((grp = fgetgrent(fg)) != NULL) {
+ 			if (gid == grp->gr_gid)
+ 				break;
+ 		}
++#else
++#warning "fgetgrent in prefix_getgrgid is not supported for Android"
++#endif
+ 		fclose(fg);
+ 		return grp;
+ 	}
+@@ -194,10 +202,14 @@ extern struct passwd *prefix_getpwuid(uid_t uid)
+ 		fg = fopen(passwd_db_file, "rt");
+ 		if (!fg)
+ 			return NULL;
++#if HAVE_FGETPWENT
+ 		while ((pwd = fgetpwent(fg)) != NULL) {
+ 			if (uid == pwd->pw_uid)
+ 				break;
+ 		}
++#else
++#warning "fgetpwent in prefix_getpwuid is not supported for Android"
++#endif
+ 		fclose(fg);
+ 		return pwd;
+ 	}
+@@ -214,10 +226,14 @@ extern struct passwd *prefix_getpwnam(const char* name)
+ 		fg = fopen(passwd_db_file, "rt");
+ 		if (!fg)
+ 			return NULL;
++#if HAVE_FGETPWENT
+ 		while ((pwd = fgetpwent(fg)) != NULL) {
+ 			if (streq(name, pwd->pw_name))
+ 				break;
+ 		}
++#else
++#warning "fgetpwent in prefix_getpwnam is not supported for Android"
++#endif
+ 		fclose(fg);
+ 		return pwd;
+ 	}
+@@ -225,7 +241,6 @@ extern struct passwd *prefix_getpwnam(const char* name)
+ 		return getpwnam(name);
  	}
  }
- #endif
+-#if HAVE_FGETPWENT_R
+ extern int prefix_getpwnam_r(const char* name, struct passwd* pwd,
+                              char* buf, size_t buflen, struct passwd** result)
+ {
+@@ -236,10 +251,14 @@ extern int prefix_getpwnam_r(const char* name, struct passwd* pwd,
+ 		fg = fopen(passwd_db_file, "rt");
+ 		if (!fg)
+ 			return errno;
++#if HAVE_FGETPWENT_R
+ 		while ((ret = fgetpwent_r(fg, pwd, buf, buflen, result)) == 0) {
+ 			if (streq(name, pwd->pw_name))
+ 				break;
+ 		}
++#else
++#warning "fgetpwent_r in prefix_getpwnam_r is not supported for Android"
++#endif
+ 		fclose(fg);
+ 		return ret;
+ 	}
+@@ -247,7 +266,7 @@ extern int prefix_getpwnam_r(const char* name, struct passwd* pwd,
+ 		return getpwnam_r(name, pwd, buf, buflen, result);
+ 	}
+ }
+-#endif
 +#ifdef HAVE_STRUCT_SPDW
  extern struct spwd *prefix_getspnam(const char* name)
  {
  	if (spw_db_file) {
-@@ -268,6 +269,7 @@ extern struct spwd *prefix_getspnam(const char* name)
+@@ -268,6 +287,7 @@ extern struct spwd *prefix_getspnam(const char* name)
  		return getspnam(name);
  	}
  }
 +#endif
  
  extern void prefix_setpwent(void)
+ {
+@@ -290,7 +310,12 @@ extern struct passwd* prefix_getpwent(void)
+ 	if (!fp_pwent) {
+ 		return NULL;
+ 	}
++#if HAVE_FGETPWENT
+ 	return fgetpwent(fp_pwent);
++#else
++#warning "fgetpwent in prefix_getpwent is not supported for Android"
++	return NULL;
++#endif
+ }
+ extern void prefix_endpwent(void)
+ {
+@@ -321,7 +346,12 @@ extern struct group* prefix_getgrent(void)
+ 	if (!group_db_file) {
+ 		return getgrent();
+ 	}
++#if HAVE_FGETGRENT
+ 	return fgetgrent(fp_grent);
++#else
++#warning "fgetgrent in prefix_getgrent is not supported for Android"
++	return NULL;
++#endif
+ }
+ extern void prefix_endgrent(void)
  {
 diff --git a/lib/prototypes.h b/lib/prototypes.h
 index 79bd0fdd..05283187 100644
@@ -373,6 +527,107 @@ index 4dbeb6d6..4f4a743f 100644
  extern int spw_sort (void);
  
  #endif
+diff --git a/lib/utmp.c b/lib/utmp.c
+index 6dc1f5df..c36919bc 100644
+--- a/lib/utmp.c
++++ b/lib/utmp.c
+@@ -13,6 +13,10 @@
+ #include "prototypes.h"
+ #include "getdef.h"
+ 
++#if __ANDROID__
++#include <netinet/in.h>
++#include <netinet/in6.h>
++#endif
+ #include <utmpx.h>
+ #include <assert.h>
+ #include <sys/param.h>
+diff --git a/lib/xgetpwnam.c b/lib/xgetpwnam.c
+index 4387e798..c8a65f2c 100644
+--- a/lib/xgetpwnam.c
++++ b/lib/xgetpwnam.c
+@@ -35,7 +35,12 @@
+ #define ARG_TYPE	const char *
+ #define ARG_NAME	name
+ #define DUP_FUNCTION	__pw_dup
++#ifndef __ANDROID__
+ #define HAVE_FUNCTION_R 1
++#else
++/* No reentrant version: android_polyfill_getpwnam_r */
++#define HAVE_FUNCTION_R 0
++#endif
+ 
+ #include "xgetXXbyYY.c"
+ 
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 69818150..b9739a01 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -26,9 +26,9 @@ AM_CFLAGS = $(LIBBSD_CFLAGS)
+ # and installation would be much simpler (just two directories,
+ # $prefix/bin and $prefix/sbin, no install-data hacks...)
+ 
+-bin_PROGRAMS   = login
+-sbin_PROGRAMS  = nologin
+-ubin_PROGRAMS  = faillog chage chfn chsh expiry gpasswd newgrp passwd
++bin_PROGRAMS   = 
++sbin_PROGRAMS  = 
++ubin_PROGRAMS  = 
+ if ENABLE_SUBIDS
+ ubin_PROGRAMS += newgidmap newuidmap
+ endif
+@@ -38,37 +38,20 @@ endif
+ if WITH_SU
+ bin_PROGRAMS  += su
+ endif
+-usbin_PROGRAMS = \
+-	chgpasswd \
+-	chpasswd \
+-	groupadd \
+-	groupdel \
+-	groupmems \
+-	groupmod \
+-	grpck \
+-	grpconv \
+-	grpunconv \
+-	logoutd \
+-	newusers \
+-	pwck \
+-	pwconv \
+-	pwunconv \
+-	useradd \
+-	userdel \
+-	usermod \
+-	vipw
++usbin_PROGRAMS = 
+ 
+ # sulogin from sysvinit
+-noinst_PROGRAMS = sulogin
++noinst_PROGRAMS = 
+ 
+ suidusbins     =
+ suidbins       =
+-suidubins      = chage chfn chsh expiry gpasswd newgrp
++#suidubins      = chage chfn chsh expiry gpasswd newgrp
++suidubins      = 
+ if WITH_SU
+ suidbins      += su
+ endif
+ if !WITH_TCB
+-suidubins += passwd
++#suidubins += passwd
+ endif
+ if ACCT_TOOLS_SETUID
+ suidusbins += chgpasswd chpasswd groupadd groupdel groupmod newusers useradd userdel usermod
+@@ -140,7 +123,7 @@ vipw_LDADD     = $(LDADD) $(LIBAUDIT) $(LIBSELINUX) $(LIBECONF)
+ install-am: all-am
+ 	$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+ 	ln -sf newgrp	$(DESTDIR)$(ubindir)/sg
+-	ln -sf vipw	$(DESTDIR)$(usbindir)/vigr
++#	ln -sf vipw	$(DESTDIR)$(usbindir)/vigr
+ 	set -e; for i in $(suidbins); do \
+ 		chmod $(suidperms) $(DESTDIR)$(bindir)/$$i; \
+ 	done
 -- 
 2.47.2
 

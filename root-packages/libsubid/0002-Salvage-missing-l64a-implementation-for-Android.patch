@@ -1,7 +1,7 @@
-From 5469d24937c71fb681ada8f63b32a36bfe47f7d5 Mon Sep 17 00:00:00 2001
+From 4fe0b8c4ad1b17b79a024858e2d054b12f8093a8 Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Mon, 10 Mar 2025 20:15:42 +0900
-Subject: [PATCH 2/3] Salvage missing l64a implementation for Android
+Subject: [PATCH 2/2] Salvage missing l64a implementation for Android
 
 Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
 ---
