@@ -116,10 +116,12 @@ termux_step_create_debscripts() {
 		# Configure subuid and subgid
 		# See https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
 		if [ ! -f ${TERMUX_PREFIX}/etc/subuid ]; then
-			echo 'a0_a100:100000:65536' > ${TERMUX_PREFIX}/etc/subuid
+			echo 'android:100000:65536' > ${TERMUX_PREFIX}/etc/subuid
+			echo 'a0_a100:165536:65536' >> ${TERMUX_PREFIX}/etc/subuid
 		fi
 		if [ ! -f ${TERMUX_PREFIX}/etc/subgid ]; then
-			echo 'a0_a100:100000:65536' > ${TERMUX_PREFIX}/etc/subgid
+			echo 'android:100000:65536' > ${TERMUX_PREFIX}/etc/subgid
+			echo 'a0_a100:165536:65536' >> ${TERMUX_PREFIX}/etc/subgid
 		fi
 	EOF
 }
