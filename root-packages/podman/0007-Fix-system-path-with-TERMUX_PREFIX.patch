@@ -1,4 +1,4 @@
-From 0023c3195e0a9d9749679c1a9881a02dd2783b6a Mon Sep 17 00:00:00 2001
+From dd1f22308361fd71c76d6449f4c4aaedae026ea5 Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Thu, 27 Feb 2025 18:02:29 +0900
 Subject: [PATCH 7/7] Fix system path with @TERMUX_PREFIX@
@@ -13,7 +13,7 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  podman/pkg/env/env.go                         |   2 +-
  podman/pkg/machine/apple/apple.go             |   2 +-
  podman/pkg/machine/hyperv/stubber.go          |   4 +-
- podman/pkg/machine/ignition/ignition.go       |  36 ++--
+ podman/pkg/machine/ignition/ignition.go       |  38 ++--
  podman/pkg/machine/ignition/ready.go          |   6 +-
  podman/pkg/machine/proxyenv/env.go            |  12 +-
  .../pkg/machine/qemu/options_linux_arm64.go   |   4 +-
@@ -58,10 +58,12 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  .../containers/storage/pkg/system/path.go     |   2 +-
  .../containers/storage/types/options_linux.go |   8 +-
  .../go-libvirt/socket/dialers/local.go        |   2 +-
+ .../docker/docker/pkg/idtools/idtools.go      |   4 +-
  .../docker/go-plugins-helpers/volume/api.go   |   2 +-
  .../mimetype/internal/magic/text.go           |  52 +++---
  .../github.com/godbus/dbus/v5/conn_unix.go    |   2 +-
  .../kevinburke/ssh_config/validators.go       |   2 +-
+ .../github.com/moby/sys/user/lookup_unix.go   |   4 +-
  .../runtime-tools/generate/generate.go        |   2 +-
  .../selinux/go-selinux/selinux_linux.go       |  42 ++---
  .../openshift/imagebuilder/constants.go       |   2 +-
@@ -70,7 +72,7 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  .../twitchyliquid64/golang-asm/dwarf/dwarf.go |   2 +-
  .../vishvananda/netns/netns_linux.go          |   2 +-
  .../pkg/cdi/spec-dirs.go                      |   4 +-
- 65 files changed, 295 insertions(+), 295 deletions(-)
+ 67 files changed, 300 insertions(+), 300 deletions(-)
 
 diff --git a/podman/cmd/podman-mac-helper/main.go b/podman/cmd/podman-mac-helper/main.go
 index cb77393..2d21606 100644
@@ -202,7 +204,7 @@ index ed538d0..be46ed8 100644
  	return netUnit.ToString()
  }
 diff --git a/podman/pkg/machine/ignition/ignition.go b/podman/pkg/machine/ignition/ignition.go
-index 3995ef7..394e522 100644
+index 3995ef7..4fbb236 100644
 --- a/podman/pkg/machine/ignition/ignition.go
 +++ b/podman/pkg/machine/ignition/ignition.go
 @@ -168,7 +168,7 @@ func (ign *DynamicIgnition) GenerateIgnitionConfig() error {
@@ -259,6 +261,15 @@ index 3995ef7..394e522 100644
  	lingerExampleFile, err := lingerExample.ToString()
  	if err != nil {
  		logrus.Warn(err.Error())
+@@ -358,7 +358,7 @@ pids_limit=0
+ 	})
+ 
+ 	// Set up /etc/subuid and /etc/subgid
+-	for _, sub := range []string{"/etc/subuid", "/etc/subgid"} {
++	for _, sub := range []string{"@TERMUX_PREFIX@/etc/subuid", "/etc/subgid"} {
+ 		files = append(files, File{
+ 			Node: Node{
+ 				Group:     GetNodeGrp("root"),
 @@ -381,7 +381,7 @@ pids_limit=0
  	files = append(files, File{
  		Node: Node{
@@ -1358,6 +1369,21 @@ index 1b71079..8ca911b 100644
  
  	// defaultLocalTimeout specifies the default libvirt dial timeout.
  	defaultLocalTimeout = 15 * time.Second
+diff --git a/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go b/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go
+index 79d682c..8d18be7 100644
+--- a/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go
++++ b/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go
+@@ -29,8 +29,8 @@ func (e ranges) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
+ func (e ranges) Less(i, j int) bool { return e[i].Start < e[j].Start }
+ 
+ const (
+-	subuidFileName = "/etc/subuid"
+-	subgidFileName = "/etc/subgid"
++	subuidFileName = "@TERMUX_PREFIX@/etc/subuid"
++	subgidFileName = "@TERMUX_PREFIX@/etc/subgid"
+ )
+ 
+ // MkdirAllAndChown creates a directory (include any along the path) and then modifies
 diff --git a/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go b/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
 index 387e82a..f7ccc97 100644
 --- a/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
@@ -1475,6 +1501,24 @@ index 5977f90..4dc15fd 100644
  }
  
  // these identities are used for SSH protocol 2
+diff --git a/podman/vendor/github.com/moby/sys/user/lookup_unix.go b/podman/vendor/github.com/moby/sys/user/lookup_unix.go
+index f95c140..9bcf17a 100644
+--- a/podman/vendor/github.com/moby/sys/user/lookup_unix.go
++++ b/podman/vendor/github.com/moby/sys/user/lookup_unix.go
+@@ -141,11 +141,11 @@ func currentUserSubIDs(fileName string) ([]SubID, error) {
+ }
+ 
+ func CurrentUserSubUIDs() ([]SubID, error) {
+-	return currentUserSubIDs("/etc/subuid")
++	return currentUserSubIDs("@TERMUX_PREFIX@/etc/subuid")
+ }
+ 
+ func CurrentUserSubGIDs() ([]SubID, error) {
+-	return currentUserSubIDs("/etc/subgid")
++	return currentUserSubIDs("@TERMUX_PREFIX@/etc/subgid")
+ }
+ 
+ func CurrentProcessUIDMap() ([]IDMap, error) {
 diff --git a/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go b/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
 index 3e8f9ca..25fae1b 100644
 --- a/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
