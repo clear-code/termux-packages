@@ -8,7 +8,10 @@ _COMMIT_DATE=2024_12_11
 TERMUX_PKG_VERSION=0.0~git${_COMMIT_DATE//_/}.$(echo ${_COMMIT} | head -c 7)
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SHA256=dc84b1102788dbec16686af00646c9fae70ba74186a1c72bafeb910ee670a59b
-TERMUX_PKG_SRCURL=git+https://passt.top/passt
+# The upstream https://passt.top/passt doesn't seem support smart transport,
+# use GitHub mirror instead.
+#TERMUX_PKG_SRCURL=git+https://passt.top/passt
+TERMUX_PKG_SRCURL=git+https://github.com/clear-code/termux-passt.git
 TERMUX_PKG_GIT_BRANCH=master
 TERMUX_PKG_BUILD_IN_SRC=true
 
