@@ -80,7 +80,6 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	find podman -name '*rootlessport*'
 	install -Dm 700 podman/bin/podman ${TERMUX_PREFIX}/bin/podman
 	# podmansh is just alias of podman
 	install -Dm 700 podman/bin/podman ${TERMUX_PREFIX}/bin/podmansh
