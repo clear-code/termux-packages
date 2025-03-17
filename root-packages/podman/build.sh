@@ -38,6 +38,9 @@ termux_step_make() {
 	BUILDTAGS="seccomp selinux libsubid cni exclude_graphdriver_devicemapper exclude_graphdriver_btrfs"
 	#BUILDTAGS="seccomp selinux cni exclude_graphdriver_devicemapper exclude_graphdriver_btrfs"
 	EXTRA_LDFLAGS="-X github.com/containers/image/v5/signature.systemDefaultPolicyPath=$TERMUX_PREFIX/etc/containers/policy.json"
+	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -X github.com/containers/image/v5/sysregistries.systemRegistriesConfPath=$TERMUX_PREFIX/etc/containers/registries.conf"
+	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -X github.com/containers/image/v5/sysregistries.systemRegistriesConfDirectoryPath=$TERMUX_PREFIX/etc/containers/"
+
 	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=arm64 EXTRA_LDFLAGS="$EXTRA_LDFLAGS" make podman
 	# Build podman-remote
 	BUILDFLAGS="-x -work" make podman-remote-static-linux_arm64
