@@ -10,37 +10,9 @@ TERMUX_PKG_DEPENDS="libseccomp, gpgme, libsubid, conmon, passt, crun"
 TERMUX_PKG_SHA256=(e5efb825558624d0539dac94847c39aafec68e6d4dd712435ff4ec1b17044b69)
 #TERMUX_PKG_CONFFILES="etc/docker/daemon.json"
 TERMUX_PKG_BUILD_IN_SRC=true
-TERMUX_PKG_SKIP_SRC_EXTRACT=true
 # Android 14 or later (API level 34 or later)
 # See https://developer.android.com/tools/releases/platforms?hl=en
 TERMUX_PKG_API_LEVEL=34
-
-termux_step_get_source() {
-	local PKG_SRCURL=(${TERMUX_PKG_SRCURL[@]})
-	local PKG_SHA256=(${TERMUX_PKG_SHA256[@]})
-
-	if [ ${#PKG_SRCURL[@]} != ${#PKG_SHA256[@]} ]; then
-		termux_error_exit "Error: length of TERMUX_PKG_SRCURL isn't equal to length of TERMUX_PKG_SHA256."
-	fi
-
-	# download and extract packages into its own folder inside $TERMUX_PKG_SRCDIR
-	mkdir -p "$TERMUX_PKG_CACHEDIR"
-	mkdir -p "$TERMUX_PKG_SRCDIR"
-	for i in $(seq 0 $(( ${#PKG_SRCURL[@]} - 1 ))); do
-		local file="${TERMUX_PKG_CACHEDIR}/$(echo ${PKG_SRCURL[$i]}|cut -d"/" -f 5)-$(basename ${PKG_SRCURL[$i]})"
-		termux_download "${PKG_SRCURL[$i]}" "$file" "${PKG_SHA256[$i]}"
-		tar xf "$file" -C "$TERMUX_PKG_SRCDIR"
-	done
-
-	# delete trailing -$TERMUX_PKG_VERSION from folder name
-	# so patches become portable across different versions
-	cd "$TERMUX_PKG_SRCDIR"
-	for folder in $(ls); do
-		if [ ! $folder == ${folder%%-*} ]; then
-			mv $folder ${folder%%-*}
-		fi
-	done
-}
 
 termux_step_pre_configure() {
 	# setup go build environment
@@ -60,7 +32,6 @@ termux_step_make() {
 	echo "TERMUX_PREFIX_CLASSICAL: $TERMUX_PREFIX_CLASSICAL"
 	(
 	set -e
-	cd podman
 
 	# Build podman with verbose logging
 	# FIXME: need libsubid
@@ -80,13 +51,13 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	install -Dm 700 podman/bin/podman ${TERMUX_PREFIX}/bin/podman
+	install -Dm 700 bin/podman ${TERMUX_PREFIX}/bin/podman
 	# podmansh is just alias of podman
-	install -Dm 700 podman/bin/podman ${TERMUX_PREFIX}/bin/podmansh
-	install -Dm 700 podman/bin/podman-remote-static-linux_arm64 ${TERMUX_PREFIX}/bin/podman-remote
-	install -Dm 700 podman/bin/podman-testing ${TERMUX_PREFIX}/libexec/podman/podman-testing
-	install -Dm 700 podman/bin/rootlessport ${TERMUX_PREFIX}/libexec/podman/rootlessport
-	install -Dm 700 podman/bin/quadlet ${TERMUX_PREFIX}/libexec/podman/quadlet
+	install -Dm 700 bin/podman ${TERMUX_PREFIX}/bin/podmansh
+	install -Dm 700 bin/podman-remote-static-linux_arm64 ${TERMUX_PREFIX}/bin/podman-remote
+	install -Dm 700 bin/podman-testing ${TERMUX_PREFIX}/libexec/podman/podman-testing
+	install -Dm 700 bin/rootlessport ${TERMUX_PREFIX}/libexec/podman/rootlessport
+	install -Dm 700 bin/quadlet ${TERMUX_PREFIX}/libexec/podman/quadlet
 	# Derived from vendor/github.com/containers/common/pkg/config/containers.conf
 	install -Dm 644 ${TERMUX_PKG_BUILDER_DIR}/containers.conf ${TERMUX_PREFIX}/share/containers/containers.conf
 	# Derived from vendor/github.com/containers/storage/storage.conf
