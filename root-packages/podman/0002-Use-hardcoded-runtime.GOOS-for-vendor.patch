@@ -1,4 +1,4 @@
-From 90065ad6b6c6234d43bfa77494bb94eec5d4ccaf Mon Sep 17 00:00:00 2001
+From 98a83fb3e1bb0e0830f6ddcefb64209c2469748b Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Wed, 26 Feb 2025 18:02:26 +0900
 Subject: [PATCH 2/7] Use hardcoded runtime.GOOS for vendor/
@@ -7,17 +7,17 @@ TODO: fix vendor/golang.org/x/term
 Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
 ---
  .../sonic/loader/internal/abi/abi_legacy_amd64.go         | 8 ++++----
- .../github.com/containerd/platforms/cpuinfo_other.go      | 4 ++--
- podman/vendor/github.com/containerd/platforms/database.go | 4 ++--
- .../github.com/containerd/platforms/defaults_unix.go      | 2 +-
- .../vendor/github.com/containerd/platforms/platforms.go   | 4 ++--
- podman/vendor/github.com/containers/buildah/config.go     | 2 +-
+ vendor/github.com/containerd/platforms/cpuinfo_other.go   | 4 ++--
+ vendor/github.com/containerd/platforms/database.go        | 4 ++--
+ vendor/github.com/containerd/platforms/defaults_unix.go   | 2 +-
+ vendor/github.com/containerd/platforms/platforms.go       | 4 ++--
+ vendor/github.com/containers/buildah/config.go            | 2 +-
  .../github.com/containers/buildah/imagebuildah/build.go   | 4 ++--
- podman/vendor/github.com/containers/buildah/info.go       | 2 +-
- .../github.com/containers/buildah/pkg/cli/common.go       | 4 ++--
+ vendor/github.com/containers/buildah/info.go              | 2 +-
+ vendor/github.com/containers/buildah/pkg/cli/common.go    | 4 ++--
  .../containers/common/libimage/platform/platform.go       | 2 +-
- .../vendor/github.com/containers/common/libimage/pull.go  | 2 +-
- .../github.com/containers/common/pkg/config/config.go     | 2 +-
+ vendor/github.com/containers/common/libimage/pull.go      | 2 +-
+ vendor/github.com/containers/common/pkg/config/config.go  | 2 +-
  .../containers/image/v5/directory/directory_dest.go       | 4 ++--
  .../containers/image/v5/internal/manifest/oci_index.go    | 2 +-
  .../image/v5/internal/pkg/platform/platform_matcher.go    | 8 ++++----
@@ -27,55 +27,55 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  .../containers/image/v5/pkg/docker/config/config.go       | 6 +++---
  .../github.com/containers/image/v5/tarball/tarball_src.go | 2 +-
  .../github.com/containers/ocicrypt/crypto/pkcs11/utils.go | 2 +-
- .../github.com/containers/storage/drivers/fsdiff.go       | 4 ++--
+ vendor/github.com/containers/storage/drivers/fsdiff.go    | 4 ++--
  .../github.com/containers/storage/drivers/vfs/driver.go   | 4 ++--
  .../github.com/containers/storage/pkg/archive/archive.go  | 8 ++++----
  .../containers/storage/pkg/archive/changes_other.go       | 2 +-
- .../github.com/containers/storage/pkg/archive/diff.go     | 4 ++--
+ vendor/github.com/containers/storage/pkg/archive/diff.go  | 4 ++--
  .../github.com/containers/storage/pkg/idtools/idtools.go  | 6 +++---
- .../github.com/containers/storage/pkg/system/path.go      | 6 +++---
+ vendor/github.com/containers/storage/pkg/system/path.go   | 6 +++---
  .../crc-org/crc/v2/pkg/crc/logging/stderr_hook.go         | 4 ++--
- .../github.com/docker/docker/pkg/archive/archive.go       | 4 ++--
+ vendor/github.com/docker/docker/pkg/archive/archive.go    | 4 ++--
  .../github.com/docker/docker/pkg/archive/archive_unix.go  | 4 ++--
  .../github.com/docker/docker/pkg/archive/changes_other.go | 2 +-
- .../vendor/github.com/docker/docker/pkg/archive/diff.go   | 4 ++--
- .../github.com/docker/docker/pkg/homedir/homedir.go       | 4 ++--
+ vendor/github.com/docker/docker/pkg/archive/diff.go       | 4 ++--
+ vendor/github.com/docker/docker/pkg/homedir/homedir.go    | 4 ++--
  .../docker/go-connections/tlsconfig/certpool.go           | 4 ++--
  .../docker/go-plugins-helpers/sdk/tcp_listener.go         | 4 ++--
- podman/vendor/github.com/ebitengine/purego/func.go        | 8 ++++----
- .../vendor/github.com/fsnotify/fsnotify/backend_kqueue.go | 4 ++--
- podman/vendor/github.com/go-openapi/swag/loading.go       | 4 ++--
- podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go      | 2 +-
- .../vendor/github.com/klauspost/cpuid/v2/detect_arm64.go  | 2 +-
- .../github.com/klauspost/cpuid/v2/os_linux_arm64.go       | 2 +-
+ vendor/github.com/ebitengine/purego/func.go               | 8 ++++----
+ vendor/github.com/fsnotify/fsnotify/backend_kqueue.go     | 4 ++--
+ vendor/github.com/go-openapi/swag/loading.go              | 4 ++--
+ vendor/github.com/klauspost/cpuid/v2/cpuid.go             | 2 +-
+ vendor/github.com/klauspost/cpuid/v2/detect_arm64.go      | 2 +-
+ vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go    | 2 +-
  .../linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go       | 4 ++--
- podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go     | 4 ++--
- podman/vendor/github.com/nxadm/tail/watch/polling.go      | 4 ++--
+ vendor/github.com/mistifyio/go-zfs/v3/utils.go            | 4 ++--
+ vendor/github.com/nxadm/tail/watch/polling.go             | 4 ++--
  .../onsi/ginkgo/v2/ginkgo/internal/test_suite.go          | 2 +-
  .../onsi/ginkgo/v2/reporters/default_reporter.go          | 2 +-
- podman/vendor/github.com/onsi/gomega/gexec/build.go       | 2 +-
- .../vendor/github.com/openshift/imagebuilder/builder.go   | 4 ++--
- .../github.com/openshift/imagebuilder/dispatchers.go      | 8 ++++----
+ vendor/github.com/onsi/gomega/gexec/build.go              | 2 +-
+ vendor/github.com/openshift/imagebuilder/builder.go       | 4 ++--
+ vendor/github.com/openshift/imagebuilder/dispatchers.go   | 8 ++++----
  .../openshift/imagebuilder/dockerfile/parser/parser.go    | 6 +++---
- .../vendor/github.com/openshift/imagebuilder/internals.go | 4 ++--
- podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go    | 4 ++--
+ vendor/github.com/openshift/imagebuilder/internals.go     | 4 ++--
+ vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go           | 4 ++--
  .../shirou/gopsutil/v4/internal/common/common.go          | 4 ++--
- .../vendor/github.com/sirupsen/logrus/text_formatter.go   | 2 +-
- podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go  | 4 ++--
+ vendor/github.com/sirupsen/logrus/text_formatter.go       | 2 +-
+ vendor/github.com/tklauser/numcpus/numcpus_bsd.go         | 4 ++--
  .../github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go | 2 +-
  .../github.com/vbatts/tar-split/archive/tar/stat_unix.go  | 4 ++--
- podman/vendor/go.etcd.io/bbolt/db.go                      | 6 +++---
- podman/vendor/golang.org/x/net/http2/server.go            | 2 +-
- podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go           | 4 ++--
- podman/vendor/golang.org/x/sys/cpu/cpu_x86.go             | 2 +-
- .../vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go   | 4 ++--
- podman/vendor/golang.org/x/sys/unix/syscall_bsd.go        | 6 +++---
+ vendor/go.etcd.io/bbolt/db.go                             | 6 +++---
+ vendor/golang.org/x/net/http2/server.go                   | 2 +-
+ vendor/golang.org/x/sys/cpu/cpu_arm64.go                  | 4 ++--
+ vendor/golang.org/x/sys/cpu/cpu_x86.go                    | 2 +-
+ vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go       | 4 ++--
+ vendor/golang.org/x/sys/unix/syscall_bsd.go               | 6 +++---
  64 files changed, 125 insertions(+), 125 deletions(-)
 
-diff --git a/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go b/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
-index 298c481..da9771e 100644
---- a/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
-+++ b/podman/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
+diff --git a/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go b/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
+index 298c481781..da9771eaa1 100644
+--- a/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
++++ b/vendor/github.com/bytedance/sonic/loader/internal/abi/abi_legacy_amd64.go
 @@ -22,7 +22,7 @@ package abi
  import (
      `fmt`
@@ -110,10 +110,10 @@ index 298c481..da9771e 100644
 -}
 \ No newline at end of file
 +}
-diff --git a/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go b/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go
-index 97a1fe8..bb8475c 100644
---- a/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go
-+++ b/podman/vendor/github.com/containerd/platforms/cpuinfo_other.go
+diff --git a/vendor/github.com/containerd/platforms/cpuinfo_other.go b/vendor/github.com/containerd/platforms/cpuinfo_other.go
+index 97a1fe8a3e..bb8475c3a0 100644
+--- a/vendor/github.com/containerd/platforms/cpuinfo_other.go
++++ b/vendor/github.com/containerd/platforms/cpuinfo_other.go
 @@ -27,7 +27,7 @@ func getCPUVariant() (string, error) {
  
  	var variant string
@@ -132,10 +132,10 @@ index 97a1fe8..bb8475c 100644
  		// FreeBSD supports ARMv6 and ARMv7 as well as ARMv4 and ARMv5 (though deprecated)
  		// detecting those variants is currently unimplemented
  		switch runtime.GOARCH {
-diff --git a/podman/vendor/github.com/containerd/platforms/database.go b/podman/vendor/github.com/containerd/platforms/database.go
-index 7a6f0d9..424ad74 100644
---- a/podman/vendor/github.com/containerd/platforms/database.go
-+++ b/podman/vendor/github.com/containerd/platforms/database.go
+diff --git a/vendor/github.com/containerd/platforms/database.go b/vendor/github.com/containerd/platforms/database.go
+index 7a6f0d98cd..424ad74d4c 100644
+--- a/vendor/github.com/containerd/platforms/database.go
++++ b/vendor/github.com/containerd/platforms/database.go
 @@ -17,7 +17,7 @@
  package platforms
  
@@ -154,10 +154,10 @@ index 7a6f0d9..424ad74 100644
  	}
  	os = strings.ToLower(os)
  
-diff --git a/podman/vendor/github.com/containerd/platforms/defaults_unix.go b/podman/vendor/github.com/containerd/platforms/defaults_unix.go
-index 44acc47..1ea8115 100644
---- a/podman/vendor/github.com/containerd/platforms/defaults_unix.go
-+++ b/podman/vendor/github.com/containerd/platforms/defaults_unix.go
+diff --git a/vendor/github.com/containerd/platforms/defaults_unix.go b/vendor/github.com/containerd/platforms/defaults_unix.go
+index 44acc47eb3..1ea8115497 100644
+--- a/vendor/github.com/containerd/platforms/defaults_unix.go
++++ b/vendor/github.com/containerd/platforms/defaults_unix.go
 @@ -27,7 +27,7 @@ import (
  // DefaultSpec returns the current platform's default platform specification.
  func DefaultSpec() specs.Platform {
@@ -167,10 +167,10 @@ index 44acc47..1ea8115 100644
  		Architecture: runtime.GOARCH,
  		// The Variant field will be empty if arch != ARM.
  		Variant: cpuVariant(),
-diff --git a/podman/vendor/github.com/containerd/platforms/platforms.go b/podman/vendor/github.com/containerd/platforms/platforms.go
-index 14d65ab..ae8bd67 100644
---- a/podman/vendor/github.com/containerd/platforms/platforms.go
-+++ b/podman/vendor/github.com/containerd/platforms/platforms.go
+diff --git a/vendor/github.com/containerd/platforms/platforms.go b/vendor/github.com/containerd/platforms/platforms.go
+index 14d65abd4f..ae8bd67afa 100644
+--- a/vendor/github.com/containerd/platforms/platforms.go
++++ b/vendor/github.com/containerd/platforms/platforms.go
 @@ -160,7 +160,7 @@ func NewMatcher(platform specs.Platform) Matcher {
  		// which may have been an unintended side of some refactor.
  		// It was likely intended to be used in `Ordered` but it is not since
@@ -189,10 +189,10 @@ index 14d65ab..ae8bd67 100644
  			return p, nil
  		}
  
-diff --git a/podman/vendor/github.com/containers/buildah/config.go b/podman/vendor/github.com/containers/buildah/config.go
-index 1390211..2c334f1 100644
---- a/podman/vendor/github.com/containers/buildah/config.go
-+++ b/podman/vendor/github.com/containers/buildah/config.go
+diff --git a/vendor/github.com/containers/buildah/config.go b/vendor/github.com/containers/buildah/config.go
+index 1390211ca3..2c334f15f4 100644
+--- a/vendor/github.com/containers/buildah/config.go
++++ b/vendor/github.com/containers/buildah/config.go
 @@ -141,7 +141,7 @@ func (b *Builder) fixupConfig(sys *types.SystemContext) {
  		if sys != nil && sys.OSChoice != "" {
  			b.SetOS(sys.OSChoice)
@@ -202,10 +202,10 @@ index 1390211..2c334f1 100644
  		}
  	}
  	if b.Architecture() == "" {
-diff --git a/podman/vendor/github.com/containers/buildah/imagebuildah/build.go b/podman/vendor/github.com/containers/buildah/imagebuildah/build.go
-index 607a99d..7f8d2a0 100644
---- a/podman/vendor/github.com/containers/buildah/imagebuildah/build.go
-+++ b/podman/vendor/github.com/containers/buildah/imagebuildah/build.go
+diff --git a/vendor/github.com/containers/buildah/imagebuildah/build.go b/vendor/github.com/containers/buildah/imagebuildah/build.go
+index 607a99db9a..7f8d2a06cd 100644
+--- a/vendor/github.com/containers/buildah/imagebuildah/build.go
++++ b/vendor/github.com/containers/buildah/imagebuildah/build.go
 @@ -12,7 +12,7 @@ import (
  	"os"
  	"os/exec"
@@ -224,10 +224,10 @@ index 607a99d..7f8d2a0 100644
  		}
  		if platform.OS == "" && platform.Arch == "" {
  			if targetPlatform, ok := options.Args["TARGETPLATFORM"]; ok {
-diff --git a/podman/vendor/github.com/containers/buildah/info.go b/podman/vendor/github.com/containers/buildah/info.go
-index 72e1050..1302b01 100644
---- a/podman/vendor/github.com/containers/buildah/info.go
-+++ b/podman/vendor/github.com/containers/buildah/info.go
+diff --git a/vendor/github.com/containers/buildah/info.go b/vendor/github.com/containers/buildah/info.go
+index 72e1050abf..1302b01250 100644
+--- a/vendor/github.com/containers/buildah/info.go
++++ b/vendor/github.com/containers/buildah/info.go
 @@ -44,7 +44,7 @@ func Info(store storage.Store) ([]InfoData, error) {
  
  func hostInfo() map[string]interface{} {
@@ -237,10 +237,10 @@ index 72e1050..1302b01 100644
  	info["os"] = ps.OS
  	info["arch"] = ps.Architecture
  	info["variant"] = ps.Variant
-diff --git a/podman/vendor/github.com/containers/buildah/pkg/cli/common.go b/podman/vendor/github.com/containers/buildah/pkg/cli/common.go
-index c7e4f54..5697622 100644
---- a/podman/vendor/github.com/containers/buildah/pkg/cli/common.go
-+++ b/podman/vendor/github.com/containers/buildah/pkg/cli/common.go
+diff --git a/vendor/github.com/containers/buildah/pkg/cli/common.go b/vendor/github.com/containers/buildah/pkg/cli/common.go
+index c7e4f5439c..569762287e 100644
+--- a/vendor/github.com/containers/buildah/pkg/cli/common.go
++++ b/vendor/github.com/containers/buildah/pkg/cli/common.go
 @@ -262,7 +262,7 @@ func GetBudFlags(flags *BudResults) pflag.FlagSet {
  	fs.BoolVar(&flags.NoCache, "no-cache", false, "do not use existing cached images for the container build. Build from the start with a new set of cached layers.")
  	fs.BoolVar(&flags.NoHostname, "no-hostname", false, "do not create new /etc/hostname file for RUN instructions, use the one from the base image.")
@@ -259,10 +259,10 @@ index c7e4f54..5697622 100644
  	fs.StringSlice("platform", []string{parse.DefaultPlatform()}, "set the `OS/ARCH[/VARIANT]` of the image to the provided value instead of the current operating system and architecture of the host (for example \"linux/arm\")")
  	fs.String("variant", "", "override the `variant` of the specified image")
  	fs.StringArrayVar(&flags.SecurityOpt, "security-opt", []string{}, "security options (default [])")
-diff --git a/podman/vendor/github.com/containers/common/libimage/platform/platform.go b/podman/vendor/github.com/containers/common/libimage/platform/platform.go
-index 54c3b8d..fb4d1a1 100644
---- a/podman/vendor/github.com/containers/common/libimage/platform/platform.go
-+++ b/podman/vendor/github.com/containers/common/libimage/platform/platform.go
+diff --git a/vendor/github.com/containers/common/libimage/platform/platform.go b/vendor/github.com/containers/common/libimage/platform/platform.go
+index 54c3b8deb4..fb4d1a12f4 100644
+--- a/vendor/github.com/containers/common/libimage/platform/platform.go
++++ b/vendor/github.com/containers/common/libimage/platform/platform.go
 @@ -45,7 +45,7 @@ func Normalize(rawOS, rawArch, rawVariant string) (os, arch, variant string) {
  
  func ToString(os, arch, variant string) string {
@@ -272,10 +272,10 @@ index 54c3b8d..fb4d1a1 100644
  	}
  	if arch == "" {
  		arch = runtime.GOARCH
-diff --git a/podman/vendor/github.com/containers/common/libimage/pull.go b/podman/vendor/github.com/containers/common/libimage/pull.go
-index 02b6a42..706d0b1 100644
---- a/podman/vendor/github.com/containers/common/libimage/pull.go
-+++ b/podman/vendor/github.com/containers/common/libimage/pull.go
+diff --git a/vendor/github.com/containers/common/libimage/pull.go b/vendor/github.com/containers/common/libimage/pull.go
+index 02b6a42338..706d0b1c02 100644
+--- a/vendor/github.com/containers/common/libimage/pull.go
++++ b/vendor/github.com/containers/common/libimage/pull.go
 @@ -484,7 +484,7 @@ func (r *Runtime) copySingleImageFromRegistry(ctx context.Context, imageName str
  	if options.Architecture != runtime.GOARCH {
  		lookupImageOptions.Architecture = options.Architecture
@@ -285,10 +285,10 @@ index 02b6a42..706d0b1 100644
  		lookupImageOptions.OS = options.OS
  	}
  	// FIXME: We sometimes return resolvedImageName from this function.
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/config.go b/podman/vendor/github.com/containers/common/pkg/config/config.go
-index a035c7a..9648d59 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/config.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/config.go
+diff --git a/vendor/github.com/containers/common/pkg/config/config.go b/vendor/github.com/containers/common/pkg/config/config.go
+index a035c7a77e..9648d59610 100644
+--- a/vendor/github.com/containers/common/pkg/config/config.go
++++ b/vendor/github.com/containers/common/pkg/config/config.go
 @@ -814,7 +814,7 @@ func (m *MachineConfig) URI() string {
  		uri = strings.Replace(uri, val, runtime.GOARCH, 1)
  	}
@@ -298,10 +298,10 @@ index a035c7a..9648d59 100644
  	}
  	return uri
  }
-diff --git a/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go b/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go
-index 6e88aa0..cfa1af3 100644
---- a/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go
-+++ b/podman/vendor/github.com/containers/image/v5/directory/directory_dest.go
+diff --git a/vendor/github.com/containers/image/v5/directory/directory_dest.go b/vendor/github.com/containers/image/v5/directory/directory_dest.go
+index 6e88aa01d1..cfa1af3c8d 100644
+--- a/vendor/github.com/containers/image/v5/directory/directory_dest.go
++++ b/vendor/github.com/containers/image/v5/directory/directory_dest.go
 @@ -7,7 +7,7 @@ import (
  	"io"
  	"os"
@@ -320,10 +320,10 @@ index 6e88aa0..cfa1af3 100644
  		if err := blobFile.Chmod(0644); err != nil {
  			return private.UploadedBlob{}, err
  		}
-diff --git a/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go b/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
-index 6a0f88d..be400df 100644
---- a/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
-+++ b/podman/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
+diff --git a/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go b/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
+index 6a0f88d3a6..be400df9bc 100644
+--- a/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
++++ b/vendor/github.com/containers/image/v5/internal/manifest/oci_index.go
 @@ -353,7 +353,7 @@ func (index *OCI1IndexPublic) ToSchema2List() (*Schema2ListPublic, error) {
  		platform := manifest.Platform
  		if platform == nil {
@@ -333,10 +333,10 @@ index 6a0f88d..be400df 100644
  				Architecture: runtime.GOARCH,
  			}
  		}
-diff --git a/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go b/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
-index 3a16dad..27f96f0 100644
---- a/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
-+++ b/podman/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
+diff --git a/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go b/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
+index 3a16dad637..27f96f03d5 100644
+--- a/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
++++ b/vendor/github.com/containers/image/v5/internal/pkg/platform/platform_matcher.go
 @@ -33,8 +33,8 @@ import (
  // So we don't need to access the ARM registers to detect platform information
  // by ourselves. We can just parse these information from /proc/cpuinfo
@@ -364,10 +364,10 @@ index 3a16dad..27f96f0 100644
  	if ctx != nil && ctx.OSChoice != "" {
  		wantedOS = ctx.OSChoice
  	}
-diff --git a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
-index bab73ee..69193a9 100644
---- a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
-+++ b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+diff --git a/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go b/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+index bab73ee334..69193a9a2a 100644
+--- a/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
++++ b/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
 @@ -2,7 +2,7 @@ package tmpdir
  
  import (
@@ -386,10 +386,10 @@ index bab73ee..69193a9 100644
  		temporaryDirectoryForBigFiles = os.TempDir()
  	} else {
  		temporaryDirectoryForBigFiles = unixTempDirForBigFiles
-diff --git a/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go b/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
-index c4eaed0..7a16fb5 100644
---- a/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
-+++ b/podman/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
+diff --git a/vendor/github.com/containers/image/v5/oci/internal/oci_util.go b/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
+index c4eaed0eee..7a16fb5750 100644
+--- a/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
++++ b/vendor/github.com/containers/image/v5/oci/internal/oci_util.go
 @@ -5,7 +5,7 @@ import (
  	"fmt"
  	"path/filepath"
@@ -426,10 +426,10 @@ index c4eaed0..7a16fb5 100644
  		err = validateScopeWindows(scope)
  	} else {
  		err = validateScopeNonWindows(scope)
-diff --git a/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go b/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
-index b87cef4..fe2a351 100644
---- a/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
-+++ b/podman/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
+diff --git a/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go b/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
+index b87cef4f7d..fe2a351e32 100644
+--- a/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
++++ b/vendor/github.com/containers/image/v5/oci/layout/oci_dest.go
 @@ -9,7 +9,7 @@ import (
  	"io/fs"
  	"os"
@@ -448,10 +448,10 @@ index b87cef4..fe2a351 100644
  		if err := blobFile.Chmod(0644); err != nil {
  			return err
  		}
-diff --git a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
-index da2238a..1544ac3 100644
---- a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
-+++ b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+diff --git a/vendor/github.com/containers/image/v5/pkg/docker/config/config.go b/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+index da2238a0b6..1544ac3373 100644
+--- a/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
++++ b/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
 @@ -9,7 +9,7 @@ import (
  	"os"
  	"os/exec"
@@ -475,10 +475,10 @@ index da2238a..1544ac3 100644
  func getPathToAuthWithOS(sys *types.SystemContext, goOS string) (authPath, bool, error) {
  	if sys != nil {
  		if sys.AuthFilePath != "" && sys.DockerCompatAuthFilePath != "" {
-diff --git a/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go b/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go
-index 7d4a83b..cb94f23 100644
---- a/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go
-+++ b/podman/vendor/github.com/containers/image/v5/tarball/tarball_src.go
+diff --git a/vendor/github.com/containers/image/v5/tarball/tarball_src.go b/vendor/github.com/containers/image/v5/tarball/tarball_src.go
+index 7d4a83bc91..cb94f23123 100644
+--- a/vendor/github.com/containers/image/v5/tarball/tarball_src.go
++++ b/vendor/github.com/containers/image/v5/tarball/tarball_src.go
 @@ -141,7 +141,7 @@ func (r *tarballReference) NewImageSource(ctx context.Context, sys *types.System
  		config.Architecture = runtime.GOARCH
  	}
@@ -488,10 +488,10 @@ index 7d4a83b..cb94f23 100644
  	}
  	config.RootFS = imgspecv1.RootFS{
  		Type:    "layers",
-diff --git a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
-index 231da23..591a421 100644
---- a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
-+++ b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
+diff --git a/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go b/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
+index 231da23174..591a421272 100644
+--- a/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
++++ b/vendor/github.com/containers/ocicrypt/crypto/pkcs11/utils.go
 @@ -92,7 +92,7 @@ func getHostAndOsType() (string, string, string) {
  	ht := ""
  	ot := ""
@@ -501,10 +501,10 @@ index 231da23..591a421 100644
  	case "linux":
  		ot = "linux"
  		st = "gnu"
-diff --git a/podman/vendor/github.com/containers/storage/drivers/fsdiff.go b/podman/vendor/github.com/containers/storage/drivers/fsdiff.go
-index e500585..f3a4ee8 100644
---- a/podman/vendor/github.com/containers/storage/drivers/fsdiff.go
-+++ b/podman/vendor/github.com/containers/storage/drivers/fsdiff.go
+diff --git a/vendor/github.com/containers/storage/drivers/fsdiff.go b/vendor/github.com/containers/storage/drivers/fsdiff.go
+index e500585ff5..f3a4ee85d1 100644
+--- a/vendor/github.com/containers/storage/drivers/fsdiff.go
++++ b/vendor/github.com/containers/storage/drivers/fsdiff.go
 @@ -3,7 +3,7 @@ package graphdriver
  import (
  	"io"
@@ -523,10 +523,10 @@ index e500585..f3a4ee8 100644
  		forceMask = &defaultForceMask
  	}
  
-diff --git a/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go b/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go
-index 98dc55b..91d8f05 100644
---- a/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go
-+++ b/podman/vendor/github.com/containers/storage/drivers/vfs/driver.go
+diff --git a/vendor/github.com/containers/storage/drivers/vfs/driver.go b/vendor/github.com/containers/storage/drivers/vfs/driver.go
+index 98dc55b0e3..91d8f05340 100644
+--- a/vendor/github.com/containers/storage/drivers/vfs/driver.go
++++ b/vendor/github.com/containers/storage/drivers/vfs/driver.go
 @@ -5,7 +5,7 @@ import (
  	"io"
  	"os"
@@ -545,10 +545,10 @@ index 98dc55b..91d8f05 100644
  		rootPerms = os.FileMode(0o700)
  	}
  
-diff --git a/podman/vendor/github.com/containers/storage/pkg/archive/archive.go b/podman/vendor/github.com/containers/storage/pkg/archive/archive.go
-index 41daad8..b904b4d 100644
---- a/podman/vendor/github.com/containers/storage/pkg/archive/archive.go
-+++ b/podman/vendor/github.com/containers/storage/pkg/archive/archive.go
+diff --git a/vendor/github.com/containers/storage/pkg/archive/archive.go b/vendor/github.com/containers/storage/pkg/archive/archive.go
+index 41daad8530..b904b4d11e 100644
+--- a/vendor/github.com/containers/storage/pkg/archive/archive.go
++++ b/vendor/github.com/containers/storage/pkg/archive/archive.go
 @@ -11,7 +11,7 @@ import (
  	"io/fs"
  	"os"
@@ -585,10 +585,10 @@ index 41daad8..b904b4d 100644
  			uid, gid = hdr.Uid, hdr.Gid
  			if xstat, ok := hdr.PAXRecords[PaxSchilyXattr+idtools.ContainersOverrideXattr]; ok {
  				attrs := strings.Split(string(xstat), ":")
-diff --git a/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go b/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go
-index 2965ccc..7eacd2f 100644
---- a/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go
-+++ b/podman/vendor/github.com/containers/storage/pkg/archive/changes_other.go
+diff --git a/vendor/github.com/containers/storage/pkg/archive/changes_other.go b/vendor/github.com/containers/storage/pkg/archive/changes_other.go
+index 2965ccc9fc..7eacd2f23a 100644
+--- a/vendor/github.com/containers/storage/pkg/archive/changes_other.go
++++ b/vendor/github.com/containers/storage/pkg/archive/changes_other.go
 @@ -64,7 +64,7 @@ func collectFileInfo(sourceDir string, idMappings *idtools.IDMappings) (*FileInf
  		// See https://github.com/golang/go/issues/9168 - bug in filepath.Join.
  		// Temporary workaround. If the returned path starts with two backslashes,
@@ -598,10 +598,10 @@ index 2965ccc..7eacd2f 100644
  			if strings.HasPrefix(relPath, `\\`) {
  				relPath = relPath[1:]
  			}
-diff --git a/podman/vendor/github.com/containers/storage/pkg/archive/diff.go b/podman/vendor/github.com/containers/storage/pkg/archive/diff.go
-index ceaa8b0..5e81a90 100644
---- a/podman/vendor/github.com/containers/storage/pkg/archive/diff.go
-+++ b/podman/vendor/github.com/containers/storage/pkg/archive/diff.go
+diff --git a/vendor/github.com/containers/storage/pkg/archive/diff.go b/vendor/github.com/containers/storage/pkg/archive/diff.go
+index ceaa8b0b79..5e81a90545 100644
+--- a/vendor/github.com/containers/storage/pkg/archive/diff.go
++++ b/vendor/github.com/containers/storage/pkg/archive/diff.go
 @@ -7,7 +7,7 @@ import (
  	"io/fs"
  	"os"
@@ -620,10 +620,10 @@ index ceaa8b0..5e81a90 100644
  			if strings.Contains(hdr.Name, ":") {
  				logrus.Warnf("Windows: Ignoring %s (is this a Linux image?)", hdr.Name)
  				continue
-diff --git a/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go b/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go
-index 299bdbe..ee5211e 100644
---- a/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go
-+++ b/podman/vendor/github.com/containers/storage/pkg/idtools/idtools.go
+diff --git a/vendor/github.com/containers/storage/pkg/idtools/idtools.go b/vendor/github.com/containers/storage/pkg/idtools/idtools.go
+index 299bdbef7f..ee5211e03d 100644
+--- a/vendor/github.com/containers/storage/pkg/idtools/idtools.go
++++ b/vendor/github.com/containers/storage/pkg/idtools/idtools.go
 @@ -7,7 +7,7 @@ import (
  	"io/fs"
  	"os"
@@ -651,10 +651,10 @@ index 299bdbe..ee5211e 100644
  		stat := Stat{
  			Mode: os.FileMode(0o0700),
  		}
-diff --git a/podman/vendor/github.com/containers/storage/pkg/system/path.go b/podman/vendor/github.com/containers/storage/pkg/system/path.go
-index ca076f2..37014bb 100644
---- a/podman/vendor/github.com/containers/storage/pkg/system/path.go
-+++ b/podman/vendor/github.com/containers/storage/pkg/system/path.go
+diff --git a/vendor/github.com/containers/storage/pkg/system/path.go b/vendor/github.com/containers/storage/pkg/system/path.go
+index ca076f2bc2..37014bb00c 100644
+--- a/vendor/github.com/containers/storage/pkg/system/path.go
++++ b/vendor/github.com/containers/storage/pkg/system/path.go
 @@ -1,6 +1,6 @@
  package system
  
@@ -674,10 +674,10 @@ index ca076f2..37014bb 100644
  			return defaultUnixPathEnv
  		}
  		// Deliberately empty on Windows containers on Windows as the default path will be set by
-diff --git a/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go b/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
-index e9c5936..815fd95 100644
---- a/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
-+++ b/podman/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
+diff --git a/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go b/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
+index e9c593667f..815fd954fa 100644
+--- a/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
++++ b/vendor/github.com/crc-org/crc/v2/pkg/crc/logging/stderr_hook.go
 @@ -3,7 +3,7 @@ package logging
  import (
  	"io"
@@ -696,10 +696,10 @@ index e9c5936..815fd95 100644
  		return &stdErrHook{
  			stderr:    colorable.NewColorableStderr(),
  			formatter: formatter,
-diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/archive.go b/podman/vendor/github.com/docker/docker/pkg/archive/archive.go
-index cde64f0..877cc4f 100644
---- a/podman/vendor/github.com/docker/docker/pkg/archive/archive.go
-+++ b/podman/vendor/github.com/docker/docker/pkg/archive/archive.go
+diff --git a/vendor/github.com/docker/docker/pkg/archive/archive.go b/vendor/github.com/docker/docker/pkg/archive/archive.go
+index cde64f08eb..877cc4f6cf 100644
+--- a/vendor/github.com/docker/docker/pkg/archive/archive.go
++++ b/vendor/github.com/docker/docker/pkg/archive/archive.go
 @@ -14,7 +14,7 @@ import (
  	"os"
  	"os/exec"
@@ -718,10 +718,10 @@ index cde64f0..877cc4f 100644
  		if chownOpts == nil {
  			chownOpts = &idtools.Identity{UID: hdr.Uid, GID: hdr.Gid}
  		}
-diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go b/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
-index f559a30..ff99b45 100644
---- a/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
-+++ b/podman/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
+diff --git a/vendor/github.com/docker/docker/pkg/archive/archive_unix.go b/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
+index f559a30565..ff99b45560 100644
+--- a/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
++++ b/vendor/github.com/docker/docker/pkg/archive/archive_unix.go
 @@ -7,7 +7,7 @@ import (
  	"errors"
  	"os"
@@ -740,10 +740,10 @@ index f559a30..ff99b45 100644
  		return nil
  	}
  	s, ok := fi.Sys().(*syscall.Stat_t)
-diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go b/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go
-index 28f741a..c75ff3c 100644
---- a/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go
-+++ b/podman/vendor/github.com/docker/docker/pkg/archive/changes_other.go
+diff --git a/vendor/github.com/docker/docker/pkg/archive/changes_other.go b/vendor/github.com/docker/docker/pkg/archive/changes_other.go
+index 28f741a25d..c75ff3c2e2 100644
+--- a/vendor/github.com/docker/docker/pkg/archive/changes_other.go
++++ b/vendor/github.com/docker/docker/pkg/archive/changes_other.go
 @@ -57,7 +57,7 @@ func collectFileInfo(sourceDir string) (*FileInfo, error) {
  		// See https://github.com/golang/go/issues/9168 - bug in filepath.Join.
  		// Temporary workaround. If the returned path starts with two backslashes,
@@ -753,10 +753,10 @@ index 28f741a..c75ff3c 100644
  			if strings.HasPrefix(relPath, `\\`) {
  				relPath = relPath[1:]
  			}
-diff --git a/podman/vendor/github.com/docker/docker/pkg/archive/diff.go b/podman/vendor/github.com/docker/docker/pkg/archive/diff.go
-index e080e31..f697e64 100644
---- a/podman/vendor/github.com/docker/docker/pkg/archive/diff.go
-+++ b/podman/vendor/github.com/docker/docker/pkg/archive/diff.go
+diff --git a/vendor/github.com/docker/docker/pkg/archive/diff.go b/vendor/github.com/docker/docker/pkg/archive/diff.go
+index e080e310ac..f697e6419d 100644
+--- a/vendor/github.com/docker/docker/pkg/archive/diff.go
++++ b/vendor/github.com/docker/docker/pkg/archive/diff.go
 @@ -7,7 +7,7 @@ import (
  	"io"
  	"os"
@@ -775,10 +775,10 @@ index e080e31..f697e64 100644
  			if strings.Contains(hdr.Name, ":") {
  				log.G(context.TODO()).Warnf("Windows: Ignoring %s (is this a Linux image?)", hdr.Name)
  				continue
-diff --git a/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go b/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go
-index c0ab3f5..5eafec2 100644
---- a/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go
-+++ b/podman/vendor/github.com/docker/docker/pkg/homedir/homedir.go
+diff --git a/vendor/github.com/docker/docker/pkg/homedir/homedir.go b/vendor/github.com/docker/docker/pkg/homedir/homedir.go
+index c0ab3f5bf3..5eafec2315 100644
+--- a/vendor/github.com/docker/docker/pkg/homedir/homedir.go
++++ b/vendor/github.com/docker/docker/pkg/homedir/homedir.go
 @@ -3,7 +3,7 @@ package homedir
  import (
  	"os"
@@ -797,10 +797,10 @@ index c0ab3f5..5eafec2 100644
  		if u, err := user.Current(); err == nil {
  			return u.HomeDir
  		}
-diff --git a/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go b/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
-index f84c624..999fc56 100644
---- a/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
-+++ b/podman/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
+diff --git a/vendor/github.com/docker/go-connections/tlsconfig/certpool.go b/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
+index f84c624ba0..999fc56aaa 100644
+--- a/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
++++ b/vendor/github.com/docker/go-connections/tlsconfig/certpool.go
 @@ -2,14 +2,14 @@ package tlsconfig
  
  import (
@@ -818,10 +818,10 @@ index f84c624..999fc56 100644
  		return x509.NewCertPool(), nil
  	}
  	return certpool, err
-diff --git a/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go b/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
-index bad85f7..4e87347 100644
---- a/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
-+++ b/podman/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
+diff --git a/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go b/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
+index bad85f7fdc..4e87347031 100644
+--- a/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
++++ b/vendor/github.com/docker/go-plugins-helpers/sdk/tcp_listener.go
 @@ -3,7 +3,7 @@ package sdk
  import (
  	"crypto/tls"
@@ -840,10 +840,10 @@ index bad85f7..4e87347 100644
  		specDir, err = createPluginSpecDirWindows(pluginName, addr, daemonDir)
  	} else {
  		specDir, err = createPluginSpecDirUnix(pluginName, addr)
-diff --git a/podman/vendor/github.com/ebitengine/purego/func.go b/podman/vendor/github.com/ebitengine/purego/func.go
-index a8a3d62..e72f098 100644
---- a/podman/vendor/github.com/ebitengine/purego/func.go
-+++ b/podman/vendor/github.com/ebitengine/purego/func.go
+diff --git a/vendor/github.com/ebitengine/purego/func.go b/vendor/github.com/ebitengine/purego/func.go
+index a8a3d620cf..e72f09858f 100644
+--- a/vendor/github.com/ebitengine/purego/func.go
++++ b/vendor/github.com/ebitengine/purego/func.go
 @@ -162,7 +162,7 @@ func RegisterFunc(fptr interface{}, cfn uintptr) {
  					stack++
  				}
@@ -880,10 +880,10 @@ index a8a3d62..e72f098 100644
  			// Use the normal arm64 calling convention even on Windows
  			syscall = syscall15Args{
  				cfn,
-diff --git a/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go b/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
-index d8de5ab..5fa6ec1 100644
---- a/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
-+++ b/podman/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
+diff --git a/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go b/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
+index d8de5ab76f..5fa6ec1db3 100644
+--- a/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
++++ b/vendor/github.com/fsnotify/fsnotify/backend_kqueue.go
 @@ -510,7 +510,7 @@ func (w *kqueue) readEvents() {
  			//
  			// Technically fd 0 is a valid descriptor, so only skip it if
@@ -902,10 +902,10 @@ index d8de5ab..5fa6ec1 100644
  		//return true // Supports everything.
  	}
  	if op.Has(xUnportableOpen) || op.Has(xUnportableRead) ||
-diff --git a/podman/vendor/github.com/go-openapi/swag/loading.go b/podman/vendor/github.com/go-openapi/swag/loading.go
-index 783442f..8678dac 100644
---- a/podman/vendor/github.com/go-openapi/swag/loading.go
-+++ b/podman/vendor/github.com/go-openapi/swag/loading.go
+diff --git a/vendor/github.com/go-openapi/swag/loading.go b/vendor/github.com/go-openapi/swag/loading.go
+index 783442fddf..8678dac820 100644
+--- a/vendor/github.com/go-openapi/swag/loading.go
++++ b/vendor/github.com/go-openapi/swag/loading.go
 @@ -23,7 +23,7 @@ import (
  	"os"
  	"path"
@@ -924,10 +924,10 @@ index 783442f..8678dac 100644
  			// crude processing: this leaves full URIs with a host with a (mostly) unexpected result
  			upth = strings.TrimPrefix(upth, `file://`)
  
-diff --git a/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go b/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go
-index db99eb6..8355283 100644
---- a/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go
-+++ b/podman/vendor/github.com/klauspost/cpuid/v2/cpuid.go
+diff --git a/vendor/github.com/klauspost/cpuid/v2/cpuid.go b/vendor/github.com/klauspost/cpuid/v2/cpuid.go
+index db99eb62f7..83552835de 100644
+--- a/vendor/github.com/klauspost/cpuid/v2/cpuid.go
++++ b/vendor/github.com/klauspost/cpuid/v2/cpuid.go
 @@ -1298,7 +1298,7 @@ func support() flagSet {
  			// ZMM16-ZMM31 state are enabled by OS)
  			/// and that XCR0[2:1] = ‘11b’ (XMM state and YMM state are enabled by OS).
@@ -937,10 +937,10 @@ index db99eb6..8355283 100644
  				hasAVX512 = fs.inSet(AVX) && darwinHasAVX512()
  			}
  			if hasAVX512 {
-diff --git a/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go b/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
-index 566743d..c3d8dfd 100644
---- a/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
-+++ b/podman/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
+diff --git a/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go b/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
+index 566743d220..c3d8dfd494 100644
+--- a/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
++++ b/vendor/github.com/klauspost/cpuid/v2/detect_arm64.go
 @@ -25,7 +25,7 @@ func addInfo(c *CPUInfo, safe bool) {
  	detectOS(c)
  
@@ -950,10 +950,10 @@ index 566743d..c3d8dfd 100644
  		return
  	}
  	midr := getMidr()
-diff --git a/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go b/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
-index ee278b9..b8b691d 100644
---- a/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
-+++ b/podman/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
+diff --git a/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go b/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
+index ee278b9e4b..b8b691d8da 100644
+--- a/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
++++ b/vendor/github.com/klauspost/cpuid/v2/os_linux_arm64.go
 @@ -120,7 +120,7 @@ func detectOS(c *CPUInfo) bool {
  	// The Samsung S9+ kernel reports support for atomics, but not all cores
  	// actually support them, resulting in SIGILL. See issue #28431.
@@ -963,10 +963,10 @@ index ee278b9..b8b691d 100644
  
  	return true
  }
-diff --git a/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go b/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
-index 050419b..40687cc 100644
---- a/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
-+++ b/podman/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
+diff --git a/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go b/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
+index 050419bd36..40687cc8a0 100644
+--- a/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
++++ b/vendor/github.com/linuxkit/virtsock/pkg/hvsock/hvsock_fallback.go
 @@ -14,9 +14,9 @@ func Supported() bool {
  }
  
@@ -979,10 +979,10 @@ index 050419b..40687cc 100644
 -	return nil, fmt.Errorf("Listen() not implemented on %s", runtime.GOOS)
 +	return nil, fmt.Errorf("Listen() not implemented on %s", "linux")
  }
-diff --git a/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go b/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go
-index b69942b..aa788b5 100644
---- a/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go
-+++ b/podman/vendor/github.com/mistifyio/go-zfs/v3/utils.go
+diff --git a/vendor/github.com/mistifyio/go-zfs/v3/utils.go b/vendor/github.com/mistifyio/go-zfs/v3/utils.go
+index b69942b530..aa788b5d2a 100644
+--- a/vendor/github.com/mistifyio/go-zfs/v3/utils.go
++++ b/vendor/github.com/mistifyio/go-zfs/v3/utils.go
 @@ -7,7 +7,7 @@ import (
  	"io"
  	"os/exec"
@@ -1001,10 +1001,10 @@ index b69942b..aa788b5 100644
  		return nil
  	}
  
-diff --git a/podman/vendor/github.com/nxadm/tail/watch/polling.go b/podman/vendor/github.com/nxadm/tail/watch/polling.go
-index 74e10aa..67e0b83 100644
---- a/podman/vendor/github.com/nxadm/tail/watch/polling.go
-+++ b/podman/vendor/github.com/nxadm/tail/watch/polling.go
+diff --git a/vendor/github.com/nxadm/tail/watch/polling.go b/vendor/github.com/nxadm/tail/watch/polling.go
+index 74e10aa427..67e0b83ba3 100644
+--- a/vendor/github.com/nxadm/tail/watch/polling.go
++++ b/vendor/github.com/nxadm/tail/watch/polling.go
 @@ -6,7 +6,7 @@ package watch
  
  import (
@@ -1023,10 +1023,10 @@ index 74e10aa..67e0b83 100644
  					// File does not exist (has been deleted).
  					changes.NotifyDeleted()
  					return
-diff --git a/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go b/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
-index df99875..e09f3f6 100644
---- a/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
-+++ b/podman/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
+diff --git a/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go b/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
+index df99875be2..e09f3f6975 100644
+--- a/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
++++ b/vendor/github.com/onsi/ginkgo/v2/ginkgo/internal/test_suite.go
 @@ -193,7 +193,7 @@ func precompiledTestSuite(path string) (TestSuite, error) {
  		return TestSuite{}, errors.New("this is not a .test binary")
  	}
@@ -1036,10 +1036,10 @@ index df99875..e09f3f6 100644
  		return TestSuite{}, errors.New("this is not executable")
  	}
  
-diff --git a/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go b/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
-index 4807304..3cb09fe 100644
---- a/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
-+++ b/podman/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
+diff --git a/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go b/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
+index 480730486a..3cb09fe5cd 100644
+--- a/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
++++ b/vendor/github.com/onsi/ginkgo/v2/reporters/default_reporter.go
 @@ -56,7 +56,7 @@ func NewDefaultReporter(conf types.ReporterConfig, writer io.Writer) *DefaultRep
  		formatter:    formatter.NewWithNoColorBool(conf.NoColor),
  		lock:         &sync.Mutex{},
@@ -1049,10 +1049,10 @@ index 4807304..3cb09fe 100644
  		reporter.specDenoter = "+"
  		reporter.retryDenoter = "R"
  	}
-diff --git a/podman/vendor/github.com/onsi/gomega/gexec/build.go b/podman/vendor/github.com/onsi/gomega/gexec/build.go
-index 0ddb210..acc896f 100644
---- a/podman/vendor/github.com/onsi/gomega/gexec/build.go
-+++ b/podman/vendor/github.com/onsi/gomega/gexec/build.go
+diff --git a/vendor/github.com/onsi/gomega/gexec/build.go b/vendor/github.com/onsi/gomega/gexec/build.go
+index 0ddb210769..acc896f211 100644
+--- a/vendor/github.com/onsi/gomega/gexec/build.go
++++ b/vendor/github.com/onsi/gomega/gexec/build.go
 @@ -198,7 +198,7 @@ func newExecutablePath(gopath, packagePath string, suffixes ...string) (string,
  
  	executable := filepath.Join(tmpDir, path.Base(packagePath))
@@ -1062,10 +1062,10 @@ index 0ddb210..acc896f 100644
  		executable += ".exe"
  	}
  
-diff --git a/podman/vendor/github.com/openshift/imagebuilder/builder.go b/podman/vendor/github.com/openshift/imagebuilder/builder.go
-index 818ed42..7024a24 100644
---- a/podman/vendor/github.com/openshift/imagebuilder/builder.go
-+++ b/podman/vendor/github.com/openshift/imagebuilder/builder.go
+diff --git a/vendor/github.com/openshift/imagebuilder/builder.go b/vendor/github.com/openshift/imagebuilder/builder.go
+index 818ed421ee..7024a24926 100644
+--- a/vendor/github.com/openshift/imagebuilder/builder.go
++++ b/vendor/github.com/openshift/imagebuilder/builder.go
 @@ -7,7 +7,7 @@ import (
  	"log"
  	"os"
@@ -1084,10 +1084,10 @@ index 818ed42..7024a24 100644
  		b.RunConfig.Env = append(b.RunConfig.Env, "PATH="+defaultPathEnv)
  	}
  
-diff --git a/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go b/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go
-index 2a4f454..12df420 100644
---- a/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go
-+++ b/podman/vendor/github.com/openshift/imagebuilder/dispatchers.go
+diff --git a/vendor/github.com/openshift/imagebuilder/dispatchers.go b/vendor/github.com/openshift/imagebuilder/dispatchers.go
+index 2a4f45433c..12df420860 100644
+--- a/vendor/github.com/openshift/imagebuilder/dispatchers.go
++++ b/vendor/github.com/openshift/imagebuilder/dispatchers.go
 @@ -12,7 +12,7 @@ import (
  	"fmt"
  	"os"
@@ -1124,10 +1124,10 @@ index 2a4f454..12df420 100644
  			b.RunConfig.Entrypoint = strslice.StrSlice{"/bin/sh", "-c", parsed[0]}
  		} else {
  			b.RunConfig.Entrypoint = strslice.StrSlice{"cmd", "/S", "/C", parsed[0]}
-diff --git a/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go b/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
-index 5e4f4a0..20dee61 100644
---- a/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
-+++ b/podman/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
+diff --git a/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go b/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
+index 5e4f4a04bb..20dee61d94 100644
+--- a/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
++++ b/vendor/github.com/openshift/imagebuilder/dockerfile/parser/parser.go
 @@ -8,7 +8,7 @@ import (
  	"fmt"
  	"io"
@@ -1155,10 +1155,10 @@ index 5e4f4a0..20dee61 100644
  	if system.LCOWSupported() {
  		valid = append(valid, "linux")
  	}
-diff --git a/podman/vendor/github.com/openshift/imagebuilder/internals.go b/podman/vendor/github.com/openshift/imagebuilder/internals.go
-index d4b9539..8ce9ffa 100644
---- a/podman/vendor/github.com/openshift/imagebuilder/internals.go
-+++ b/podman/vendor/github.com/openshift/imagebuilder/internals.go
+diff --git a/vendor/github.com/openshift/imagebuilder/internals.go b/vendor/github.com/openshift/imagebuilder/internals.go
+index d4b9539038..8ce9ffa57d 100644
+--- a/vendor/github.com/openshift/imagebuilder/internals.go
++++ b/vendor/github.com/openshift/imagebuilder/internals.go
 @@ -5,7 +5,7 @@ import (
  	"fmt"
  	"os"
@@ -1177,10 +1177,10 @@ index d4b9539..8ce9ffa 100644
  		return nil
  	}
  	switch command {
-diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
-index 9bc3dfb..8786288 100644
---- a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
-+++ b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
+diff --git a/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go b/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
+index 9bc3dfb51a..87862885dd 100644
+--- a/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
++++ b/vendor/github.com/shirou/gopsutil/v4/cpu/cpu.go
 @@ -7,7 +7,7 @@ import (
  	"errors"
  	"fmt"
@@ -1199,10 +1199,10 @@ index 9bc3dfb..8786288 100644
  		tot -= t.Guest     // Linux 2.6.24+
  		tot -= t.GuestNice // Linux 3.2.0+
  	}
-diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
-index 868ea4d..b99ba4b 100644
---- a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
-+++ b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
+diff --git a/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go b/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
+index 868ea4daee..b99ba4be47 100644
+--- a/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
++++ b/vendor/github.com/shirou/gopsutil/v4/internal/common/common.go
 @@ -22,7 +22,7 @@ import (
  	"path"
  	"path/filepath"
@@ -1221,10 +1221,10 @@ index 868ea4d..b99ba4b 100644
  
  	commandName := filepath.Base(name)
  
-diff --git a/podman/vendor/github.com/sirupsen/logrus/text_formatter.go b/podman/vendor/github.com/sirupsen/logrus/text_formatter.go
-index be2c6ef..ae68d55 100644
---- a/podman/vendor/github.com/sirupsen/logrus/text_formatter.go
-+++ b/podman/vendor/github.com/sirupsen/logrus/text_formatter.go
+diff --git a/vendor/github.com/sirupsen/logrus/text_formatter.go b/vendor/github.com/sirupsen/logrus/text_formatter.go
+index be2c6efe5e..ae68d55e0a 100644
+--- a/vendor/github.com/sirupsen/logrus/text_formatter.go
++++ b/vendor/github.com/sirupsen/logrus/text_formatter.go
 @@ -115,7 +115,7 @@ func (f *TextFormatter) init(entry *Entry) {
  }
  
@@ -1234,10 +1234,10 @@ index be2c6ef..ae68d55 100644
  
  	if f.EnvironmentOverrideColors {
  		switch force, ok := os.LookupEnv("CLICOLOR_FORCE"); {
-diff --git a/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go b/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
-index 9e77e38..7c9ad0c 100644
---- a/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
-+++ b/podman/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
+diff --git a/vendor/github.com/tklauser/numcpus/numcpus_bsd.go b/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
+index 9e77e38e6e..7c9ad0c934 100644
+--- a/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
++++ b/vendor/github.com/tklauser/numcpus/numcpus_bsd.go
 @@ -29,7 +29,7 @@ func getConfigured() (int, error) {
  }
  
@@ -1256,10 +1256,10 @@ index 9e77e38..7c9ad0c 100644
  	case "netbsd", "openbsd":
  		n, err = unix.SysctlUint32("hw.ncpuonline")
  		if err != nil {
-diff --git a/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go b/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
-index 4b43d74..b30ed5f 100644
---- a/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
-+++ b/podman/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
+diff --git a/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go b/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
+index 4b43d74f26..b30ed5f9cd 100644
+--- a/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
++++ b/vendor/github.com/twitchyliquid64/golang-asm/bio/buf_mmap.go
 @@ -27,7 +27,7 @@ var mmapLimit int32 = 1<<31 - 1
  
  func init() {
@@ -1269,10 +1269,10 @@ index 4b43d74..b30ed5f 100644
  		mmapLimit = 30000
  	}
  }
-diff --git a/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go b/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
-index 868105f..ebac667 100644
---- a/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
-+++ b/podman/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
+diff --git a/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go b/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
+index 868105f338..ebac667730 100644
+--- a/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
++++ b/vendor/github.com/vbatts/tar-split/archive/tar/stat_unix.go
 @@ -9,7 +9,7 @@ package tar
  import (
  	"os"
@@ -1291,10 +1291,10 @@ index 868105f..ebac667 100644
  		case "linux":
  			// Copied from golang.org/x/sys/unix/dev_linux.go.
  			major := uint32((dev & 0x00000000000fff00) >> 8)
-diff --git a/podman/vendor/go.etcd.io/bbolt/db.go b/podman/vendor/go.etcd.io/bbolt/db.go
-index 822798e..ce90736 100644
---- a/podman/vendor/go.etcd.io/bbolt/db.go
-+++ b/podman/vendor/go.etcd.io/bbolt/db.go
+diff --git a/vendor/go.etcd.io/bbolt/db.go b/vendor/go.etcd.io/bbolt/db.go
+index 822798e41a..ce9073635f 100644
+--- a/vendor/go.etcd.io/bbolt/db.go
++++ b/vendor/go.etcd.io/bbolt/db.go
 @@ -6,7 +6,7 @@ import (
  	"hash/fnv"
  	"io"
@@ -1322,10 +1322,10 @@ index 822798e..ce90736 100644
  			// gofail: var resizeFileError string
  			// return errors.New(resizeFileError)
  			if err := db.file.Truncate(int64(sz)); err != nil {
-diff --git a/podman/vendor/golang.org/x/net/http2/server.go b/podman/vendor/golang.org/x/net/http2/server.go
-index b55547a..7d5b0e7 100644
---- a/podman/vendor/golang.org/x/net/http2/server.go
-+++ b/podman/vendor/golang.org/x/net/http2/server.go
+diff --git a/vendor/golang.org/x/net/http2/server.go b/vendor/golang.org/x/net/http2/server.go
+index b55547aec6..7d5b0e782f 100644
+--- a/vendor/golang.org/x/net/http2/server.go
++++ b/vendor/golang.org/x/net/http2/server.go
 @@ -777,7 +777,7 @@ func isClosedConnError(err error) bool {
  	// build tags, so I can't make an http2_windows.go file with
  	// Windows-specific stuff. Fix that and move this, once we
@@ -1335,10 +1335,10 @@ index b55547a..7d5b0e7 100644
  		if oe, ok := err.(*net.OpError); ok && oe.Op == "read" {
  			if se, ok := oe.Err.(*os.SyscallError); ok && se.Syscall == "wsarecv" {
  				const WSAECONNABORTED = 10053
-diff --git a/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go b/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go
-index af2aa99..c5fbaea 100644
---- a/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go
-+++ b/podman/vendor/golang.org/x/sys/cpu/cpu_arm64.go
+diff --git a/vendor/golang.org/x/sys/cpu/cpu_arm64.go b/vendor/golang.org/x/sys/cpu/cpu_arm64.go
+index af2aa99f9f..c5fbaea1eb 100644
+--- a/vendor/golang.org/x/sys/cpu/cpu_arm64.go
++++ b/vendor/golang.org/x/sys/cpu/cpu_arm64.go
 @@ -4,7 +4,7 @@
  
  package cpu
@@ -1357,10 +1357,10 @@ index af2aa99..c5fbaea 100644
  	case "freebsd":
  		readARM64Registers()
  	case "linux", "netbsd", "openbsd":
-diff --git a/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go b/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go
-index 600a680..422c996 100644
---- a/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go
-+++ b/podman/vendor/golang.org/x/sys/cpu/cpu_x86.go
+diff --git a/vendor/golang.org/x/sys/cpu/cpu_x86.go b/vendor/golang.org/x/sys/cpu/cpu_x86.go
+index 600a680786..422c996b54 100644
+--- a/vendor/golang.org/x/sys/cpu/cpu_x86.go
++++ b/vendor/golang.org/x/sys/cpu/cpu_x86.go
 @@ -91,7 +91,7 @@ func archInit() {
  		// Check if XMM and YMM registers have OS support.
  		osSupportsAVX = isSet(1, eax) && isSet(2, eax)
@@ -1370,10 +1370,10 @@ index 600a680..422c996 100644
  			// Darwin requires special AVX512 checks, see cpu_darwin_x86.go
  			osSupportsAVX512 = osSupportsAVX && darwinSupportsAVX512()
  		} else {
-diff --git a/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go b/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
-index 4a1eab3..487b87c 100644
---- a/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
-+++ b/podman/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
+diff --git a/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go b/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
+index 4a1eab37ec..487b87c1dc 100644
+--- a/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
++++ b/vendor/golang.org/x/sys/unix/sockcmsg_unix_other.go
 @@ -16,7 +16,7 @@ func cmsgAlignOf(salen int) int {
  
  	// dragonfly needs to check ABI version at runtime, see cmsgAlignOf in
@@ -1392,10 +1392,10 @@ index 4a1eab3..487b87c 100644
  			salign = 16
  		}
  	case "zos":
-diff --git a/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go b/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go
-index a00c3e5..9b2a740 100644
---- a/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go
-+++ b/podman/vendor/golang.org/x/sys/unix/syscall_bsd.go
+diff --git a/vendor/golang.org/x/sys/unix/syscall_bsd.go b/vendor/golang.org/x/sys/unix/syscall_bsd.go
+index a00c3e5450..9b2a740481 100644
+--- a/vendor/golang.org/x/sys/unix/syscall_bsd.go
++++ b/vendor/golang.org/x/sys/unix/syscall_bsd.go
 @@ -13,7 +13,7 @@
  package unix
  
@@ -1424,5 +1424,5 @@ index a00c3e5..9b2a740 100644
  		rsa.Addr.Len = SizeofSockaddrUnix
  	}
 -- 
-2.47.2
+2.49.0
 

@@ -1,4 +1,4 @@
-From c8e28d7fef1e7d1ec2b50e333b76f7b4c28d42be Mon Sep 17 00:00:00 2001
+From 9ae88385f71b482e1db6f162c95452ac8fc71fba Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Wed, 26 Feb 2025 16:43:03 +0900
 Subject: [PATCH 1/7] Use hardcoded runtime.GOOS/goruntime.GOOS
@@ -7,24 +7,24 @@ Behaves as if "linux"
 
 Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
 ---
- podman/cmd/podman/compose.go              | 4 ++--
- podman/cmd/podman/machine/info.go         | 2 +-
- podman/cmd/podman/registry/config.go      | 2 +-
- podman/libpod/boltdb_state_internal.go    | 6 +++---
- podman/libpod/define/version.go           | 4 ++--
- podman/libpod/info.go                     | 2 +-
- podman/libpod/sqlite_state.go             | 4 ++--
- podman/pkg/api/handlers/compat/info.go    | 2 +-
- podman/pkg/api/handlers/compat/ping.go    | 4 ++--
- podman/pkg/api/handlers/compat/version.go | 4 ++--
- podman/pkg/api/server/handler_api.go      | 4 ++--
- podman/pkg/machine/compression/generic.go | 4 ++--
+ cmd/podman/compose.go              | 4 ++--
+ cmd/podman/machine/info.go         | 2 +-
+ cmd/podman/registry/config.go      | 2 +-
+ libpod/boltdb_state_internal.go    | 6 +++---
+ libpod/define/version.go           | 4 ++--
+ libpod/info.go                     | 2 +-
+ libpod/sqlite_state.go             | 4 ++--
+ pkg/api/handlers/compat/info.go    | 2 +-
+ pkg/api/handlers/compat/ping.go    | 4 ++--
+ pkg/api/handlers/compat/version.go | 4 ++--
+ pkg/api/server/handler_api.go      | 4 ++--
+ pkg/machine/compression/generic.go | 4 ++--
  12 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/podman/cmd/podman/compose.go b/podman/cmd/podman/compose.go
-index 3ff6865..de36a12 100644
---- a/podman/cmd/podman/compose.go
-+++ b/podman/cmd/podman/compose.go
+diff --git a/cmd/podman/compose.go b/cmd/podman/compose.go
+index 3ff6865ece..de36a12f8d 100644
+--- a/cmd/podman/compose.go
++++ b/cmd/podman/compose.go
 @@ -7,7 +7,7 @@ import (
  	"net/url"
  	"os"
@@ -43,10 +43,10 @@ index 3ff6865..de36a12 100644
  		// If no default connection is set on Linux or FreeBSD,
  		// we just use the local socket by default - just as
  		// the remote client does.
-diff --git a/podman/cmd/podman/machine/info.go b/podman/cmd/podman/machine/info.go
-index 793bc4e..3e836db 100644
---- a/podman/cmd/podman/machine/info.go
-+++ b/podman/cmd/podman/machine/info.go
+diff --git a/cmd/podman/machine/info.go b/cmd/podman/machine/info.go
+index 793bc4efe8..3e836dbe6f 100644
+--- a/cmd/podman/machine/info.go
++++ b/cmd/podman/machine/info.go
 @@ -98,7 +98,7 @@ func hostInfo() (*entities.MachineHostInfo, error) {
  	host := entities.MachineHostInfo{}
  
@@ -56,10 +56,10 @@ index 793bc4e..3e836db 100644
  
  	dirs, err := env.GetMachineDirs(provider.VMType())
  	if err != nil {
-diff --git a/podman/cmd/podman/registry/config.go b/podman/cmd/podman/registry/config.go
-index 6a6d3ad..bee9bfc 100644
---- a/podman/cmd/podman/registry/config.go
-+++ b/podman/cmd/podman/registry/config.go
+diff --git a/cmd/podman/registry/config.go b/cmd/podman/registry/config.go
+index 6a6d3adb70..bee9bfc74a 100644
+--- a/cmd/podman/registry/config.go
++++ b/cmd/podman/registry/config.go
 @@ -100,7 +100,7 @@ func newPodmanConfig() {
  	}
  
@@ -69,10 +69,10 @@ index 6a6d3ad..bee9bfc 100644
  	case "darwin", "windows":
  		mode = entities.TunnelMode
  	case "linux", "freebsd":
-diff --git a/podman/libpod/boltdb_state_internal.go b/podman/libpod/boltdb_state_internal.go
-index a9b8d27..3bc13e3 100644
---- a/podman/libpod/boltdb_state_internal.go
-+++ b/podman/libpod/boltdb_state_internal.go
+diff --git a/libpod/boltdb_state_internal.go b/libpod/boltdb_state_internal.go
+index a9b8d278bb..3bc13e3989 100644
+--- a/libpod/boltdb_state_internal.go
++++ b/libpod/boltdb_state_internal.go
 @@ -6,7 +6,7 @@ import (
  	"fmt"
  	"os"
@@ -94,10 +94,10 @@ index a9b8d27..3bc13e3 100644
  			false,
  		},
  		{
-diff --git a/podman/libpod/define/version.go b/podman/libpod/define/version.go
-index 6832aea..462ba16 100644
---- a/podman/libpod/define/version.go
-+++ b/podman/libpod/define/version.go
+diff --git a/libpod/define/version.go b/libpod/define/version.go
+index 6832aeac38..462ba16d01 100644
+--- a/libpod/define/version.go
++++ b/libpod/define/version.go
 @@ -54,7 +54,7 @@ func GetVersion() (Version, error) {
  		BuiltTime:   time.Unix(buildTime, 0).Format(time.ANSIC),
  		Built:       buildTime,
@@ -108,10 +108,10 @@ index 6832aea..462ba16 100644
 +		Os:          "linux",
  	}, nil
  }
-diff --git a/podman/libpod/info.go b/podman/libpod/info.go
-index bb514ad..64831c7 100644
---- a/podman/libpod/info.go
-+++ b/podman/libpod/info.go
+diff --git a/libpod/info.go b/libpod/info.go
+index bb514adfb9..64831c7a53 100644
+--- a/libpod/info.go
++++ b/libpod/info.go
 @@ -125,7 +125,7 @@ func (r *Runtime) hostInfo() (*define.HostInfo, error) {
  		MemTotal:           mi.MemTotal,
  		NetworkBackend:     r.config.Network.NetworkBackend,
@@ -121,10 +121,10 @@ index bb514ad..64831c7 100644
  		RootlessNetworkCmd: r.config.Network.DefaultRootlessNetworkCmd,
  		SwapFree:           mi.SwapFree,
  		SwapTotal:          mi.SwapTotal,
-diff --git a/podman/libpod/sqlite_state.go b/podman/libpod/sqlite_state.go
-index ea42f8e..41b49a4 100644
---- a/podman/libpod/sqlite_state.go
-+++ b/podman/libpod/sqlite_state.go
+diff --git a/libpod/sqlite_state.go b/libpod/sqlite_state.go
+index ea42f8e3e8..41b49a4847 100644
+--- a/libpod/sqlite_state.go
++++ b/libpod/sqlite_state.go
 @@ -8,7 +8,7 @@ import (
  	"fmt"
  	"os"
@@ -143,10 +143,10 @@ index ea42f8e..41b49a4 100644
  		runtimeStaticDir                                                     = filepath.Clean(s.runtime.config.Engine.StaticDir)
  		runtimeTmpDir                                                        = filepath.Clean(s.runtime.config.Engine.TmpDir)
  		runtimeGraphRoot                                                     = filepath.Clean(s.runtime.StorageConfig().GraphRoot)
-diff --git a/podman/pkg/api/handlers/compat/info.go b/podman/pkg/api/handlers/compat/info.go
-index 1f6e249..b6e51f7 100644
---- a/podman/pkg/api/handlers/compat/info.go
-+++ b/podman/pkg/api/handlers/compat/info.go
+diff --git a/pkg/api/handlers/compat/info.go b/pkg/api/handlers/compat/info.go
+index 1f6e249b74..b6e51f7a68 100644
+--- a/pkg/api/handlers/compat/info.go
++++ b/pkg/api/handlers/compat/info.go
 @@ -97,7 +97,7 @@ func GetInfo(w http.ResponseWriter, r *http.Request) {
  			NGoroutines:        goRuntime.NumGoroutine(),
  			Name:               infoData.Host.Hostname,
@@ -156,10 +156,10 @@ index 1f6e249..b6e51f7 100644
  			OSVersion:          infoData.Host.Distribution.Version,
  			OomKillDisable:     sysInfo.OomKillDisable,
  			OperatingSystem:    infoData.Host.Distribution.Distribution,
-diff --git a/podman/pkg/api/handlers/compat/ping.go b/podman/pkg/api/handlers/compat/ping.go
-index 2601788..9991160 100644
---- a/podman/pkg/api/handlers/compat/ping.go
-+++ b/podman/pkg/api/handlers/compat/ping.go
+diff --git a/pkg/api/handlers/compat/ping.go b/pkg/api/handlers/compat/ping.go
+index 2601788143..9991160039 100644
+--- a/pkg/api/handlers/compat/ping.go
++++ b/pkg/api/handlers/compat/ping.go
 @@ -5,7 +5,7 @@ package compat
  import (
  	"fmt"
@@ -178,10 +178,10 @@ index 2601788..9991160 100644
  	w.Header().Set("Pragma", "no-cache")
  
  	w.Header().Set("Libpod-Buildah-Version", buildah.Version)
-diff --git a/podman/pkg/api/handlers/compat/version.go b/podman/pkg/api/handlers/compat/version.go
-index e1c4000..37e8c71 100644
---- a/podman/pkg/api/handlers/compat/version.go
-+++ b/podman/pkg/api/handlers/compat/version.go
+diff --git a/pkg/api/handlers/compat/version.go b/pkg/api/handlers/compat/version.go
+index e1c40007e7..37e8c71e59 100644
+--- a/pkg/api/handlers/compat/version.go
++++ b/pkg/api/handlers/compat/version.go
 @@ -44,7 +44,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
  			"GoVersion":     running.GoVersion,
  			"KernelVersion": info.Host.Kernel,
@@ -200,10 +200,10 @@ index e1c4000..37e8c71 100644
  			},
  			APIVersion:    fmt.Sprintf("%d.%d", apiVersion.Major, apiVersion.Minor),
  			Arch:          components[0].Details["Arch"],
-diff --git a/podman/pkg/api/server/handler_api.go b/podman/pkg/api/server/handler_api.go
-index 9a895f0..0a20bd5 100644
---- a/podman/pkg/api/server/handler_api.go
-+++ b/podman/pkg/api/server/handler_api.go
+diff --git a/pkg/api/server/handler_api.go b/pkg/api/server/handler_api.go
+index 9a895f0814..0a20bd5f11 100644
+--- a/pkg/api/server/handler_api.go
++++ b/pkg/api/server/handler_api.go
 @@ -8,7 +8,7 @@ import (
  	"fmt"
  	"net"
@@ -222,10 +222,10 @@ index 9a895f0..0a20bd5 100644
  
  	if s.CorsHeaders != "" {
  		w.Header().Set("Access-Control-Allow-Origin", s.CorsHeaders)
-diff --git a/podman/pkg/machine/compression/generic.go b/podman/pkg/machine/compression/generic.go
-index 0b70ff9..e712faa 100644
---- a/podman/pkg/machine/compression/generic.go
-+++ b/podman/pkg/machine/compression/generic.go
+diff --git a/pkg/machine/compression/generic.go b/pkg/machine/compression/generic.go
+index 0b70ff92e9..e712faac56 100644
+--- a/pkg/machine/compression/generic.go
++++ b/pkg/machine/compression/generic.go
 @@ -4,7 +4,7 @@ import (
  	"io"
  	"io/fs"
@@ -245,5 +245,5 @@ index 0b70ff9..e712faa 100644
  	} else {
  		_, err = io.Copy(w, decompressedFileReader)
 -- 
-2.47.2
+2.49.0
 

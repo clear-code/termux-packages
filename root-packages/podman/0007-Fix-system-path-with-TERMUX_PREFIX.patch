@@ -1,30 +1,30 @@
-From dd1f22308361fd71c76d6449f4c4aaedae026ea5 Mon Sep 17 00:00:00 2001
+From 972ad72c4e146d8a58b4b55bbe6796d4baba5724 Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Thu, 27 Feb 2025 18:02:29 +0900
 Subject: [PATCH 7/7] Fix system path with @TERMUX_PREFIX@
 
 Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
 ---
- podman/cmd/podman-mac-helper/main.go          |   6 +-
- podman/cmd/podman/kube/play.go                |   2 +-
- podman/libpod/container_internal_linux.go     |   2 +-
- podman/libpod/runtime_ctr.go                  |  14 +-
- .../pkg/api/handlers/libpod/swagger_spec.go   |   2 +-
- podman/pkg/env/env.go                         |   2 +-
- podman/pkg/machine/apple/apple.go             |   2 +-
- podman/pkg/machine/hyperv/stubber.go          |   4 +-
- podman/pkg/machine/ignition/ignition.go       |  38 ++--
- podman/pkg/machine/ignition/ready.go          |   6 +-
- podman/pkg/machine/proxyenv/env.go            |  12 +-
- .../pkg/machine/qemu/options_linux_arm64.go   |   4 +-
- podman/pkg/machine/shim/networking.go         |   6 +-
- .../pkg/specgen/generate/container_create.go  |   8 +-
- podman/pkg/specgen/generate/storage.go        |   2 +-
- podman/pkg/systemd/generate/containers.go     |   2 +-
- podman/pkg/systemd/generate/pods.go           |   2 +-
- podman/pkg/systemd/quadlet/podmancmdline.go   |   2 +-
- podman/pkg/systemd/quadlet/quadlet.go         |   6 +-
- podman/pkg/util/utils.go                      |   2 +-
+ cmd/podman-mac-helper/main.go                 |   6 +-
+ cmd/podman/kube/play.go                       |   2 +-
+ libpod/container_internal_linux.go            |   2 +-
+ libpod/runtime_ctr.go                         |  14 +-
+ pkg/api/handlers/libpod/swagger_spec.go       |   2 +-
+ pkg/env/env.go                                |   2 +-
+ pkg/machine/apple/apple.go                    |   2 +-
+ pkg/machine/hyperv/stubber.go                 |   4 +-
+ pkg/machine/ignition/ignition.go              |  38 ++--
+ pkg/machine/ignition/ready.go                 |   6 +-
+ pkg/machine/proxyenv/env.go                   |  12 +-
+ pkg/machine/qemu/options_linux_arm64.go       |   4 +-
+ pkg/machine/shim/networking.go                |   6 +-
+ pkg/specgen/generate/container_create.go      |   8 +-
+ pkg/specgen/generate/storage.go               |   2 +-
+ pkg/systemd/generate/containers.go            |   2 +-
+ pkg/systemd/generate/pods.go                  |   2 +-
+ pkg/systemd/quadlet/podmancmdline.go          |   2 +-
+ pkg/systemd/quadlet/quadlet.go                |   6 +-
+ pkg/util/utils.go                             |   2 +-
  .../containernetworking/cni/libcni/api.go     |   2 +-
  .../buildah/define/mount_unsupported.go       |   2 +-
  .../buildah/internal/mkcw/attest.go           |  12 +-
@@ -61,7 +61,7 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  .../docker/docker/pkg/idtools/idtools.go      |   4 +-
  .../docker/go-plugins-helpers/volume/api.go   |   2 +-
  .../mimetype/internal/magic/text.go           |  52 +++---
- .../github.com/godbus/dbus/v5/conn_unix.go    |   2 +-
+ vendor/github.com/godbus/dbus/v5/conn_unix.go |   2 +-
  .../kevinburke/ssh_config/validators.go       |   2 +-
  .../github.com/moby/sys/user/lookup_unix.go   |   4 +-
  .../runtime-tools/generate/generate.go        |   2 +-
@@ -74,10 +74,10 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  .../pkg/cdi/spec-dirs.go                      |   4 +-
  67 files changed, 300 insertions(+), 300 deletions(-)
 
-diff --git a/podman/cmd/podman-mac-helper/main.go b/podman/cmd/podman-mac-helper/main.go
-index cb77393..2d21606 100644
---- a/podman/cmd/podman-mac-helper/main.go
-+++ b/podman/cmd/podman-mac-helper/main.go
+diff --git a/cmd/podman-mac-helper/main.go b/cmd/podman-mac-helper/main.go
+index cb77393f3b..2d216062f2 100644
+--- a/cmd/podman-mac-helper/main.go
++++ b/cmd/podman-mac-helper/main.go
 @@ -16,8 +16,8 @@ import (
  )
  
@@ -98,10 +98,10 @@ index cb77393..2d21606 100644
  	output, err := cmd.StdoutPipe()
  	if err != nil {
  		return "", "", "", err
-diff --git a/podman/cmd/podman/kube/play.go b/podman/cmd/podman/kube/play.go
-index 3766934..1943830 100644
---- a/podman/cmd/podman/kube/play.go
-+++ b/podman/cmd/podman/kube/play.go
+diff --git a/cmd/podman/kube/play.go b/cmd/podman/kube/play.go
+index 37669348be..19438304ab 100644
+--- a/cmd/podman/kube/play.go
++++ b/cmd/podman/kube/play.go
 @@ -44,7 +44,7 @@ type playKubeOptionsWrapper struct {
  
  var (
@@ -111,10 +111,10 @@ index 3766934..1943830 100644
  	playOptions        = playKubeOptionsWrapper{}
  	playDescription    = `Reads in a structured file of Kubernetes YAML.
  
-diff --git a/podman/libpod/container_internal_linux.go b/podman/libpod/container_internal_linux.go
-index c1be78d..09ec29c 100644
---- a/podman/libpod/container_internal_linux.go
-+++ b/podman/libpod/container_internal_linux.go
+diff --git a/libpod/container_internal_linux.go b/libpod/container_internal_linux.go
+index c1be78d31d..09ec29c79e 100644
+--- a/libpod/container_internal_linux.go
++++ b/libpod/container_internal_linux.go
 @@ -252,7 +252,7 @@ func (c *Container) setupSystemd(mounts []spec.Mount, g generate.Generator) erro
  		}
  		g.AddMount(tmpfsMnt)
@@ -124,10 +124,10 @@ index c1be78d..09ec29c 100644
  		if MountExists(mounts, dest) {
  			continue
  		}
-diff --git a/podman/libpod/runtime_ctr.go b/podman/libpod/runtime_ctr.go
-index 87d8484..1779de2 100644
---- a/podman/libpod/runtime_ctr.go
-+++ b/podman/libpod/runtime_ctr.go
+diff --git a/libpod/runtime_ctr.go b/libpod/runtime_ctr.go
+index 87d8484783..1779de2a2e 100644
+--- a/libpod/runtime_ctr.go
++++ b/libpod/runtime_ctr.go
 @@ -428,13 +428,13 @@ func (r *Runtime) setupContainer(ctx context.Context, ctr *Container) (_ *Contai
  		g := generate.NewFromSpec(ctr.config.Spec)
  		g.RemoveMount("/dev/shm")
@@ -149,10 +149,10 @@ index 87d8484..1779de2 100644
  
  		// Regenerate Cgroup paths so they don't point to the old
  		// container ID.
-diff --git a/podman/pkg/api/handlers/libpod/swagger_spec.go b/podman/pkg/api/handlers/libpod/swagger_spec.go
-index bcfb407..edaedb4 100644
---- a/podman/pkg/api/handlers/libpod/swagger_spec.go
-+++ b/podman/pkg/api/handlers/libpod/swagger_spec.go
+diff --git a/pkg/api/handlers/libpod/swagger_spec.go b/pkg/api/handlers/libpod/swagger_spec.go
+index bcfb407e38..edaedb4af0 100644
+--- a/pkg/api/handlers/libpod/swagger_spec.go
++++ b/pkg/api/handlers/libpod/swagger_spec.go
 @@ -13,7 +13,7 @@ import (
  )
  
@@ -162,10 +162,10 @@ index bcfb407..edaedb4 100644
  
  func ServeSwagger(w http.ResponseWriter, r *http.Request) {
  	path := DefaultPodmanSwaggerSpec
-diff --git a/podman/pkg/env/env.go b/podman/pkg/env/env.go
-index 31ec789..f601629 100644
---- a/podman/pkg/env/env.go
-+++ b/podman/pkg/env/env.go
+diff --git a/pkg/env/env.go b/pkg/env/env.go
+index 31ec789593..f601629fec 100644
+--- a/pkg/env/env.go
++++ b/pkg/env/env.go
 @@ -16,7 +16,7 @@ const whiteSpaces = " \t"
  // DefaultEnvVariables returns a default environment, with $PATH and $TERM set.
  func DefaultEnvVariables() map[string]string {
@@ -175,10 +175,10 @@ index 31ec789..f601629 100644
  		"container": "podman",
  	}
  }
-diff --git a/podman/pkg/machine/apple/apple.go b/podman/pkg/machine/apple/apple.go
-index 4f720b8..4384e9e 100644
---- a/podman/pkg/machine/apple/apple.go
-+++ b/podman/pkg/machine/apple/apple.go
+diff --git a/pkg/machine/apple/apple.go b/pkg/machine/apple/apple.go
+index 4f720b80af..4384e9e83c 100644
+--- a/pkg/machine/apple/apple.go
++++ b/pkg/machine/apple/apple.go
 @@ -306,7 +306,7 @@ func StartGenericAppleVM(mc *vmconfigs.MachineConfig, cmdBinary string, bootload
  			return nil, nil, err
  		}
@@ -188,10 +188,10 @@ index 4f720b8..4384e9e 100644
  	}
  
  	if err := cmd.Start(); err != nil {
-diff --git a/podman/pkg/machine/hyperv/stubber.go b/podman/pkg/machine/hyperv/stubber.go
-index ed538d0..be46ed8 100644
---- a/podman/pkg/machine/hyperv/stubber.go
-+++ b/podman/pkg/machine/hyperv/stubber.go
+diff --git a/pkg/machine/hyperv/stubber.go b/pkg/machine/hyperv/stubber.go
+index ed538d006b..be46ed8b50 100644
+--- a/pkg/machine/hyperv/stubber.go
++++ b/pkg/machine/hyperv/stubber.go
 @@ -547,8 +547,8 @@ func createNetworkUnit(netPort uint64) (string, error) {
  	netUnit := parser.NewUnitFile()
  	netUnit.Add("Unit", "Description", "vsock_network")
@@ -203,10 +203,10 @@ index ed538d0..be46ed8 100644
  	netUnit.Add("Install", "WantedBy", "multi-user.target")
  	return netUnit.ToString()
  }
-diff --git a/podman/pkg/machine/ignition/ignition.go b/podman/pkg/machine/ignition/ignition.go
-index 3995ef7..4fbb236 100644
---- a/podman/pkg/machine/ignition/ignition.go
-+++ b/podman/pkg/machine/ignition/ignition.go
+diff --git a/pkg/machine/ignition/ignition.go b/pkg/machine/ignition/ignition.go
+index 3995ef714c..4fbb236d16 100644
+--- a/pkg/machine/ignition/ignition.go
++++ b/pkg/machine/ignition/ignition.go
 @@ -168,7 +168,7 @@ func (ign *DynamicIgnition) GenerateIgnitionConfig() error {
  				// We always want this value in unix form (/path/to/something) because this is being
  				// set in the machine OS (always Linux).  However, filepath.join on windows will use a "\\"
@@ -321,10 +321,10 @@ index 3995ef7..4fbb236 100644
  	recoveryUnit.Add("Service", "StandardOutput", "journal")
  	recoveryUnit.Add("Service", "StandardError", "journal")
  	recoveryUnit.Add("Service", "StandardInput", "null")
-diff --git a/podman/pkg/machine/ignition/ready.go b/podman/pkg/machine/ignition/ready.go
-index 8ee5156..e8eda40 100644
---- a/podman/pkg/machine/ignition/ready.go
-+++ b/podman/pkg/machine/ignition/ready.go
+diff --git a/pkg/machine/ignition/ready.go b/pkg/machine/ignition/ready.go
+index 8ee5156a07..e8eda4007d 100644
+--- a/pkg/machine/ignition/ready.go
++++ b/pkg/machine/ignition/ready.go
 @@ -22,10 +22,10 @@ func CreateReadyUnitFile(provider define.VMType, opts *ReadyUnitOpts) (string, e
  	case define.QemuVirt:
  		readyUnit.Add("Unit", "Requires", "dev-virtio\\x2dports-vport1p1.device")
@@ -347,10 +347,10 @@ index 8ee5156..e8eda40 100644
  	case define.WSLVirt: // WSL does not use ignition
  		return "", nil
  	default:
-diff --git a/podman/pkg/machine/proxyenv/env.go b/podman/pkg/machine/proxyenv/env.go
-index 8fd68ea..b858ee0 100644
---- a/podman/pkg/machine/proxyenv/env.go
-+++ b/podman/pkg/machine/proxyenv/env.go
+diff --git a/pkg/machine/proxyenv/env.go b/pkg/machine/proxyenv/env.go
+index 8fd68ea872..b858ee0b1e 100644
+--- a/pkg/machine/proxyenv/env.go
++++ b/pkg/machine/proxyenv/env.go
 @@ -13,13 +13,13 @@ import (
  	"github.com/sirupsen/logrus"
  )
@@ -378,10 +378,10 @@ index 8fd68ea..b858ee0 100644
 +	return machine.CommonSSHWithStdin("root", mc.SSH.IdentityPath, mc.Name, mc.SSH.Port, []string{"@TERMUX_PREFIX@/usr/bin/bash"},
  		getProxyScript(mc.WSLHypervisor != nil))
  }
-diff --git a/podman/pkg/machine/qemu/options_linux_arm64.go b/podman/pkg/machine/qemu/options_linux_arm64.go
-index 09be86a..aa459ad 100644
---- a/podman/pkg/machine/qemu/options_linux_arm64.go
-+++ b/podman/pkg/machine/qemu/options_linux_arm64.go
+diff --git a/pkg/machine/qemu/options_linux_arm64.go b/pkg/machine/qemu/options_linux_arm64.go
+index 09be86a62d..aa459ad1a7 100644
+--- a/pkg/machine/qemu/options_linux_arm64.go
++++ b/pkg/machine/qemu/options_linux_arm64.go
 @@ -24,8 +24,8 @@ func (q *QEMUStubber) addArchOptions(_ *setNewMachineCMDOpts) []string {
  
  func getQemuUefiFile(name string) string {
@@ -393,10 +393,10 @@ index 09be86a..aa459ad 100644
  	}
  	for _, dir := range dirs {
  		if err := fileutils.Exists(dir); err == nil {
-diff --git a/podman/pkg/machine/shim/networking.go b/podman/pkg/machine/shim/networking.go
-index d7ebd8e..cbfab80 100644
---- a/podman/pkg/machine/shim/networking.go
-+++ b/podman/pkg/machine/shim/networking.go
+diff --git a/pkg/machine/shim/networking.go b/pkg/machine/shim/networking.go
+index d7ebd8e7d7..cbfab801ab 100644
+--- a/pkg/machine/shim/networking.go
++++ b/pkg/machine/shim/networking.go
 @@ -20,8 +20,8 @@ import (
  )
  
@@ -417,10 +417,10 @@ index d7ebd8e..cbfab80 100644
  		forwardUser = "root"
  	}
  
-diff --git a/podman/pkg/specgen/generate/container_create.go b/podman/pkg/specgen/generate/container_create.go
-index ca77218..140d950 100644
---- a/podman/pkg/specgen/generate/container_create.go
-+++ b/podman/pkg/specgen/generate/container_create.go
+diff --git a/pkg/specgen/generate/container_create.go b/pkg/specgen/generate/container_create.go
+index ca77218945..140d950f72 100644
+--- a/pkg/specgen/generate/container_create.go
++++ b/pkg/specgen/generate/container_create.go
 @@ -402,16 +402,16 @@ func createContainerOptions(rt *libpod.Runtime, s *specgen.SpecGenerator, pod *l
  
  		if len(command) > 0 {
@@ -442,10 +442,10 @@ index ca77218..140d950 100644
  					cmd = command[2:]
  				}
  			}
-diff --git a/podman/pkg/specgen/generate/storage.go b/podman/pkg/specgen/generate/storage.go
-index a79a6cf..c5630f3 100644
---- a/podman/pkg/specgen/generate/storage.go
-+++ b/podman/pkg/specgen/generate/storage.go
+diff --git a/pkg/specgen/generate/storage.go b/pkg/specgen/generate/storage.go
+index a79a6cf6b2..c5630f3127 100644
+--- a/pkg/specgen/generate/storage.go
++++ b/pkg/specgen/generate/storage.go
 @@ -463,7 +463,7 @@ func InitFSMounts(mounts []spec.Mount) error {
  }
  
@@ -455,10 +455,10 @@ index a79a6cf..c5630f3 100644
  	options := []string{"rw", "rprivate", "nosuid", "nodev", "tmpcopyup"}
  	for _, dest := range readonlyTmpfs {
  		if _, ok := mounts[dest]; ok {
-diff --git a/podman/pkg/systemd/generate/containers.go b/podman/pkg/systemd/generate/containers.go
-index ade2824..badbd56 100644
---- a/podman/pkg/systemd/generate/containers.go
-+++ b/podman/pkg/systemd/generate/containers.go
+diff --git a/pkg/systemd/generate/containers.go b/pkg/systemd/generate/containers.go
+index ade2824304..badbd564ad 100644
+--- a/pkg/systemd/generate/containers.go
++++ b/pkg/systemd/generate/containers.go
 @@ -300,7 +300,7 @@ func executeContainerTemplate(info *containerInfo, options entities.GenerateSyst
  	if info.Executable == "" {
  		executable, err := os.Executable()
@@ -468,10 +468,10 @@ index ade2824..badbd56 100644
  			logrus.Warnf("Could not obtain podman executable location, using default %s", executable)
  		}
  		info.Executable = executable
-diff --git a/podman/pkg/systemd/generate/pods.go b/podman/pkg/systemd/generate/pods.go
-index 3c97973..63aeaf0 100644
---- a/podman/pkg/systemd/generate/pods.go
-+++ b/podman/pkg/systemd/generate/pods.go
+diff --git a/pkg/systemd/generate/pods.go b/pkg/systemd/generate/pods.go
+index 3c97973295..63aeaf04b5 100644
+--- a/pkg/systemd/generate/pods.go
++++ b/pkg/systemd/generate/pods.go
 @@ -285,7 +285,7 @@ func executePodTemplate(info *podInfo, options entities.GenerateSystemdOptions)
  	if info.Executable == "" {
  		executable, err := os.Executable()
@@ -481,10 +481,10 @@ index 3c97973..63aeaf0 100644
  			logrus.Warnf("Could not obtain podman executable location, using default %s: %v", executable, err)
  		}
  		info.Executable = executable
-diff --git a/podman/pkg/systemd/quadlet/podmancmdline.go b/podman/pkg/systemd/quadlet/podmancmdline.go
-index 0983923..a6ee119 100644
---- a/podman/pkg/systemd/quadlet/podmancmdline.go
-+++ b/podman/pkg/systemd/quadlet/podmancmdline.go
+diff --git a/pkg/systemd/quadlet/podmancmdline.go b/pkg/systemd/quadlet/podmancmdline.go
+index 0983923d01..a6ee11936b 100644
+--- a/pkg/systemd/quadlet/podmancmdline.go
++++ b/pkg/systemd/quadlet/podmancmdline.go
 @@ -9,7 +9,7 @@ import (
  
  // Overwritten at build time
@@ -494,10 +494,10 @@ index 0983923..a6ee119 100644
  )
  
  func podmanBinary() string {
-diff --git a/podman/pkg/systemd/quadlet/quadlet.go b/podman/pkg/systemd/quadlet/quadlet.go
-index 1c01679..89db21b 100644
---- a/podman/pkg/systemd/quadlet/quadlet.go
-+++ b/podman/pkg/systemd/quadlet/quadlet.go
+diff --git a/pkg/systemd/quadlet/quadlet.go b/pkg/systemd/quadlet/quadlet.go
+index 1c01679270..89db21bd1e 100644
+--- a/pkg/systemd/quadlet/quadlet.go
++++ b/pkg/systemd/quadlet/quadlet.go
 @@ -21,11 +21,11 @@ const (
  	// but it is causing bloat
  	autoUpdateLabel = "io.containers.autoupdate"
@@ -513,10 +513,10 @@ index 1c01679..89db21b 100644
  
  	// Names of commonly used systemd/quadlet group names
  	ContainerGroup  = "Container"
-diff --git a/podman/pkg/util/utils.go b/podman/pkg/util/utils.go
-index 00c2d19..609a6e1 100644
---- a/podman/pkg/util/utils.go
-+++ b/podman/pkg/util/utils.go
+diff --git a/pkg/util/utils.go b/pkg/util/utils.go
+index 00c2d19073..609a6e168f 100644
+--- a/pkg/util/utils.go
++++ b/pkg/util/utils.go
 @@ -1167,7 +1167,7 @@ func ExitCode(err error) int {
  func Tmpdir() string {
  	tmpdir := os.Getenv("TMPDIR")
@@ -526,10 +526,10 @@ index 00c2d19..609a6e1 100644
  	}
  
  	return tmpdir
-diff --git a/podman/vendor/github.com/containernetworking/cni/libcni/api.go b/podman/vendor/github.com/containernetworking/cni/libcni/api.go
-index 201a12e..0c8e65c 100644
---- a/podman/vendor/github.com/containernetworking/cni/libcni/api.go
-+++ b/podman/vendor/github.com/containernetworking/cni/libcni/api.go
+diff --git a/vendor/github.com/containernetworking/cni/libcni/api.go b/vendor/github.com/containernetworking/cni/libcni/api.go
+index 201a12e977..0c8e65cd0e 100644
+--- a/vendor/github.com/containernetworking/cni/libcni/api.go
++++ b/vendor/github.com/containernetworking/cni/libcni/api.go
 @@ -38,7 +38,7 @@ import (
  )
  
@@ -539,10 +539,10 @@ index 201a12e..0c8e65c 100644
  	// slightly awkward wording to preserve anyone matching on error strings
  	ErrorCheckNotSupp = fmt.Errorf("does not support the CHECK command")
  )
-diff --git a/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go b/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go
-index 3feab28..36f1cf6 100644
---- a/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go
-+++ b/podman/vendor/github.com/containers/buildah/define/mount_unsupported.go
+diff --git a/vendor/github.com/containers/buildah/define/mount_unsupported.go b/vendor/github.com/containers/buildah/define/mount_unsupported.go
+index 3feab28c35..36f1cf69b9 100644
+--- a/vendor/github.com/containers/buildah/define/mount_unsupported.go
++++ b/vendor/github.com/containers/buildah/define/mount_unsupported.go
 @@ -7,7 +7,7 @@ const (
  	TypeBind = "bind"
  
@@ -552,10 +552,10 @@ index 3feab28..36f1cf6 100644
  )
  
  // Mount potions for bind
-diff --git a/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go b/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go
-index 400884a..c3612e4 100644
---- a/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go
-+++ b/podman/vendor/github.com/containers/buildah/internal/mkcw/attest.go
+diff --git a/vendor/github.com/containers/buildah/internal/mkcw/attest.go b/vendor/github.com/containers/buildah/internal/mkcw/attest.go
+index 400884a996..c3612e4213 100644
+--- a/vendor/github.com/containers/buildah/internal/mkcw/attest.go
++++ b/vendor/github.com/containers/buildah/internal/mkcw/attest.go
 @@ -185,12 +185,12 @@ func GenerateMeasurement(workloadConfig WorkloadConfig, firmwareLibrary string)
  	}
  
@@ -575,10 +575,10 @@ index 400884a..c3612e4 100644
  	}
  	if llp, ok := os.LookupEnv("LD_LIBRARY_PATH"); ok {
  		sharedLibraryDirs = append(sharedLibraryDirs, strings.Split(llp, ":")...)
-diff --git a/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go b/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
-index ff966b2..da03469 100644
---- a/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
-+++ b/podman/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
+diff --git a/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go b/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
+index ff966b20f3..da034697c0 100644
+--- a/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
++++ b/vendor/github.com/containers/buildah/internal/tmpdir/tmpdir.go
 @@ -22,5 +22,5 @@ func GetTempDir() string {
  			return tmpdir
  		}
@@ -586,10 +586,10 @@ index ff966b2..da03469 100644
 -	return "/var/tmp"
 +	return "@TERMUX_PREFIX@/var/tmp"
  }
-diff --git a/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go b/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
-index e6f0ac6..080e382 100644
---- a/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
-+++ b/podman/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
+diff --git a/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go b/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
+index e6f0ac62fc..080e3825cd 100644
+--- a/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
++++ b/vendor/github.com/containers/buildah/pkg/binfmt/binfmt.go
 @@ -33,7 +33,7 @@ func MaybeRegister(configurationSearchDirectories []string) error {
  // in the current mount namespace first, ignoring only EPERM and EACCES errors.
  func Register(configurationSearchDirectories []string) error {
@@ -599,10 +599,10 @@ index e6f0ac6..080e382 100644
  	}
  	mounted := false
  	for _, searchDir := range configurationSearchDirectories {
-diff --git a/podman/vendor/github.com/containers/buildah/run_common.go b/podman/vendor/github.com/containers/buildah/run_common.go
-index 80569e3..dbec443 100644
---- a/podman/vendor/github.com/containers/buildah/run_common.go
-+++ b/podman/vendor/github.com/containers/buildah/run_common.go
+diff --git a/vendor/github.com/containers/buildah/run_common.go b/vendor/github.com/containers/buildah/run_common.go
+index 80569e3299..dbec443f13 100644
+--- a/vendor/github.com/containers/buildah/run_common.go
++++ b/vendor/github.com/containers/buildah/run_common.go
 @@ -238,7 +238,7 @@ func runLookupPath(g *generate.Generator, command []string) []string {
  	}
  	// If there is no configured $PATH, supply one.
@@ -612,10 +612,10 @@ index 80569e3..dbec443 100644
  		envPath = "PATH=" + defaultPath
  		g.AddProcessEnv("PATH", defaultPath)
  	}
-diff --git a/podman/vendor/github.com/containers/buildah/run_linux.go b/podman/vendor/github.com/containers/buildah/run_linux.go
-index 5d040cb..3408fbd 100644
---- a/podman/vendor/github.com/containers/buildah/run_linux.go
-+++ b/podman/vendor/github.com/containers/buildah/run_linux.go
+diff --git a/vendor/github.com/containers/buildah/run_linux.go b/vendor/github.com/containers/buildah/run_linux.go
+index 5d040cbb99..3408fbdf52 100644
+--- a/vendor/github.com/containers/buildah/run_linux.go
++++ b/vendor/github.com/containers/buildah/run_linux.go
 @@ -241,7 +241,7 @@ func (b *Builder) Run(command []string, options RunOptions) error {
  	}
  
@@ -625,10 +625,10 @@ index 5d040cb..3408fbd 100644
  
  	if b.CommonBuildOpts == nil {
  		return fmt.Errorf("invalid format on container you must recreate the container")
-diff --git a/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go b/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
-index 9ccf4ef..e6254e8 100644
---- a/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
-+++ b/podman/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
+diff --git a/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go b/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
+index 9ccf4eff4f..e6254e8a7c 100644
+--- a/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
++++ b/vendor/github.com/containers/common/libnetwork/cni/cni_exec.go
 @@ -86,8 +86,8 @@ func (e *cniExec) ExecPlugin(ctx context.Context, pluginPath string, stdinData [
  	// We might break existing users and we cannot expect everyone to change their $PATH so
  	// let's add /usr/sbin to $PATH ourselves.
@@ -640,10 +640,10 @@ index 9ccf4ef..e6254e8 100644
  		c.Env = append(c.Env, "PATH="+path)
  	}
  
-diff --git a/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go b/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
-index 2655587..8542c5c 100644
---- a/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
-+++ b/podman/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
+diff --git a/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go b/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
+index 2655587654..8542c5c325 100644
+--- a/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
++++ b/vendor/github.com/containers/common/libnetwork/internal/rootlessnetns/netns_linux.go
 @@ -42,7 +42,7 @@ const (
  	rootlessNetNsConnPidFile = "rootless-netns-conn.pid"
  
@@ -653,10 +653,10 @@ index 2655587..8542c5c 100644
  
  	tmpfs          = "tmpfs"
  	none           = "none"
-diff --git a/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go b/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go
-index 2a52a47..158fb9e 100644
---- a/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go
-+++ b/podman/vendor/github.com/containers/common/libnetwork/netavark/exec.go
+diff --git a/vendor/github.com/containers/common/libnetwork/netavark/exec.go b/vendor/github.com/containers/common/libnetwork/netavark/exec.go
+index 2a52a4702b..158fb9ec54 100644
+--- a/vendor/github.com/containers/common/libnetwork/netavark/exec.go
++++ b/vendor/github.com/containers/common/libnetwork/netavark/exec.go
 @@ -84,8 +84,8 @@ func (n *netavarkNetwork) execNetavark(args []string, needPlugin bool, stdin, re
  	// We might break existing users and we cannot expect everyone to change their $PATH so
  	// let's add /usr/sbin to $PATH ourselves.
@@ -668,10 +668,10 @@ index 2a52a47..158fb9e 100644
  		env = append(env, "PATH="+path)
  	}
  	// if we run with debug log level lets also set RUST_BACKTRACE=1 so we can get the full stack trace in case of panics
-diff --git a/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go b/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
-index 4870752..4ab2aca 100644
---- a/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
-+++ b/podman/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
+diff --git a/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go b/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
+index 48707521f6..4ab2aca2bd 100644
+--- a/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
++++ b/vendor/github.com/containers/common/pkg/apparmor/apparmor_linux_template.go
 @@ -22,9 +22,9 @@ profile {{.Name}} flags=(attach_disconnected,mediate_deleted) {
    signal (receive) peer=unconfined,
    signal (send,receive) peer={{.Name}},
@@ -685,10 +685,10 @@ index 4870752..4ab2aca 100644
  {{end}}
  
    deny @{PROC}/* w,   # deny write for all files directly in /proc (not in a subdir)
-diff --git a/podman/vendor/github.com/containers/common/pkg/chown/chown.go b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
-index 5cb0089..84e0899 100644
---- a/podman/vendor/github.com/containers/common/pkg/chown/chown.go
-+++ b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
+diff --git a/vendor/github.com/containers/common/pkg/chown/chown.go b/vendor/github.com/containers/common/pkg/chown/chown.go
+index 5cb008938d..84e0899b37 100644
+--- a/vendor/github.com/containers/common/pkg/chown/chown.go
++++ b/vendor/github.com/containers/common/pkg/chown/chown.go
 @@ -12,29 +12,29 @@ import (
  func DangerousHostPath(path string) (bool, error) {
  	excludePaths := map[string]bool{
@@ -737,10 +737,10 @@ index 5cb0089..84e0899 100644
  	}
  
  	if home := "@TERMUX_HOME@"; home != "" {
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/config_linux.go b/podman/vendor/github.com/containers/common/pkg/config/config_linux.go
-index 66d1934..c0e80fe 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/config_linux.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/config_linux.go
+diff --git a/vendor/github.com/containers/common/pkg/config/config_linux.go b/vendor/github.com/containers/common/pkg/config/config_linux.go
+index 66d193467a..c0e80fe22a 100644
+--- a/vendor/github.com/containers/common/pkg/config/config_linux.go
++++ b/vendor/github.com/containers/common/pkg/config/config_linux.go
 @@ -6,14 +6,14 @@ import (
  
  const (
@@ -772,10 +772,10 @@ index 66d1934..c0e80fe 100644
 +	"@TERMUX_PREFIX@/libexec/podman",
 +	"@TERMUX_PREFIX@/lib/podman",
  }
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/config_local.go b/podman/vendor/github.com/containers/common/pkg/config/config_local.go
-index 3b8979c..083e6b6 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/config_local.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/config_local.go
+diff --git a/vendor/github.com/containers/common/pkg/config/config_local.go b/vendor/github.com/containers/common/pkg/config/config_local.go
+index 3b8979ce2d..083e6b610f 100644
+--- a/vendor/github.com/containers/common/pkg/config/config_local.go
++++ b/vendor/github.com/containers/common/pkg/config/config_local.go
 @@ -71,8 +71,8 @@ func (c *ContainersConfig) validateTZ() error {
  	}
  
@@ -787,10 +787,10 @@ index 3b8979c..083e6b6 100644
  	}
  
  	// Allow using TZDIR to override the lookupPaths. Ref:
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/default.go b/podman/vendor/github.com/containers/common/pkg/config/default.go
-index e40eb40..8a787f3 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/default.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/default.go
+diff --git a/vendor/github.com/containers/common/pkg/config/default.go b/vendor/github.com/containers/common/pkg/config/default.go
+index e40eb407fb..8a787f31ae 100644
+--- a/vendor/github.com/containers/common/pkg/config/default.go
++++ b/vendor/github.com/containers/common/pkg/config/default.go
 @@ -23,7 +23,7 @@ import (
  
  const (
@@ -1030,20 +1030,20 @@ index e40eb40..8a787f3 100644
  	})
  	c.PullPolicy = DefaultPullPolicy
  	c.RuntimeSupportsJSON.Set([]string{
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/default_common.go b/podman/vendor/github.com/containers/common/pkg/config/default_common.go
-index ea5ded3..3505ccc 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/default_common.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/default_common.go
+diff --git a/vendor/github.com/containers/common/pkg/config/default_common.go b/vendor/github.com/containers/common/pkg/config/default_common.go
+index ea5ded363b..3505ccc922 100644
+--- a/vendor/github.com/containers/common/pkg/config/default_common.go
++++ b/vendor/github.com/containers/common/pkg/config/default_common.go
 @@ -3,4 +3,4 @@
  package config
  
  // DefaultInitPath is the default path to the container-init binary.
 -var DefaultInitPath = "/usr/libexec/podman/catatonit"
 +var DefaultInitPath = "@TERMUX_PREFIX@/usr/libexec/podman/catatonit"
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/default_linux.go b/podman/vendor/github.com/containers/common/pkg/config/default_linux.go
-index 928ae9f..673ac42 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/default_linux.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/default_linux.go
+diff --git a/vendor/github.com/containers/common/pkg/config/default_linux.go b/vendor/github.com/containers/common/pkg/config/default_linux.go
+index 928ae9fa27..673ac42b07 100644
+--- a/vendor/github.com/containers/common/pkg/config/default_linux.go
++++ b/vendor/github.com/containers/common/pkg/config/default_linux.go
 @@ -14,7 +14,7 @@ func getDefaultTmpDir() string {
  	if path, found := os.LookupEnv("TMPDIR"); found {
  		return path
@@ -1062,10 +1062,10 @@ index 928ae9f..673ac42 100644
  }
  
  // getDefaultMachineVolumes returns default mounted volumes (possibly with env vars, which will be expanded)
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go b/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go
-index 46653e3..64e9149 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/default_unsupported.go
+diff --git a/vendor/github.com/containers/common/pkg/config/default_unsupported.go b/vendor/github.com/containers/common/pkg/config/default_unsupported.go
+index 46653e3996..64e9149107 100644
+--- a/vendor/github.com/containers/common/pkg/config/default_unsupported.go
++++ b/vendor/github.com/containers/common/pkg/config/default_unsupported.go
 @@ -20,5 +20,5 @@ func getDefaultTmpDir() string {
  	if path, found := os.LookupEnv("TMPDIR"); found {
  		return path
@@ -1073,10 +1073,10 @@ index 46653e3..64e9149 100644
 -	return "/var/tmp"
 +	return "@TERMUX_PREFIX@/var/tmp"
  }
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/modules.go b/podman/vendor/github.com/containers/common/pkg/config/modules.go
-index 26c04e2..90f981b 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/modules.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/modules.go
+diff --git a/vendor/github.com/containers/common/pkg/config/modules.go b/vendor/github.com/containers/common/pkg/config/modules.go
+index 26c04e242b..90f981bee7 100644
+--- a/vendor/github.com/containers/common/pkg/config/modules.go
++++ b/vendor/github.com/containers/common/pkg/config/modules.go
 @@ -16,8 +16,8 @@ const moduleSubdir = "containers/containers.conf.modules"
  // Moving the base paths into variables allows for overriding them in units
  // tests.
@@ -1088,10 +1088,10 @@ index 26c04e2..90f981b 100644
  )
  
  // LoadedModules returns absolute paths to loaded containers.conf modules.
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/systemd.go b/podman/vendor/github.com/containers/common/pkg/config/systemd.go
-index 5063746..82dcdce 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/systemd.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/systemd.go
+diff --git a/vendor/github.com/containers/common/pkg/config/systemd.go b/vendor/github.com/containers/common/pkg/config/systemd.go
+index 5063746190..82dcdcedc1 100644
+--- a/vendor/github.com/containers/common/pkg/config/systemd.go
++++ b/vendor/github.com/containers/common/pkg/config/systemd.go
 @@ -66,7 +66,7 @@ func useJournald() bool {
  		if !useSystemd() {
  			return
@@ -1101,10 +1101,10 @@ index 5063746..82dcdce 100644
  			dirs, err := os.ReadDir(root)
  			if err != nil {
  				continue
-diff --git a/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go b/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go
-index 0b4ad05..2cce43e 100644
---- a/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go
-+++ b/podman/vendor/github.com/containers/common/pkg/hooks/hooks.go
+diff --git a/vendor/github.com/containers/common/pkg/hooks/hooks.go b/vendor/github.com/containers/common/pkg/hooks/hooks.go
+index 0b4ad052ba..2cce43eea8 100644
+--- a/vendor/github.com/containers/common/pkg/hooks/hooks.go
++++ b/vendor/github.com/containers/common/pkg/hooks/hooks.go
 @@ -20,10 +20,10 @@ const Version = current.Version
  
  const (
@@ -1118,10 +1118,10 @@ index 0b4ad05..2cce43e 100644
  )
  
  // Manager provides an opaque interface for managing CRI-O hooks.
-diff --git a/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go b/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
-index 2c78cf1..e623676 100644
---- a/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
-+++ b/podman/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
+diff --git a/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go b/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
+index 2c78cf1e65..e623676634 100644
+--- a/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
++++ b/vendor/github.com/containers/common/pkg/subscriptions/subscriptions.go
 @@ -20,10 +20,10 @@ import (
  var (
  	// DefaultMountsFile holds the default mount paths in the form
@@ -1157,10 +1157,10 @@ index 2c78cf1..e623676 100644
  	srcPolicyConfigOnHost, err := securejoin.SecureJoin(mountPoint, srcPolicyConfig)
  	if err != nil {
  		return fmt.Errorf("Could not expand %q in container: %w", srcPolicyConfig, err)
-diff --git a/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go b/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go
-index b82dc30..9d2276c 100644
---- a/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go
-+++ b/podman/vendor/github.com/containers/common/pkg/timezone/timezone.go
+diff --git a/vendor/github.com/containers/common/pkg/timezone/timezone.go b/vendor/github.com/containers/common/pkg/timezone/timezone.go
+index b82dc309d0..9d2276c7db 100644
+--- a/vendor/github.com/containers/common/pkg/timezone/timezone.go
++++ b/vendor/github.com/containers/common/pkg/timezone/timezone.go
 @@ -34,7 +34,7 @@ func ConfigureContainerTimeZone(timezone, containerRunDir, mountPoint, etcPath,
  		zoneinfo := os.Getenv("TZDIR")
  		if zoneinfo == "" {
@@ -1170,10 +1170,10 @@ index b82dc30..9d2276c 100644
  		}
  		timezonePath = filepath.Join(zoneinfo, timezone)
  	}
-diff --git a/podman/vendor/github.com/containers/common/pkg/version/version.go b/podman/vendor/github.com/containers/common/pkg/version/version.go
-index a7b160b..49f031a 100644
---- a/podman/vendor/github.com/containers/common/pkg/version/version.go
-+++ b/podman/vendor/github.com/containers/common/pkg/version/version.go
+diff --git a/vendor/github.com/containers/common/pkg/version/version.go b/vendor/github.com/containers/common/pkg/version/version.go
+index a7b160bf92..49f031a4e8 100644
+--- a/vendor/github.com/containers/common/pkg/version/version.go
++++ b/vendor/github.com/containers/common/pkg/version/version.go
 @@ -26,7 +26,7 @@ func queryPackageVersion(cmdArg ...string) string {
  		if outp, err := cmd.Output(); err == nil {
  			output = string(outp)
@@ -1231,10 +1231,10 @@ index a7b160b..49f031a 100644
  	}
  
  	lastformat := ""
-diff --git a/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go b/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go
-index 5caaca7..ada0bb5 100644
---- a/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go
-+++ b/podman/vendor/github.com/containers/conmon/runner/config/config_unix.go
+diff --git a/vendor/github.com/containers/conmon/runner/config/config_unix.go b/vendor/github.com/containers/conmon/runner/config/config_unix.go
+index 5caaca7ccd..ada0bb5cc1 100644
+--- a/vendor/github.com/containers/conmon/runner/config/config_unix.go
++++ b/vendor/github.com/containers/conmon/runner/config/config_unix.go
 @@ -3,5 +3,5 @@
  package config
  
@@ -1242,10 +1242,10 @@ index 5caaca7..ada0bb5 100644
 -	ContainerAttachSocketDir = "/var/run/crio"
 +	ContainerAttachSocketDir = "@TERMUX_PREFIX@/var/run/crio"
  )
-diff --git a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
-index e001d6b..68c14e6 100644
---- a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
-+++ b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
+diff --git a/vendor/github.com/containers/image/v5/docker/registries_d.go b/vendor/github.com/containers/image/v5/docker/registries_d.go
+index e001d6bb29..68c14e65a5 100644
+--- a/vendor/github.com/containers/image/v5/docker/registries_d.go
++++ b/vendor/github.com/containers/image/v5/docker/registries_d.go
 @@ -36,7 +36,7 @@ var userRegistriesDir = filepath.FromSlash(".config/containers/registries.d")
  var defaultUserDockerDir = filepath.FromSlash(".local/share/containers/sigstore")
  
@@ -1255,10 +1255,10 @@ index e001d6b..68c14e6 100644
  
  // registryConfiguration is one of the files in registriesDirPath configuring lookaside locations, or the result of merging them all.
  // NOTE: Keep this in sync with docs/registries.d.md!
-diff --git a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
-index 69193a9..9c1cf13 100644
---- a/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
-+++ b/podman/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+diff --git a/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go b/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
+index 69193a9a2a..9c1cf131d4 100644
+--- a/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
++++ b/vendor/github.com/containers/image/v5/internal/tmpdir/tmpdir.go
 @@ -15,7 +15,7 @@ var unixTempDirForBigFiles = builtinUnixTempDirForBigFiles
  // builtinUnixTempDirForBigFiles is the directory path to store big files.
  // Do not use the system default of os.TempDir(), usually /tmp, because with systemd it could be a tmpfs.
@@ -1268,10 +1268,10 @@ index 69193a9..9c1cf13 100644
  
  const prefix = "container_images_"
  
-diff --git a/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go b/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
-index b413ec5..b5d311e 100644
---- a/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
-+++ b/podman/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
+diff --git a/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go b/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
+index b413ec5131..b5d311ec3d 100644
+--- a/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
++++ b/vendor/github.com/containers/image/v5/pkg/blobinfocache/default.go
 @@ -17,7 +17,7 @@ const (
  	// If the format changes in an incompatible way, increase the version number.
  	blobInfoCacheFilename = "blob-info-cache-v1.sqlite"
@@ -1281,10 +1281,10 @@ index b413ec5..b5d311e 100644
  )
  
  // blobInfoCacheDir returns a path to a blob info cache appropriate for sys and euid.
-diff --git a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
-index 20e5216..08593e9 100644
---- a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
-+++ b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+diff --git a/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go b/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+index 20e521681f..08593e9b79 100644
+--- a/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
++++ b/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
 @@ -34,7 +34,7 @@ func shortNameAliasesConfPath(ctx *types.SystemContext) (string, error) {
  
  	if rootless.GetRootlessEUID() == 0 {
@@ -1294,10 +1294,10 @@ index 20e5216..08593e9 100644
  	}
  
  	// Rootless user
-diff --git a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
-index 072d7fe..1f5b75a 100644
---- a/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
-+++ b/podman/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
+diff --git a/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go b/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
+index 072d7fe184..1f5b75aa51 100644
+--- a/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
++++ b/vendor/github.com/containers/ocicrypt/crypto/pkcs11/common.go
 @@ -96,16 +96,16 @@ type Pkcs11Config struct {
  // a variety of Linux distros
  func GetDefaultModuleDirectories() []string {
@@ -1320,10 +1320,10 @@ index 072d7fe..1f5b75a 100644
  		dirs = append(dirs, dir)
  	}
  	return dirs
-diff --git a/podman/vendor/github.com/containers/storage/pkg/system/path.go b/podman/vendor/github.com/containers/storage/pkg/system/path.go
-index 37014bb..88743b1 100644
---- a/podman/vendor/github.com/containers/storage/pkg/system/path.go
-+++ b/podman/vendor/github.com/containers/storage/pkg/system/path.go
+diff --git a/vendor/github.com/containers/storage/pkg/system/path.go b/vendor/github.com/containers/storage/pkg/system/path.go
+index 37014bb00c..88743b11ac 100644
+--- a/vendor/github.com/containers/storage/pkg/system/path.go
++++ b/vendor/github.com/containers/storage/pkg/system/path.go
 @@ -2,7 +2,7 @@ package system
  
  // import "runtime"
@@ -1333,10 +1333,10 @@ index 37014bb..88743b1 100644
  
  // DefaultPathEnv is unix style list of directories to search for
  // executables. Each directory is separated from the next by a colon
-diff --git a/podman/vendor/github.com/containers/storage/types/options_linux.go b/podman/vendor/github.com/containers/storage/types/options_linux.go
-index 09cbae5..e4c6c3d 100644
---- a/podman/vendor/github.com/containers/storage/types/options_linux.go
-+++ b/podman/vendor/github.com/containers/storage/types/options_linux.go
+diff --git a/vendor/github.com/containers/storage/types/options_linux.go b/vendor/github.com/containers/storage/types/options_linux.go
+index 09cbae54b6..e4c6c3dff9 100644
+--- a/vendor/github.com/containers/storage/types/options_linux.go
++++ b/vendor/github.com/containers/storage/types/options_linux.go
 @@ -11,14 +11,14 @@ import (
  const (
  	// these are default path for run and graph root for rootful users
@@ -1356,10 +1356,10 @@ index 09cbae5..e4c6c3d 100644
  )
  
  // canUseRootlessOverlay returns true if the overlay driver can be used for rootless containers
-diff --git a/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go b/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
-index 1b71079..8ca911b 100644
---- a/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
-+++ b/podman/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
+diff --git a/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go b/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
+index 1b71079974..8ca911b806 100644
+--- a/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
++++ b/vendor/github.com/digitalocean/go-libvirt/socket/dialers/local.go
 @@ -7,7 +7,7 @@ import (
  
  const (
@@ -1369,10 +1369,10 @@ index 1b71079..8ca911b 100644
  
  	// defaultLocalTimeout specifies the default libvirt dial timeout.
  	defaultLocalTimeout = 15 * time.Second
-diff --git a/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go b/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go
-index 79d682c..8d18be7 100644
---- a/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go
-+++ b/podman/vendor/github.com/docker/docker/pkg/idtools/idtools.go
+diff --git a/vendor/github.com/docker/docker/pkg/idtools/idtools.go b/vendor/github.com/docker/docker/pkg/idtools/idtools.go
+index 79d682c694..8d18be731d 100644
+--- a/vendor/github.com/docker/docker/pkg/idtools/idtools.go
++++ b/vendor/github.com/docker/docker/pkg/idtools/idtools.go
 @@ -29,8 +29,8 @@ func (e ranges) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
  func (e ranges) Less(i, j int) bool { return e[i].Start < e[j].Start }
  
@@ -1384,10 +1384,10 @@ index 79d682c..8d18be7 100644
  )
  
  // MkdirAllAndChown creates a directory (include any along the path) and then modifies
-diff --git a/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go b/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
-index 387e82a..f7ccc97 100644
---- a/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
-+++ b/podman/vendor/github.com/docker/go-plugins-helpers/volume/api.go
+diff --git a/vendor/github.com/docker/go-plugins-helpers/volume/api.go b/vendor/github.com/docker/go-plugins-helpers/volume/api.go
+index 387e82ac55..f7ccc9730f 100644
+--- a/vendor/github.com/docker/go-plugins-helpers/volume/api.go
++++ b/vendor/github.com/docker/go-plugins-helpers/volume/api.go
 @@ -8,7 +8,7 @@ import (
  
  const (
@@ -1397,10 +1397,10 @@ index 387e82a..f7ccc97 100644
  
  	manifest         = `{"Implements": ["VolumeDriver"]}`
  	createPath       = "/VolumeDriver.Create"
-diff --git a/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go b/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
-index e2a03ca..7ea7b21 100644
---- a/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
-+++ b/podman/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
+diff --git a/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go b/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
+index e2a03caf50..7ea7b215d5 100644
+--- a/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
++++ b/vendor/github.com/gabriel-vasile/mimetype/internal/magic/text.go
 @@ -78,47 +78,47 @@ var (
  		[]byte("<? "),
  	)
@@ -1475,10 +1475,10 @@ index e2a03ca..7ea7b21 100644
  	)
  	// Rtf matches a Rich Text Format file.
  	Rtf = prefix([]byte("{\\rtf1"))
-diff --git a/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go b/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go
-index 1a0daa6..65c7bbc 100644
---- a/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go
-+++ b/podman/vendor/github.com/godbus/dbus/v5/conn_unix.go
+diff --git a/vendor/github.com/godbus/dbus/v5/conn_unix.go b/vendor/github.com/godbus/dbus/v5/conn_unix.go
+index 1a0daa6566..65c7bbc5b3 100644
+--- a/vendor/github.com/godbus/dbus/v5/conn_unix.go
++++ b/vendor/github.com/godbus/dbus/v5/conn_unix.go
 @@ -7,7 +7,7 @@ import (
  	"os"
  )
@@ -1488,10 +1488,10 @@ index 1a0daa6..65c7bbc 100644
  
  func getSystemBusPlatformAddress() string {
  	address := os.Getenv("DBUS_SYSTEM_BUS_ADDRESS")
-diff --git a/podman/vendor/github.com/kevinburke/ssh_config/validators.go b/podman/vendor/github.com/kevinburke/ssh_config/validators.go
-index 5977f90..4dc15fd 100644
---- a/podman/vendor/github.com/kevinburke/ssh_config/validators.go
-+++ b/podman/vendor/github.com/kevinburke/ssh_config/validators.go
+diff --git a/vendor/github.com/kevinburke/ssh_config/validators.go b/vendor/github.com/kevinburke/ssh_config/validators.go
+index 5977f90960..4dc15fd264 100644
+--- a/vendor/github.com/kevinburke/ssh_config/validators.go
++++ b/vendor/github.com/kevinburke/ssh_config/validators.go
 @@ -158,7 +158,7 @@ var defaults = map[string]string{
  	strings.ToLower("UserKnownHostsFile"): "~/.ssh/known_hosts ~/.ssh/known_hosts2",
  	strings.ToLower("VerifyHostKeyDNS"):   "no",
@@ -1501,10 +1501,10 @@ index 5977f90..4dc15fd 100644
  }
  
  // these identities are used for SSH protocol 2
-diff --git a/podman/vendor/github.com/moby/sys/user/lookup_unix.go b/podman/vendor/github.com/moby/sys/user/lookup_unix.go
-index f95c140..9bcf17a 100644
---- a/podman/vendor/github.com/moby/sys/user/lookup_unix.go
-+++ b/podman/vendor/github.com/moby/sys/user/lookup_unix.go
+diff --git a/vendor/github.com/moby/sys/user/lookup_unix.go b/vendor/github.com/moby/sys/user/lookup_unix.go
+index f95c1409fc..9bcf17a43a 100644
+--- a/vendor/github.com/moby/sys/user/lookup_unix.go
++++ b/vendor/github.com/moby/sys/user/lookup_unix.go
 @@ -141,11 +141,11 @@ func currentUserSubIDs(fileName string) ([]SubID, error) {
  }
  
@@ -1519,10 +1519,10 @@ index f95c140..9bcf17a 100644
  }
  
  func CurrentProcessUIDMap() ([]IDMap, error) {
-diff --git a/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go b/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
-index 3e8f9ca..25fae1b 100644
---- a/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
-+++ b/podman/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
+diff --git a/vendor/github.com/opencontainers/runtime-tools/generate/generate.go b/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
+index 3e8f9ca647..25fae1b0f0 100644
+--- a/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
++++ b/vendor/github.com/opencontainers/runtime-tools/generate/generate.go
 @@ -75,7 +75,7 @@ func New(os string) (generator Generator, err error) {
  	if os == "linux" || os == "solaris" || os == "freebsd" {
  		config.Process.User = rspec.User{}
@@ -1532,10 +1532,10 @@ index 3e8f9ca..25fae1b 100644
  			"TERM=xterm",
  		}
  		config.Process.Cwd = "/"
-diff --git a/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go b/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
-index c80c109..5b7a890 100644
---- a/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
-+++ b/podman/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
+diff --git a/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go b/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
+index c80c10971b..5b7a8901fe 100644
+--- a/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
++++ b/vendor/github.com/opencontainers/selinux/go-selinux/selinux_linux.go
 @@ -23,8 +23,8 @@ import (
  
  const (
@@ -1596,10 +1596,10 @@ index c80c109..5b7a890 100644
  	}
  
  	if home := os.Getenv("HOME"); home != "" {
-diff --git a/podman/vendor/github.com/openshift/imagebuilder/constants.go b/podman/vendor/github.com/openshift/imagebuilder/constants.go
-index 7b41e5a..1f7e803 100644
---- a/podman/vendor/github.com/openshift/imagebuilder/constants.go
-+++ b/podman/vendor/github.com/openshift/imagebuilder/constants.go
+diff --git a/vendor/github.com/openshift/imagebuilder/constants.go b/vendor/github.com/openshift/imagebuilder/constants.go
+index 7b41e5a491..1f7e80380a 100644
+--- a/vendor/github.com/openshift/imagebuilder/constants.go
++++ b/vendor/github.com/openshift/imagebuilder/constants.go
 @@ -5,5 +5,5 @@ const (
  	NoBaseImageSpecifier = "scratch"
  
@@ -1607,10 +1607,10 @@ index 7b41e5a..1f7e803 100644
 -	defaultPathEnv = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 +	defaultPathEnv = "@TERMUX_PREFIX@/usr/local/sbin:@TERMUX_PREFIX@/usr/local/bin:@TERMUX_PREFIX@/usr/sbin:@TERMUX_PREFIX@/usr/bin:@TERMUX_PREFIX@/sbin:@TERMUX_PREFIX@/bin"
  )
-diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
-index 19b1e9d..ad8aba0 100644
---- a/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
-+++ b/podman/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
+diff --git a/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go b/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
+index 19b1e9dd3e..ad8aba0166 100644
+--- a/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
++++ b/vendor/github.com/shirou/gopsutil/v4/cpu/cpu_dragonfly.go
 @@ -92,7 +92,7 @@ func Info() ([]InfoStat, error) {
  }
  
@@ -1620,10 +1620,10 @@ index 19b1e9d..ad8aba0 100644
  
  	c, err := parseDmesgBoot(dmesgBoot)
  	if err != nil {
-diff --git a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
-index 277034f..c64ef8c 100644
---- a/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
-+++ b/podman/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
+diff --git a/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go b/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
+index 277034f372..c64ef8cd3c 100644
+--- a/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
++++ b/vendor/github.com/shirou/gopsutil/v4/internal/common/common_linux.go
 @@ -282,7 +282,7 @@ func VirtualizationWithContext(ctx context.Context) (string, string, error) {
  			} else if StringsContains(contents, "machine-rkt") {
  				system = "rkt"
@@ -1633,10 +1633,10 @@ index 277034f..c64ef8c 100644
  				system = "lxc"
  				role = "host"
  			}
-diff --git a/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go b/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
-index 2fee79d..30413cf 100644
---- a/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
-+++ b/podman/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
+diff --git a/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go b/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
+index 2fee79d38a..30413cfef0 100644
+--- a/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
++++ b/vendor/github.com/twitchyliquid64/golang-asm/dwarf/dwarf.go
 @@ -1627,7 +1627,7 @@ func IsDWARFEnabledOnAIXLd(extld string) (bool, error) {
  	// gcc -Wl,-V output should be:
  	//   /usr/bin/ld: LD X.X.X(date)
@@ -1646,10 +1646,10 @@ index 2fee79d..30413cf 100644
  	vers := string(bytes.Split(out, []byte("("))[0])
  	subvers := strings.Split(vers, ".")
  	if len(subvers) != 3 {
-diff --git a/podman/vendor/github.com/vishvananda/netns/netns_linux.go b/podman/vendor/github.com/vishvananda/netns/netns_linux.go
-index 2ed7c7e..ed3e871 100644
---- a/podman/vendor/github.com/vishvananda/netns/netns_linux.go
-+++ b/podman/vendor/github.com/vishvananda/netns/netns_linux.go
+diff --git a/vendor/github.com/vishvananda/netns/netns_linux.go b/vendor/github.com/vishvananda/netns/netns_linux.go
+index 2ed7c7e2fa..ed3e871867 100644
+--- a/vendor/github.com/vishvananda/netns/netns_linux.go
++++ b/vendor/github.com/vishvananda/netns/netns_linux.go
 @@ -165,7 +165,7 @@ func findCgroupMountpoint(cgroupType string) (int, string, error) {
  // borrowed from docker/utils/utils.go
  // modified to get the docker pid instead of using /proc/self
@@ -1659,10 +1659,10 @@ index 2ed7c7e..ed3e871 100644
  	if err != nil {
  		return "", err
  	}
-diff --git a/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go b/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
-index 09005d6..4a37e9b 100644
---- a/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
-+++ b/podman/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
+diff --git a/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go b/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
+index 09005d690c..4a37e9b5ae 100644
+--- a/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
++++ b/vendor/tags.cncf.io/container-device-interface/pkg/cdi/spec-dirs.go
 @@ -25,9 +25,9 @@ import (
  
  const (
@@ -1676,5 +1676,5 @@ index 09005d6..4a37e9b 100644
  
  var (
 -- 
-2.47.2
+2.49.0
 

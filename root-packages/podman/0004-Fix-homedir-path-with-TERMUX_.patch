@@ -1,4 +1,4 @@
-From 64ecd8e3eabfeed9cdef5bff2d96ba93ba174db4 Mon Sep 17 00:00:00 2001
+From 3b1087b0e4c1c0117083d2abafcba892091992f5 Mon Sep 17 00:00:00 2001
 From: Kentaro Hayashi <hayashi@clear-code.com>
 Date: Thu, 27 Feb 2025 11:00:22 +0900
 Subject: [PATCH 4/7] Fix homedir path with @TERMUX_...@
@@ -12,11 +12,11 @@ T.B.D. should we use @TERMUX_CACHE_DIR@ for homedir.GetCacheHome()?
 
 Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
 ---
- podman/pkg/machine/env/dir.go                      | 14 +++-----------
- podman/pkg/machine/ocipull/policy_unix.go          |  6 ++----
- podman/pkg/trust/policy.go                         |  4 ++--
- podman/pkg/trust/registries.go                     |  4 ++--
- podman/pkg/util/utils_supported.go                 |  2 +-
+ pkg/machine/env/dir.go                             | 14 +++-----------
+ pkg/machine/ocipull/policy_unix.go                 |  6 ++----
+ pkg/trust/policy.go                                |  4 ++--
+ pkg/trust/registries.go                            |  4 ++--
+ pkg/util/utils_supported.go                        |  2 +-
  .../common/libnetwork/network/interface_cni.go     |  9 ++-------
  .../github.com/containers/common/pkg/auth/auth.go  |  4 ++--
  .../containers/common/pkg/chown/chown.go           |  4 ++--
@@ -33,13 +33,13 @@ Signed-off-by: Kentaro Hayashi <hayashi@clear-code.com>
  .../containers/image/v5/signature/policy_config.go |  4 ++--
  .../github.com/containers/storage/types/options.go |  5 +----
  .../github.com/containers/storage/types/utils.go   |  4 ++--
- .../github.com/fsouza/go-dockerclient/client.go    |  4 ++--
+ vendor/github.com/fsouza/go-dockerclient/client.go |  4 ++--
  22 files changed, 49 insertions(+), 79 deletions(-)
 
-diff --git a/podman/pkg/machine/env/dir.go b/podman/pkg/machine/env/dir.go
-index 18dda22..483901e 100644
---- a/podman/pkg/machine/env/dir.go
-+++ b/podman/pkg/machine/env/dir.go
+diff --git a/pkg/machine/env/dir.go b/pkg/machine/env/dir.go
+index 18dda22998..483901e743 100644
+--- a/pkg/machine/env/dir.go
++++ b/pkg/machine/env/dir.go
 @@ -8,7 +8,7 @@ import (
  
  	"github.com/containers/podman/v5/pkg/machine/define"
@@ -75,10 +75,10 @@ index 18dda22..483901e 100644
  	return confDir, nil
  }
  
-diff --git a/podman/pkg/machine/ocipull/policy_unix.go b/podman/pkg/machine/ocipull/policy_unix.go
-index 2fd0443..14c5d89 100644
---- a/podman/pkg/machine/ocipull/policy_unix.go
-+++ b/podman/pkg/machine/ocipull/policy_unix.go
+diff --git a/pkg/machine/ocipull/policy_unix.go b/pkg/machine/ocipull/policy_unix.go
+index 2fd0443583..14c5d89e30 100644
+--- a/pkg/machine/ocipull/policy_unix.go
++++ b/pkg/machine/ocipull/policy_unix.go
 @@ -6,14 +6,12 @@ import (
  	"path/filepath"
  
@@ -96,10 +96,10 @@ index 2fd0443..14c5d89 100644
  	dirs = append(dirs, config.DefaultSignaturePolicyPath)
  	return dirs
  }
-diff --git a/podman/pkg/trust/policy.go b/podman/pkg/trust/policy.go
-index 42532e6..99beb00 100644
---- a/podman/pkg/trust/policy.go
-+++ b/podman/pkg/trust/policy.go
+diff --git a/pkg/trust/policy.go b/pkg/trust/policy.go
+index 42532e6132..99beb00d86 100644
+--- a/pkg/trust/policy.go
++++ b/pkg/trust/policy.go
 @@ -16,7 +16,7 @@ import (
  	"github.com/containers/common/pkg/config"
  	"github.com/containers/image/v5/types"
@@ -118,10 +118,10 @@ index 42532e6..99beb00 100644
  	err := fileutils.Exists(userPolicyFilePath)
  	if err == nil {
  		return userPolicyFilePath
-diff --git a/podman/pkg/trust/registries.go b/podman/pkg/trust/registries.go
-index d4516f7..6383712 100644
---- a/podman/pkg/trust/registries.go
-+++ b/podman/pkg/trust/registries.go
+diff --git a/pkg/trust/registries.go b/pkg/trust/registries.go
+index d4516f7fcf..6383712f51 100644
+--- a/pkg/trust/registries.go
++++ b/pkg/trust/registries.go
 @@ -8,7 +8,7 @@ import (
  
  	"github.com/containers/image/v5/types"
@@ -140,10 +140,10 @@ index d4516f7..6383712 100644
  	if err := fileutils.Exists(userRegistriesDirPath); err == nil {
  		return userRegistriesDirPath
  	}
-diff --git a/podman/pkg/util/utils_supported.go b/podman/pkg/util/utils_supported.go
-index 28c52f2..79f634b 100644
---- a/podman/pkg/util/utils_supported.go
-+++ b/podman/pkg/util/utils_supported.go
+diff --git a/pkg/util/utils_supported.go b/pkg/util/utils_supported.go
+index 28c52f2936..79f634b9e6 100644
+--- a/pkg/util/utils_supported.go
++++ b/pkg/util/utils_supported.go
 @@ -22,7 +22,7 @@ func GetRootlessRuntimeDir() (string, error) {
  
  // GetRootlessConfigHomeDir returns the config home directory when running as non root
@@ -153,10 +153,10 @@ index 28c52f2..79f634b 100644
  }
  
  // GetRootlessPauseProcessPidPath returns the path to the file that holds the pid for
-diff --git a/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go b/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
-index 3de3a30..d3d6b06 100644
---- a/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
-+++ b/podman/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
+diff --git a/vendor/github.com/containers/common/libnetwork/network/interface_cni.go b/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
+index 3de3a3045e..d3d6b06334 100644
+--- a/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
++++ b/vendor/github.com/containers/common/libnetwork/network/interface_cni.go
 @@ -13,7 +13,7 @@ import (
  	"github.com/containers/common/pkg/config"
  	"github.com/containers/common/pkg/machine"
@@ -180,10 +180,10 @@ index 3de3a30..d3d6b06 100644
  }
  
  func networkBackendFromStore(store storage.Store, conf *config.Config) (backend types.NetworkBackend, err error) {
-diff --git a/podman/vendor/github.com/containers/common/pkg/auth/auth.go b/podman/vendor/github.com/containers/common/pkg/auth/auth.go
-index a3d333a..86bb75d 100644
---- a/podman/vendor/github.com/containers/common/pkg/auth/auth.go
-+++ b/podman/vendor/github.com/containers/common/pkg/auth/auth.go
+diff --git a/vendor/github.com/containers/common/pkg/auth/auth.go b/vendor/github.com/containers/common/pkg/auth/auth.go
+index a3d333a99a..86bb75d271 100644
+--- a/vendor/github.com/containers/common/pkg/auth/auth.go
++++ b/vendor/github.com/containers/common/pkg/auth/auth.go
 @@ -17,7 +17,7 @@ import (
  	"github.com/containers/image/v5/pkg/sysregistriesv2"
  	"github.com/containers/image/v5/types"
@@ -202,10 +202,10 @@ index a3d333a..86bb75d 100644
  	switch {
  	case authFile != "" && dockerCompatAuthFile != "":
  		return nil, errors.New("options for paths to the credential file and to the Docker-compatible credential file can not be set simultaneously")
-diff --git a/podman/vendor/github.com/containers/common/pkg/chown/chown.go b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
-index fb7d67f..5cb0089 100644
---- a/podman/vendor/github.com/containers/common/pkg/chown/chown.go
-+++ b/podman/vendor/github.com/containers/common/pkg/chown/chown.go
+diff --git a/vendor/github.com/containers/common/pkg/chown/chown.go b/vendor/github.com/containers/common/pkg/chown/chown.go
+index fb7d67f33c..5cb008938d 100644
+--- a/vendor/github.com/containers/common/pkg/chown/chown.go
++++ b/vendor/github.com/containers/common/pkg/chown/chown.go
 @@ -5,7 +5,7 @@ import (
  	"os/user"
  	"path/filepath"
@@ -224,10 +224,10 @@ index fb7d67f..5cb0089 100644
  		excludePaths[home] = true
  	}
  
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/default.go b/podman/vendor/github.com/containers/common/pkg/config/default.go
-index 22620cf..e40eb40 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/default.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/default.go
+diff --git a/vendor/github.com/containers/common/pkg/config/default.go b/vendor/github.com/containers/common/pkg/config/default.go
+index 22620cf37d..e40eb407fb 100644
+--- a/vendor/github.com/containers/common/pkg/config/default.go
++++ b/vendor/github.com/containers/common/pkg/config/default.go
 @@ -200,11 +200,7 @@ func defaultConfig() (*Config, error) {
  	// NOTE: For now we want Windows to use system locations.
  	// GetRootlessUID == -1 on Windows, so exclude negative range
@@ -250,10 +250,10 @@ index 22620cf..e40eb40 100644
  	return filepath.Join(dirname, ".ssh", "config")
  }
  
-diff --git a/podman/vendor/github.com/containers/common/pkg/config/modules.go b/podman/vendor/github.com/containers/common/pkg/config/modules.go
-index 4f23694..26c04e2 100644
---- a/podman/vendor/github.com/containers/common/pkg/config/modules.go
-+++ b/podman/vendor/github.com/containers/common/pkg/config/modules.go
+diff --git a/vendor/github.com/containers/common/pkg/config/modules.go b/vendor/github.com/containers/common/pkg/config/modules.go
+index 4f23694b77..26c04e242b 100644
+--- a/vendor/github.com/containers/common/pkg/config/modules.go
++++ b/vendor/github.com/containers/common/pkg/config/modules.go
 @@ -5,7 +5,7 @@ import (
  	"path/filepath"
  
@@ -276,10 +276,10 @@ index 4f23694..26c04e2 100644
  }
  
  // Resolve the specified path to a module.
-diff --git a/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go b/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
-index 0439354..deaaa47 100644
---- a/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
-+++ b/podman/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
+diff --git a/vendor/github.com/containers/common/pkg/ssh/connection_golang.go b/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
+index 0439354c4a..deaaa47a2d 100644
+--- a/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
++++ b/vendor/github.com/containers/common/pkg/ssh/connection_golang.go
 @@ -23,7 +23,7 @@ import (
  	// https://github.com/containers/podman/issues/23575
  	"github.com/containers/common/pkg/config"
@@ -307,10 +307,10 @@ index 0439354..deaaa47 100644
  	known := filepath.Join(hd, ".ssh", "known_hosts")
  	f, err := os.OpenFile(known, os.O_APPEND|os.O_WRONLY, 0o600)
  	if err != nil {
-diff --git a/podman/vendor/github.com/containers/image/v5/docker/docker_client.go b/podman/vendor/github.com/containers/image/v5/docker/docker_client.go
-index 220afd0..d7a3f3f 100644
---- a/podman/vendor/github.com/containers/image/v5/docker/docker_client.go
-+++ b/podman/vendor/github.com/containers/image/v5/docker/docker_client.go
+diff --git a/vendor/github.com/containers/image/v5/docker/docker_client.go b/vendor/github.com/containers/image/v5/docker/docker_client.go
+index 220afd0091..d7a3f3f369 100644
+--- a/vendor/github.com/containers/image/v5/docker/docker_client.go
++++ b/vendor/github.com/containers/image/v5/docker/docker_client.go
 @@ -27,7 +27,7 @@ import (
  	"github.com/containers/image/v5/pkg/tlsclientconfig"
  	"github.com/containers/image/v5/types"
@@ -329,10 +329,10 @@ index 220afd0..d7a3f3f 100644
  		if sys != nil && sys.RootForImplicitAbsolutePaths != "" && perHostCertDir.absolute {
  			hostCertDir = filepath.Join(sys.RootForImplicitAbsolutePaths, perHostCertDir.path)
  		} else {
-diff --git a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
-index 89d48cc..e001d6b 100644
---- a/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
-+++ b/podman/vendor/github.com/containers/image/v5/docker/registries_d.go
+diff --git a/vendor/github.com/containers/image/v5/docker/registries_d.go b/vendor/github.com/containers/image/v5/docker/registries_d.go
+index 89d48cc4fe..e001d6bb29 100644
+--- a/vendor/github.com/containers/image/v5/docker/registries_d.go
++++ b/vendor/github.com/containers/image/v5/docker/registries_d.go
 @@ -14,7 +14,7 @@ import (
  	"github.com/containers/image/v5/internal/rootless"
  	"github.com/containers/image/v5/types"
@@ -360,10 +360,10 @@ index 89d48cc..e001d6b 100644
  	}
  	return &url.URL{Scheme: "file", Path: defaultDockerDir}
  }
-diff --git a/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go b/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
-index cef3dcc..ba9917e 100644
---- a/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
-+++ b/podman/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
+diff --git a/vendor/github.com/containers/image/v5/openshift/openshift-copies.go b/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
+index cef3dcccfb..ba9917ef27 100644
+--- a/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
++++ b/vendor/github.com/containers/image/v5/openshift/openshift-copies.go
 @@ -20,7 +20,7 @@ import (
  
  	"dario.cat/mergo"
@@ -382,10 +382,10 @@ index cef3dcc..ba9917e 100644
  
  // newOpenShiftClientConfigLoadingRules is a modified copy of openshift/origin/pkg/cmd/cli/config.NewOpenShiftClientConfigLoadingRules.
  // NewOpenShiftClientConfigLoadingRules returns file priority loading rules for OpenShift.
-diff --git a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
-index 1544ac3..a40a527 100644
---- a/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
-+++ b/podman/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+diff --git a/vendor/github.com/containers/image/v5/pkg/docker/config/config.go b/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
+index 1544ac3373..a40a527043 100644
+--- a/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
++++ b/vendor/github.com/containers/image/v5/pkg/docker/config/config.go
 @@ -18,7 +18,7 @@ import (
  	"github.com/containers/image/v5/pkg/sysregistriesv2"
  	"github.com/containers/image/v5/types"
@@ -440,10 +440,10 @@ index 1544ac3..a40a527 100644
  	}
  
  	runtimeDir := os.Getenv("XDG_RUNTIME_DIR")
-diff --git a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
-index 71f5bc8..20e5216 100644
---- a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
-+++ b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+diff --git a/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go b/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
+index 71f5bc8378..20e521681f 100644
+--- a/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
++++ b/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/shortnames.go
 @@ -13,7 +13,7 @@ import (
  	"github.com/containers/image/v5/internal/multierr"
  	"github.com/containers/image/v5/internal/rootless"
@@ -467,10 +467,10 @@ index 71f5bc8..20e5216 100644
  }
  
  // shortNameAliasConf is a subset of the `V2RegistriesConf` format.  It's used in the
-diff --git a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
-index 9ac0505..3217efd 100644
---- a/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
-+++ b/podman/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
+diff --git a/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go b/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
+index 9ac050512a..3217efd69b 100644
+--- a/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
++++ b/vendor/github.com/containers/image/v5/pkg/sysregistriesv2/system_registries_v2.go
 @@ -15,7 +15,7 @@ import (
  	"github.com/containers/image/v5/docker/reference"
  	"github.com/containers/image/v5/types"
@@ -489,10 +489,10 @@ index 9ac0505..3217efd 100644
  }
  
  // newConfigWrapperWithHomeDir is an internal implementation detail of newConfigWrapper,
-diff --git a/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go b/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
-index bd1979a..2c4de0c 100644
---- a/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
-+++ b/podman/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
+diff --git a/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go b/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
+index bd1979aefb..2c4de0c16e 100644
+--- a/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
++++ b/vendor/github.com/containers/image/v5/signature/mechanism_openpgp.go
 @@ -14,7 +14,7 @@ import (
  	"time"
  
@@ -511,10 +511,10 @@ index bd1979a..2c4de0c 100644
  		}
  	}
  
-diff --git a/podman/vendor/github.com/containers/image/v5/signature/policy_config.go b/podman/vendor/github.com/containers/image/v5/signature/policy_config.go
-index 8de705c..6d73c77 100644
---- a/podman/vendor/github.com/containers/image/v5/signature/policy_config.go
-+++ b/podman/vendor/github.com/containers/image/v5/signature/policy_config.go
+diff --git a/vendor/github.com/containers/image/v5/signature/policy_config.go b/vendor/github.com/containers/image/v5/signature/policy_config.go
+index 8de705c22f..6d73c772e2 100644
+--- a/vendor/github.com/containers/image/v5/signature/policy_config.go
++++ b/vendor/github.com/containers/image/v5/signature/policy_config.go
 @@ -25,7 +25,7 @@ import (
  	"github.com/containers/image/v5/transports"
  	"github.com/containers/image/v5/types"
@@ -533,10 +533,10 @@ index 8de705c..6d73c77 100644
  	if err != nil {
  		return "", err
  	}
-diff --git a/podman/vendor/github.com/containers/storage/types/options.go b/podman/vendor/github.com/containers/storage/types/options.go
-index efc08c4..9c32126 100644
---- a/podman/vendor/github.com/containers/storage/types/options.go
-+++ b/podman/vendor/github.com/containers/storage/types/options.go
+diff --git a/vendor/github.com/containers/storage/types/options.go b/vendor/github.com/containers/storage/types/options.go
+index efc08c4763..9c321260ce 100644
+--- a/vendor/github.com/containers/storage/types/options.go
++++ b/vendor/github.com/containers/storage/types/options.go
 @@ -290,10 +290,7 @@ func getRootlessStorageOpts(systemOpts StoreOptions) (StoreOptions, error) {
  
  	rootlessUID := unshare.GetRootlessUID()
@@ -549,10 +549,10 @@ index efc08c4..9c32126 100644
  
  	rootlessRuntime, err := homedir.GetRuntimeDir()
  	if err != nil {
-diff --git a/podman/vendor/github.com/containers/storage/types/utils.go b/podman/vendor/github.com/containers/storage/types/utils.go
-index 73fcd24..44791b5 100644
---- a/podman/vendor/github.com/containers/storage/types/utils.go
-+++ b/podman/vendor/github.com/containers/storage/types/utils.go
+diff --git a/vendor/github.com/containers/storage/types/utils.go b/vendor/github.com/containers/storage/types/utils.go
+index 73fcd2405e..44791b53c8 100644
+--- a/vendor/github.com/containers/storage/types/utils.go
++++ b/vendor/github.com/containers/storage/types/utils.go
 @@ -8,7 +8,7 @@ import (
  	"strings"
  
@@ -571,10 +571,10 @@ index 73fcd24..44791b5 100644
  	if home == "" {
  		return "", errors.New("cannot determine user's homedir")
  	}
-diff --git a/podman/vendor/github.com/fsouza/go-dockerclient/client.go b/podman/vendor/github.com/fsouza/go-dockerclient/client.go
-index e1a4200..48bf400 100644
---- a/podman/vendor/github.com/fsouza/go-dockerclient/client.go
-+++ b/podman/vendor/github.com/fsouza/go-dockerclient/client.go
+diff --git a/vendor/github.com/fsouza/go-dockerclient/client.go b/vendor/github.com/fsouza/go-dockerclient/client.go
+index e1a4200177..48bf400044 100644
+--- a/vendor/github.com/fsouza/go-dockerclient/client.go
++++ b/vendor/github.com/fsouza/go-dockerclient/client.go
 @@ -30,7 +30,7 @@ import (
  	"sync/atomic"
  	"time"
@@ -594,5 +594,5 @@ index e1a4200..48bf400 100644
  				return nil, errors.New("environment variable HOME must be set if DOCKER_CERT_PATH is not set")
  			}
 -- 
-2.47.2
+2.49.0
 
