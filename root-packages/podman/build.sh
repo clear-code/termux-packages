@@ -6,7 +6,7 @@ TERMUX_PKG_VERSION=5.4.0
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=(https://github.com/containers/podman/archive/v${TERMUX_PKG_VERSION}.tar.gz)
 TERMUX_PKG_BUILD_DEPENDS="libseccomp, libsubid"
-TERMUX_PKG_DEPENDS="libseccomp, gpgme, libsubid, conmon, passt, crun"
+TERMUX_PKG_DEPENDS="libseccomp, libsubid, conmon, passt, crun"
 TERMUX_PKG_SHA256=(e5efb825558624d0539dac94847c39aafec68e6d4dd712435ff4ec1b17044b69)
 #TERMUX_PKG_CONFFILES="etc/docker/daemon.json"
 TERMUX_PKG_BUILD_IN_SRC=true
@@ -34,7 +34,7 @@ termux_step_make() {
 	set -e
 
 	# Build podman with verbose logging
-	BUILDTAGS="seccomp selinux libsubid cni exclude_graphdriver_devicemapper exclude_graphdriver_btrfs"
+	BUILDTAGS="seccomp selinux libsubid cni exclude_graphdriver_devicemapper exclude_graphdriver_btrfs containers_image_openpgp"
 	EXTRA_LDFLAGS="-X github.com/containers/image/v5/signature.systemDefaultPolicyPath=$TERMUX_PREFIX/etc/containers/policy.json"
 	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -X github.com/containers/image/v5/sysregistries.systemRegistriesConfPath=$TERMUX_PREFIX/etc/containers/registries.conf"
 	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -X github.com/containers/image/v5/sysregistries.systemRegistriesConfDirectoryPath=$TERMUX_PREFIX/etc/containers/"
