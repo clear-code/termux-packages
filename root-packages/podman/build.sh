@@ -39,14 +39,26 @@ termux_step_make() {
 	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -X github.com/containers/image/v5/sysregistries.systemRegistriesConfPath=$TERMUX_PREFIX/etc/containers/registries.conf"
 	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -X github.com/containers/image/v5/sysregistries.systemRegistriesConfDirectoryPath=$TERMUX_PREFIX/etc/containers/"
 
-	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=arm64 EXTRA_LDFLAGS="$EXTRA_LDFLAGS" make podman
+	TARGET_ARCH=arm64
+	TARGET_REMOTE=podman-remote-static-linux_arm64
+	case $TERMUX_ARCH in
+		x86_64)
+			TARGET_ARCH=$TERMUX_ARCH
+			TARGET_REMOTE=podman-remote-static-linux_amd64
+			;;
+		aarch64|arm)
+			TARGET_ARCH=arm64
+			TARGET_REMOTE=podman-remote-static-linux_arm64
+			;;
+	esac
+	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=$TARGET_ARCH EXTRA_LDFLAGS="$EXTRA_LDFLAGS" make podman
 	# Build podman-remote
-	BUILDFLAGS="-x -work" make podman-remote-static-linux_arm64
+	BUILDFLAGS="-x -work" make $TARGET_REMOTE
 	# Build podman-testing
-	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=arm64 make podman-testing
+	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=$TARGET_ARCH make podman-testing
 	# Build utilities
-	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=arm64 make rootlessport
-	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=arm64 make quadlet
+	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=$TARGET_ARCH make rootlessport
+	BUILDFLAGS="-x -work" BUILDTAGS="$BUILDTAGS" GOARCH=$TARGET_ARCH make quadlet
 	)
 	echo " Done!"
 }
@@ -55,7 +67,14 @@ termux_step_make_install() {
 	install -Dm 700 bin/podman ${TERMUX_PREFIX}/bin/podman
 	# podmansh is just alias of podman
 	install -Dm 700 bin/podman ${TERMUX_PREFIX}/bin/podmansh
-	install -Dm 700 bin/podman-remote-static-linux_arm64 ${TERMUX_PREFIX}/bin/podman-remote
+	case $TERMUX_ARCH in
+		x86_64)
+			install -Dm 700 bin/podman-remote-static-linux_amd64 ${TERMUX_PREFIX}/bin/podman-remote
+			;;
+		aarch64|arm)
+			install -Dm 700 bin/podman-remote-static-linux_arm64 ${TERMUX_PREFIX}/bin/podman-remote
+			;;
+	esac
 	install -Dm 700 bin/podman-testing ${TERMUX_PREFIX}/libexec/podman/podman-testing
 	install -Dm 700 bin/rootlessport ${TERMUX_PREFIX}/libexec/podman/rootlessport
 	install -Dm 700 bin/quadlet ${TERMUX_PREFIX}/libexec/podman/quadlet
