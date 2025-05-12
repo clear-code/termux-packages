@@ -43,7 +43,7 @@ termux_step_make() {
 	TARGET_REMOTE=podman-remote-static-linux_arm64
 	case $TERMUX_ARCH in
 		x86_64)
-			TARGET_ARCH=$TERMUX_ARCH
+			TARGET_ARCH=amd64
 			TARGET_REMOTE=podman-remote-static-linux_amd64
 			;;
 		aarch64|arm)
